@@ -1,0 +1,2778 @@
+File: .gitignore
+Path: 
+Content:
+/build
+-----------------------------------------------------------------------------
+File: build.gradle.kts
+Path: 
+Content:
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    id("kotlin-parcelize")
+}
+
+android {
+    namespace = "io.github.galitach.mathhero"
+    compileSdk = 36
+    kotlin {
+        jvmToolchain(8)
+    }
+    defaultConfig {
+        applicationId = "io.github.galitach.mathhero"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 3
+        versionName = "1.2"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.google.ads)
+    implementation(libs.google.ump)
+    implementation(libs.androidx.recyclerview)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.konfetti.view)
+    implementation(libs.androidx.splashscreen)
+    implementation(libs.google.play.services.oss.licenses)
+}
+-----------------------------------------------------------------------------
+File: MathHero.txt
+Path: 
+Content:
+
+-----------------------------------------------------------------------------
+File: proguard-rules.pro
+Path: 
+Content:
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# --- General Best Practices ---
+-dontobfuscate
+-keepattributes Signature,InnerClasses,EnclosingMethod
+-keep class com.google.android.gms.ads.** { *; }
+-keep class com.google.android.ump.** { *; }
+-keep class nl.dionsegijn.konfetti.** { *; }
+
+# --- Keep Application Entry Points ---
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.view.View {
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public void set*(...);
+}
+
+# --- Keep Kotlin Specifics ---
+-keep class kotlin.coroutines.jvm.internal.DebugMetadataKt
+-dontwarn kotlin.Unit
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
+}
+-keepclassmembers class kotlin.coroutines.jvm.internal.BaseContinuationImpl {
+    private java.lang.Object[] getSpilledStack();
+    private java.lang.String getSpilledStack(int, int);
+}
+
+# --- Parcelize ---
+# This is the most critical rule for Parcelable data classes.
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator CREATOR;
+}
+-keepnames class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+# --- Keep ViewModels and their factories ---
+-keep class androidx.lifecycle.ViewModel { *; }
+-keep class androidx.lifecycle.ViewModelProvider$Factory { *; }
+-keep class * extends androidx.lifecycle.ViewModel
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
+
+# --- Data classes (used for state and models) ---
+# Keep the constructor and all public methods of data classes.
+-keepclassmembers public final class **.data.** {
+    public <init>(...);
+    public final <methods>;
+}
+-----------------------------------------------------------------------------
+File: ExampleInstrumentedTest.kt
+Path: 
+Content:
+package io.github.galitach.mathhero
+
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.ext.junit.runners.AndroidJUnit4
+
+import org.junit.Test
+import org.junit.runner.RunWith
+
+import org.junit.Assert.*
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+        // Context of the app under test.
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("io.github.galitach.mathhero", appContext.packageName)
+    }
+}
+-----------------------------------------------------------------------------
+File: AndroidManifest.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="com.google.android.gms.ads.identifier.AD_ID"/>
+
+    <application
+        android:name=".MathHeroApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.mathhero"
+        tools:targetApi="31">
+        <receiver
+            android:name=".notifications.NotificationActionReceiver"
+            android:enabled="true" />
+        <!-- Sample AdMob App ID. Replace with your own. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9478542207288731~7337817277" />
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.mathhero">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".notifications.NotificationReceiver"
+            android:enabled="true" />
+
+        <receiver
+            android:name=".notifications.BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>
+-----------------------------------------------------------------------------
+File: MathProblem.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.data
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class MathProblem(
+    val id: Int, // Can be based on day of year or random for bonus
+    val question: String,
+    val answer: String,
+    val distractor1: String,
+    val distractor2: String,
+    val difficulty: Int,
+    val explanation: String?
+) : Parcelable
+-----------------------------------------------------------------------------
+File: MathProblemGenerator.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.data
+
+import android.content.Context
+import io.github.galitach.mathhero.R
+import kotlin.random.Random
+
+object MathProblemGenerator {
+
+    fun generateProblem(context: Context, seed: Long): MathProblem {
+        val random = Random(seed)
+        val difficulty = random.nextInt(1, 11) // Difficulty from 1 to 10
+
+        val (question, answer) = when (difficulty) {
+            in 1..2 -> generateAddition(random, 1, 10) // e.g., 5 + 3
+            in 3..4 -> generateSubtraction(random, 1, 20) // e.g., 12 - 7
+            in 5..6 -> generateAddition(random, 10, 50) // e.g., 24 + 19
+            in 7..8 -> generateMultiplication(random, 2, 10) // e.g., 6 * 8
+            else -> generateDivision(random, 2, 10) // e.g., 45 / 5
+        }
+
+        val distractors = generateDistractors(answer, difficulty, random)
+        val explanation = generateExplanation(context, question, answer, random)
+
+        return MathProblem(
+            id = seed.toInt(),
+            question = context.getString(R.string.question_format, question),
+            answer = answer.toString(),
+            distractor1 = distractors.first.toString(),
+            distractor2 = distractors.second.toString(),
+            difficulty = difficulty,
+            explanation = explanation
+        )
+    }
+
+    private fun generateAddition(random: Random, min: Int, max: Int): Pair<String, Int> {
+        val a = random.nextInt(min, max + 1)
+        val b = random.nextInt(min, max + 1)
+        return "$a + $b" to a + b
+    }
+
+    private fun generateSubtraction(random: Random, min: Int, max: Int): Pair<String, Int> {
+        val a = random.nextInt(min, max + 1)
+        val b = random.nextInt(min, a + 1) // Ensure result is not negative
+        return "$a - $b" to a - b
+    }
+
+    private fun generateMultiplication(random: Random, min: Int, max: Int): Pair<String, Int> {
+        val a = random.nextInt(min, max + 1)
+        val b = random.nextInt(min, max + 1)
+        return "$a × $b" to a * b
+    }
+
+    private fun generateDivision(random: Random, min: Int, max: Int): Pair<String, Int> {
+        val b = random.nextInt(min, max + 1)
+        val answer = random.nextInt(min, max + 1)
+        val a = answer * b
+        return "$a ÷ $b" to answer
+    }
+
+    private fun generateDistractors(answer: Int, difficulty: Int, random: Random): Pair<Int, Int> {
+        val distractors = mutableSetOf<Int>()
+        val range = when(difficulty) {
+            in 1..4 -> 5
+            in 5..8 -> 10
+            else -> 15
+        }
+
+        while (distractors.size < 2) {
+            val offset = random.nextInt(-range, range + 1)
+            if (offset == 0) continue
+            val distractor = answer + offset
+            if (distractor >= 0) {
+                distractors.add(distractor)
+            }
+        }
+        return distractors.first() to distractors.last()
+    }
+
+    private fun generateExplanation(context: Context, question: String, answer: Int, random: Random): String {
+        val parts = question.replace(" ", "").split(Regex("[+\\-×÷]"))
+        val num1 = parts[0].toInt()
+        val num2 = parts[1].toInt()
+
+        val explanationTemplates = when {
+            question.contains('+') -> context.resources.getStringArray(R.array.addition_explanations)
+            question.contains('-') -> context.resources.getStringArray(R.array.subtraction_explanations)
+            question.contains('×') -> context.resources.getStringArray(R.array.multiplication_explanations)
+            question.contains('÷') -> context.resources.getStringArray(R.array.division_explanations)
+            else -> return context.getString(R.string.default_explanation, answer)
+        }
+
+        val randomTemplate = explanationTemplates.random(random)
+        return String.format(randomTemplate, num1, num2, answer)
+    }
+}
+-----------------------------------------------------------------------------
+File: MathProblemRepository.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.data
+
+import android.content.Context
+import java.util.Calendar
+import kotlin.random.Random
+
+class MathProblemRepository(
+    private val context: Context,
+    private val prefsManager: SharedPreferencesManager
+) {
+
+    fun getCurrentProblem(): MathProblem {
+        // Use day of year as a seed for a deterministic daily problem
+        val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        return MathProblemGenerator.generateProblem(context, dayOfYear.toLong())
+    }
+
+    fun getBonusProblem(): MathProblem {
+        // Use a random seed for a new, non-deterministic problem
+        return MathProblemGenerator.generateProblem(context, Random.nextLong())
+    }
+
+    fun getArchivedProblems(): List<MathProblem> {
+        return prefsManager.getArchivedProblems()
+    }
+}
+-----------------------------------------------------------------------------
+File: SharedPreferencesManager.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.data
+
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.core.content.edit
+import java.util.Calendar
+
+object SharedPreferencesManager {
+
+    private const val PREFS_NAME = "MathHeroPrefs"
+    private const val KEY_ARCHIVED_PROBLEMS = "archived_math_problems"
+    private const val KEY_STREAK_COUNT = "streak_count"
+    private const val KEY_FREE_BONUS_USED_COUNT = "free_bonus_used_count"
+    private const val KEY_LAST_BONUS_DAY = "last_bonus_day"
+    private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+    private const val MAX_ARCHIVE_SIZE = 7
+    private const val MAX_FREE_BONUS_RIDDLES = 3
+
+    private lateinit var prefs: SharedPreferences
+
+    fun initialize(context: Context) {
+        prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    fun getArchivedProblems(): List<MathProblem> {
+        val problemStrings = prefs.getStringSet(KEY_ARCHIVED_PROBLEMS, emptySet()) ?: emptySet()
+        return problemStrings.mapNotNull { deserializeProblem(it) }.sortedByDescending { it.id }
+    }
+
+    fun addProblemToArchive(problem: MathProblem) {
+        val currentProblems = getArchivedProblems().toMutableList()
+        if (currentProblems.any { it.id == problem.id }) return
+
+        currentProblems.add(0, problem)
+        val updatedProblems = currentProblems.take(MAX_ARCHIVE_SIZE)
+        val problemStrings = updatedProblems.map { serializeProblem(it) }.toSet()
+        prefs.edit { putStringSet(KEY_ARCHIVED_PROBLEMS, problemStrings) }
+    }
+
+    private fun serializeProblem(problem: MathProblem): String {
+        return with(problem) {
+            "$id|$question|$answer|$distractor1|$distractor2|$difficulty|${explanation.orEmpty()}"
+        }
+    }
+
+    private fun deserializeProblem(problemString: String): MathProblem? {
+        return try {
+            val parts = problemString.split('|')
+            MathProblem(
+                id = parts[0].toInt(),
+                question = parts[1],
+                answer = parts[2],
+                distractor1 = parts[3],
+                distractor2 = parts[4],
+                difficulty = parts[5].toInt(),
+                explanation = parts[6].takeIf { it.isNotEmpty() }
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getStreakCount(): Int {
+        return prefs.getInt(KEY_STREAK_COUNT, 0)
+    }
+
+    fun updateStreak(isCorrect: Boolean) {
+        val currentStreak = getStreakCount()
+        val newStreak = if (isCorrect) currentStreak + 1 else 0
+        prefs.edit { putInt(KEY_STREAK_COUNT, newStreak) }
+    }
+
+    private fun getFreeBonusRiddlesUsedToday(): Int {
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        val lastBonusDay = prefs.getInt(KEY_LAST_BONUS_DAY, -1)
+
+        if (today != lastBonusDay) {
+            resetFreeBonusRiddlesUsed()
+            return 0
+        }
+        return prefs.getInt(KEY_FREE_BONUS_USED_COUNT, 0)
+    }
+
+    fun incrementFreeBonusRiddlesUsed() {
+        val currentCount = getFreeBonusRiddlesUsedToday()
+        if (currentCount < MAX_FREE_BONUS_RIDDLES) {
+            prefs.edit { putInt(KEY_FREE_BONUS_USED_COUNT, currentCount + 1) }
+        }
+    }
+
+    fun getFreeBonusRiddlesRemaining(): Int {
+        return (MAX_FREE_BONUS_RIDDLES - getFreeBonusRiddlesUsedToday()).coerceAtLeast(0)
+    }
+
+    fun resetFreeBonusRiddlesUsed() {
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        prefs.edit {
+            putInt(KEY_FREE_BONUS_USED_COUNT, 0)
+            putInt(KEY_LAST_BONUS_DAY, today)
+        }
+    }
+
+    fun areNotificationsEnabled(): Boolean {
+        return prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, false) // Default to false
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled) }
+    }
+}
+-----------------------------------------------------------------------------
+File: BootCompletedReceiver.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.notifications
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+
+class BootCompletedReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            SharedPreferencesManager.initialize(context)
+            if (SharedPreferencesManager.areNotificationsEnabled()) {
+                NotificationScheduler.scheduleDailyNotification(context)
+            }
+        }
+    }
+}
+-----------------------------------------------------------------------------
+File: NotificationActionReceiver.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.notifications
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.Person
+import androidx.core.graphics.drawable.IconCompat
+import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.MathHeroApplication
+import io.github.galitach.mathhero.data.MathProblemRepository
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+
+class NotificationActionReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        val notificationManager = NotificationManagerCompat.from(context)
+        notificationManager.cancel(NotificationReceiver.NOTIFICATION_ID)
+
+        if (intent.action == ACTION_REVEAL) {
+            val repository = MathProblemRepository(context, SharedPreferencesManager)
+            val problem = repository.getCurrentProblem()
+            val answer = problem.answer
+
+            val heroPerson = Person.Builder()
+                .setName(context.getString(R.string.app_name))
+                .setIcon(IconCompat.createWithResource(context, R.drawable.ic_math_hero_logo))
+                .build()
+
+            val answerMessage = NotificationCompat.MessagingStyle.Message(
+                answer,
+                System.currentTimeMillis(),
+                heroPerson
+            )
+
+            val messagingStyle = NotificationCompat.MessagingStyle(heroPerson)
+                .setConversationTitle(context.getString(R.string.notification_answer_title))
+                .addMessage(answerMessage)
+
+            val answerNotification = NotificationCompat.Builder(context, MathHeroApplication.CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification_icon)
+                .setStyle(messagingStyle)
+                .setAutoCancel(true)
+                .build()
+
+            try {
+                notificationManager.notify(ANSWER_NOTIFICATION_ID, answerNotification)
+            } catch (_: SecurityException) {
+                // Fails silently if permissions are revoked.
+            }
+        }
+    }
+
+    companion object {
+        const val ACTION_REVEAL = "io.github.galitach.mathhero.ACTION_REVEAL"
+        const val ACTION_DISMISS = "io.github.galitach.mathhero.ACTION_DISMISS"
+        const val ANSWER_NOTIFICATION_ID = 2
+    }
+}
+-----------------------------------------------------------------------------
+File: NotificationReceiver.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.notifications
+
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.Person
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
+import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.MathHeroApplication
+import io.github.galitach.mathhero.data.MathProblemRepository
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+import io.github.galitach.mathhero.ui.MainActivity
+
+class NotificationReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        val repository = MathProblemRepository(context, SharedPreferencesManager)
+        val problem = repository.getCurrentProblem()
+
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            `package` = context.packageName
+        }
+        val openAppPendingIntent: PendingIntent = PendingIntent.getActivity(
+            context, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val revealIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+            action = NotificationActionReceiver.ACTION_REVEAL
+        }
+        val revealPendingIntent = PendingIntent.getBroadcast(
+            context, 1, revealIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val dismissIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+            action = NotificationActionReceiver.ACTION_DISMISS
+        }
+        val dismissPendingIntent = PendingIntent.getBroadcast(
+            context, 2, dismissIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notificationText = problem.question
+
+        val heroPerson = Person.Builder()
+            .setName(context.getString(R.string.app_name))
+            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_math_hero_logo))
+            .build()
+
+        val message = NotificationCompat.MessagingStyle.Message(
+            notificationText,
+            System.currentTimeMillis(),
+            heroPerson
+        )
+
+        val messagingStyle = NotificationCompat.MessagingStyle(heroPerson)
+            .addMessage(message)
+
+        val builder = NotificationCompat.Builder(context, MathHeroApplication.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification_icon)
+            .setStyle(messagingStyle)
+            .setColor(ContextCompat.getColor(context, R.color.sphinx_gold))
+            .setContentIntent(openAppPendingIntent)
+            .setAutoCancel(true)
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    context.getString(R.string.notification_action_reveal),
+                    revealPendingIntent
+                ).build()
+            )
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    context.getString(R.string.notification_action_solved),
+                    dismissPendingIntent
+                ).build()
+            )
+
+        with(NotificationManagerCompat.from(context)) {
+            try {
+                notify(NOTIFICATION_ID, builder.build())
+            } catch (_: SecurityException) {
+                // Permission might have been revoked.
+            }
+        }
+    }
+
+    companion object {
+        const val NOTIFICATION_ID = 1
+    }
+}
+-----------------------------------------------------------------------------
+File: NotificationScheduler.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.notifications
+
+import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+import java.util.Calendar
+
+object NotificationScheduler {
+
+    fun scheduleDailyNotification(context: Context) {
+        if (!SharedPreferencesManager.areNotificationsEnabled()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Do not schedule if permission is not granted.
+                return
+            }
+        }
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, NotificationReceiver::class.java)
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val isAlarmUp = PendingIntent.getBroadcast(
+            context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+        ) != null
+
+        if (isAlarmUp) {
+            return
+        }
+
+        val calendar: Calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        }
+
+        if (calendar.timeInMillis <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
+    }
+
+    fun cancelDailyNotification(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+        )
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+        }
+    }
+}
+-----------------------------------------------------------------------------
+File: TheDailySphinxApplication.kt
+Path: 
+Content:
+package io.github.galitach.mathhero
+
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+
+class MathHeroApplication : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+        SharedPreferencesManager.initialize(this)
+        createNotificationChannel()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_name)
+            val descriptionText = getString(R.string.notification_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    companion object {
+        const val CHANNEL_ID = "DAILY_RIDDLE_CHANNEL"
+    }
+}
+-----------------------------------------------------------------------------
+File: ArchiveDialogFragment.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui.archive
+
+import android.os.Build
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.data.MathProblem
+import io.github.galitach.mathhero.databinding.DialogArchiveBinding
+
+class ArchiveDialogFragment : DialogFragment() {
+
+    private var _binding: DialogArchiveBinding? = null
+    private val binding get() = _binding!!
+
+    private val archivedProblems: List<MathProblem> by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelableArrayList(ARG_PROBLEMS, MathProblem::class.java) ?: emptyList()
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getParcelableArrayList(ARG_PROBLEMS) ?: emptyList()
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = DialogArchiveBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        binding.toolbar.setNavigationOnClickListener { dismiss() }
+    }
+
+    private fun setupRecyclerView() {
+        binding.archiveRecyclerView.layoutManager = LinearLayoutManager(context)
+        context?.let {
+            binding.archiveRecyclerView.addItemDecoration(DividerItemDecoration(it))
+        }
+
+        if (archivedProblems.isNotEmpty()) {
+            binding.archiveRecyclerView.adapter = ArchiveProblemAdapter(archivedProblems)
+            binding.emptyState.visibility = View.GONE
+            binding.archiveRecyclerView.visibility = View.VISIBLE
+        } else {
+            binding.emptyState.visibility = View.VISIBLE
+            binding.archiveRecyclerView.visibility = View.GONE
+        }
+    }
+
+    override fun getTheme(): Int {
+        return R.style.FullScreenDialog
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        const val TAG = "ArchiveDialogFragment"
+        private const val ARG_PROBLEMS = "arg_problems"
+
+        fun newInstance(problems: List<MathProblem>): ArchiveDialogFragment {
+            return ArchiveDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArrayList(ARG_PROBLEMS, ArrayList(problems))
+                }
+            }
+        }
+    }
+}
+-----------------------------------------------------------------------------
+File: ArchiveProblemAdapter.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui.archive
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.recyclerview.widget.RecyclerView
+import io.github.galitach.mathhero.data.MathProblem
+import io.github.galitach.mathhero.databinding.ItemArchiveProblemBinding
+
+class ArchiveProblemAdapter(private val problems: List<MathProblem>) :
+    RecyclerView.Adapter<ArchiveProblemAdapter.ProblemViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProblemViewHolder {
+        val binding = ItemArchiveProblemBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ProblemViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ProblemViewHolder, position: Int) {
+        holder.bind(problems[position])
+        holder.itemView.alpha = 0f
+        holder.itemView.translationY = 50f
+        holder.itemView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(position * 50L)
+            .setDuration(400)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    override fun getItemCount(): Int = problems.size
+
+    class ProblemViewHolder(private val binding: ItemArchiveProblemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(problem: MathProblem) {
+            binding.problemText.text = problem.question
+            binding.answerText.text = problem.answer
+        }
+    }
+}
+-----------------------------------------------------------------------------
+File: DividerItemDecoration.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui.archive
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
+import androidx.recyclerview.widget.RecyclerView
+import io.github.galitach.mathhero.R
+
+class DividerItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+
+    private val divider: Drawable?
+
+    init {
+        val attrs = intArrayOf(android.R.attr.listDivider)
+        val styledAttributes = context.obtainStyledAttributes(attrs)
+        try {
+            divider = styledAttributes.getDrawable(0)
+        } finally {
+            styledAttributes.recycle()
+        }
+    }
+
+    override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        divider?.let {
+            val left = parent.paddingLeft + (parent.context.resources.getDimension(R.dimen.archive_divider_margin))
+            val right = parent.width - parent.paddingRight - (parent.context.resources.getDimension(R.dimen.archive_divider_margin))
+
+            for (i in 0 until parent.childCount - 1) {
+                val child = parent.getChildAt(i)
+                val params = child.layoutParams as RecyclerView.LayoutParams
+                val top = child.bottom + params.bottomMargin
+                val bottom = top + it.intrinsicHeight
+                it.setBounds(left.toInt(), top, right.toInt(), bottom)
+                it.draw(c)
+            }
+        }
+    }
+}
+-----------------------------------------------------------------------------
+File: MainActivity.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui
+
+import android.Manifest
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.content.SharedPreferences
+import android.media.MediaPlayer
+import android.os.Build
+import android.os.Bundle
+import android.view.HapticFeedbackConstants
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import androidx.core.net.toUri
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.children
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
+import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+import io.github.galitach.mathhero.databinding.ActivityMainBinding
+import io.github.galitach.mathhero.notifications.NotificationScheduler
+import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
+import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels { MainViewModelFactory }
+
+    private lateinit var consentInformation: ConsentInformation
+    private val isMobileAdsInitializeCalled = AtomicBoolean(false)
+
+    private var bonusProblemRewardedAd: RewardedAd? = null
+
+    private lateinit var prefs: SharedPreferences
+    private var mediaPlayer: MediaPlayer? = null
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                enableNotifications(true)
+            } else {
+                enableNotifications(false)
+                Toast.makeText(this, getString(R.string.notifications_disabled_toast), Toast.LENGTH_LONG).show()
+            }
+        }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
+        setupClickListeners()
+        prefs = getSharedPreferences("main_prefs", MODE_PRIVATE)
+        mediaPlayer = MediaPlayer.create(this, R.raw.riddle_complete)
+
+
+        handleFirstLaunch()
+        setupConsentAndAds()
+        observeUiState()
+        animateContentIn()
+    }
+
+    private fun animateContentIn() {
+        binding.mainContent.alpha = 0f
+        binding.mainContent.translationY = 50f
+        binding.mainContent.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setStartDelay(300)
+            .setDuration(500)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    private fun setupConsentAndAds() {
+        val params = ConsentRequestParameters.Builder().build()
+        consentInformation = UserMessagingPlatform.getConsentInformation(this)
+        consentInformation.requestConsentInfoUpdate(
+            this,
+            params,
+            { UserMessagingPlatform.loadAndShowConsentFormIfRequired(this) { _ ->
+                if (consentInformation.canRequestAds()) initializeMobileAds()
+            }
+            },
+            { }
+        )
+        if (consentInformation.canRequestAds()) initializeMobileAds()
+    }
+
+    private fun initializeMobileAds() {
+        if (isMobileAdsInitializeCalled.getAndSet(true)) return
+        MobileAds.initialize(this) {
+            loadBannerAd()
+            loadBonusProblemRewardedAd()
+        }
+    }
+
+    private fun handleFirstLaunch() {
+        val isFirstLaunch = prefs.getBoolean("isFirstLaunch", true)
+        if (isFirstLaunch) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_message)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    prefs.edit { putBoolean("isFirstLaunch", false) }
+                    dialog.dismiss()
+                    showNotificationPrimerDialog()
+                }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    private fun showNotificationPrimerDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.notification_primer_title)
+            .setMessage(R.string.notification_primer_message)
+            .setPositiveButton(R.string.notification_primer_positive) { dialog, _ ->
+                dialog.dismiss()
+                requestNotificationPermission()
+            }
+            .setNegativeButton(R.string.notification_primer_negative) { dialog, _ ->
+                enableNotifications(false)
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            enableNotifications(true)
+        }
+    }
+
+    private fun enableNotifications(enabled: Boolean) {
+        SharedPreferencesManager.setNotificationsEnabled(enabled)
+        if (enabled) {
+            NotificationScheduler.scheduleDailyNotification(this)
+        } else {
+            NotificationScheduler.cancelDailyNotification(this)
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
+        binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
+        binding.bonusRiddleButton.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            if (viewModel.uiState.value.freeBonusRiddlesRemaining > 0) {
+                viewModel.onBonusProblemRequested()
+            } else {
+                showBonusProblemRewardedAd()
+            }
+        }
+        binding.buttonInfo.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            showExplanation()
+        }
+        binding.multipleChoiceGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                group.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                val checkedButton = group.findViewById<MaterialButton>(checkedId)
+                viewModel.onMultipleChoiceAnswerSelected(checkedButton.text.toString())
+            } else {
+                if (group.checkedButtonId == View.NO_ID) {
+                    viewModel.onAnswerSelectionCleared()
+                }
+            }
+        }
+    }
+    private fun showExplanation() {
+        viewModel.uiState.value.problem?.explanation?.let { explanation ->
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.explanation_title)
+                .setMessage(explanation)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+    }
+    private fun observeUiState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.map { it.problem?.id }.distinctUntilChanged().collect {
+                        resetMultipleChoiceButtonStates()
+                    }
+                }
+
+                viewModel.uiState.collect { state ->
+                    binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
+                    binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
+
+                    updateVisibility(binding.preAnswerActionsContainer, !state.isAnswerRevealed)
+                    updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed)
+                    updateVisibility(binding.buttonInfo, state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty())
+
+                    val isAnswerSelected = state.selectedAnswer != null
+                    binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
+
+                    updateBonusButton(state.freeBonusRiddlesRemaining, state.isBonusRewardedAdLoaded)
+
+                    if (state.streakCount > 0) {
+                        binding.streakCounter.text = state.streakCount.toString()
+                        binding.streakCounter.visibility = View.VISIBLE
+                        binding.streakIcon.visibility = View.VISIBLE
+                    } else {
+                        binding.streakCounter.visibility = View.GONE
+                        binding.streakIcon.visibility = View.GONE
+                    }
+
+                    if (state.triggerWinAnimation) {
+                        triggerWinEffects()
+                        viewModel.onWinAnimationComplete()
+                    }
+
+                    if (!state.isAnswerRevealed) {
+                        binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>()
+                            .forEachIndexed { index, button ->
+                                button.text = state.shuffledAnswers.getOrNull(index) ?: ""
+                            }
+                    }
+
+                    if (state.isAnswerRevealed) {
+                        highlightMultipleChoiceAnswers(state)
+                    } else {
+                        updateMultipleChoiceSelection(state)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateBonusButton(remaining: Int, isAdLoaded: Boolean) {
+        if (remaining > 0) {
+            binding.bonusRiddleButton.text = resources.getQuantityString(R.plurals.bonus_problem_free_remaining, remaining, remaining)
+            binding.bonusRiddleButton.icon = null
+            binding.bonusRiddleButton.isEnabled = true
+        } else {
+            binding.bonusRiddleButton.setText(R.string.bonus_problem_ad)
+            binding.bonusRiddleButton.setIconResource(R.drawable.ic_bonus_riddle)
+            binding.bonusRiddleButton.isEnabled = isAdLoaded
+        }
+    }
+
+    private fun triggerWinEffects() {
+        mediaPlayer?.start()
+        val party = Party(
+            speed = 0f,
+            maxSpeed = 30f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0xfab042, 0xf4d36b, 0x5e4200),
+            emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
+            position = Position.Relative(0.5, 0.3)
+        )
+        binding.konfettiView.start(party)
+    }
+
+    private fun highlightMultipleChoiceAnswers(state: UiState) {
+        if (!state.isAnswerRevealed) return
+        val correctAnswer = state.problem?.answer
+        binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>().forEach { button ->
+            button.isEnabled = false
+            when {
+                button.text == correctAnswer -> {
+                    button.setStrokeColorResource(R.color.correct_green)
+                    button.strokeWidth = 4
+                }
+                button.text == state.selectedAnswer && state.selectedAnswer != correctAnswer -> {
+                    button.setStrokeColorResource(R.color.incorrect_red)
+                    button.strokeWidth = 4
+                }
+                else -> {
+                    button.strokeWidth = 2
+                    button.alpha = 0.5f
+                }
+            }
+        }
+    }
+
+    private fun updateMultipleChoiceSelection(state: UiState) {
+        if (state.isAnswerRevealed) return
+        binding.multipleChoiceGroup.isEnabled = true
+        val selectedButton = binding.multipleChoiceGroup.children
+            .filterIsInstance<MaterialButton>()
+            .find { it.text == state.selectedAnswer }
+
+        if (selectedButton != null && binding.multipleChoiceGroup.checkedButtonId != selectedButton.id) {
+            binding.multipleChoiceGroup.check(selectedButton.id)
+        } else if (state.selectedAnswer == null && binding.multipleChoiceGroup.checkedButtonId != View.NO_ID) {
+            binding.multipleChoiceGroup.clearChecked()
+        }
+    }
+
+    private fun resetMultipleChoiceButtonStates() {
+        binding.multipleChoiceGroup.clearChecked()
+        binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>().forEach { button ->
+            button.strokeWidth = 2
+            button.setStrokeColorResource(R.color.colorOutline)
+            button.alpha = 1.0f
+        }
+    }
+
+    private fun updateVisibility(view: View, isVisible: Boolean) {
+        val currentVisibility = view.isVisible
+        if (currentVisibility == isVisible) return
+
+        if (isVisible) {
+            view.alpha = 0f
+            view.visibility = View.VISIBLE
+            view.animate().alpha(1f).setDuration(300).start()
+        } else {
+            view.animate().alpha(0f).setDuration(300).withEndAction {
+                view.visibility = View.GONE
+            }.start()
+        }
+    }
+
+    private fun shareProblem() {
+        viewModel.uiState.value.problem?.question?.let { problemText ->
+            val appName = getString(R.string.app_name)
+            val playStoreUrl = "https://play.google.com/store/apps/details?id=$packageName"
+            val shareText = if (viewModel.uiState.value.isAnswerRevealed) {
+                getString(R.string.share_solved_format, problemText, appName, playStoreUrl)
+            } else {
+                getString(R.string.share_unsolved_format, appName, problemText, playStoreUrl)
+            }
+
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, shareText)
+                type = "text/plain"
+            }
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_problem_title)))
+        }
+    }
+
+    private fun loadBannerAd() = binding.adView.loadAd(AdRequest.Builder().build())
+
+    private fun loadBonusProblemRewardedAd() {
+        viewModel.setBonusRewardedAdLoaded(false)
+        RewardedAd.load(this, "ca-app-pub-9478542207288731/5366846785", AdRequest.Builder().build(),
+            object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    bonusProblemRewardedAd = ad
+                    viewModel.setBonusRewardedAdLoaded(true)
+                }
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    bonusProblemRewardedAd = null
+                    viewModel.setBonusRewardedAdLoaded(false)
+                }
+            })
+    }
+
+    private fun showBonusProblemRewardedAd() {
+        bonusProblemRewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                bonusProblemRewardedAd = null
+                loadBonusProblemRewardedAd()
+            }
+        }
+        bonusProblemRewardedAd?.show(this) {
+            viewModel.onBonusAdRewardEarned()
+        } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openStoreForRating() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
+        } catch (_: ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW,
+                "https://play.google.com/store/apps/details?id=$packageName".toUri()))
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_archive -> {
+                val dialog = ArchiveDialogFragment.newInstance(viewModel.uiState.value.archivedProblems)
+                dialog.show(supportFragmentManager, ArchiveDialogFragment.TAG)
+                true
+            }
+            R.id.action_rate_app -> {
+                openStoreForRating()
+                true
+            }
+            R.id.action_settings -> {
+                SettingsDialogFragment().show(supportFragmentManager, SettingsDialogFragment.TAG)
+                true
+            }
+            R.id.action_licenses -> {
+                startActivity(Intent(this, OssLicensesMenuActivity::class.java))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+}
+-----------------------------------------------------------------------------
+File: MainViewModel.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import io.github.galitach.mathhero.data.MathProblem
+import io.github.galitach.mathhero.data.MathProblemRepository
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+data class UiState(
+    val problem: MathProblem? = null,
+    val showMultipleChoice: Boolean = true,
+    val shuffledAnswers: List<String> = emptyList(),
+    val selectedAnswer: String? = null,
+    val isAnswerRevealed: Boolean = false,
+    val archivedProblems: List<MathProblem> = emptyList(),
+    val isBonusRewardedAdLoaded: Boolean = false,
+    val streakCount: Int = 0,
+    val triggerWinAnimation: Boolean = false,
+    val freeBonusRiddlesRemaining: Int = 0
+)
+
+class MainViewModel(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
+
+    private val repository: MathProblemRepository
+
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
+        repository = MathProblemRepository(application, SharedPreferencesManager)
+        loadInitialState(repository.getCurrentProblem())
+    }
+
+    private fun loadInitialState(problem: MathProblem?) {
+        val shuffledAnswers = savedStateHandle.get<List<String>>(KEY_SHUFFLED_ANSWERS) ?:
+        problem?.let { listOf(it.answer, it.distractor1, it.distractor2).shuffled() } ?: emptyList()
+
+        _uiState.value = UiState(
+            problem = problem,
+            shuffledAnswers = shuffledAnswers,
+            selectedAnswer = savedStateHandle.get<String>(KEY_SELECTED_ANSWER),
+            isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
+            archivedProblems = repository.getArchivedProblems(),
+            streakCount = SharedPreferencesManager.getStreakCount(),
+            freeBonusRiddlesRemaining = SharedPreferencesManager.getFreeBonusRiddlesRemaining()
+        )
+    }
+
+    fun onMultipleChoiceAnswerSelected(answer: String) {
+        if (_uiState.value.isAnswerRevealed) return
+        _uiState.update { it.copy(selectedAnswer = answer) }
+        savedStateHandle[KEY_SELECTED_ANSWER] = answer
+    }
+
+    fun onAnswerSelectionCleared() {
+        if (_uiState.value.isAnswerRevealed) return
+        _uiState.update { it.copy(selectedAnswer = null) }
+        savedStateHandle[KEY_SELECTED_ANSWER] = null
+    }
+
+    fun onConfirmAnswerClicked() {
+        val state = _uiState.value
+        val problem = state.problem
+        if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return
+
+        val isCorrect = state.selectedAnswer == problem.answer
+        SharedPreferencesManager.updateStreak(isCorrect)
+        SharedPreferencesManager.addProblemToArchive(problem)
+
+        _uiState.update {
+            it.copy(
+                isAnswerRevealed = true,
+                streakCount = SharedPreferencesManager.getStreakCount(),
+                triggerWinAnimation = isCorrect,
+                archivedProblems = repository.getArchivedProblems()
+            )
+        }
+        savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
+    }
+
+    fun onBonusProblemRequested() {
+        if (SharedPreferencesManager.getFreeBonusRiddlesRemaining() > 0) {
+            SharedPreferencesManager.incrementFreeBonusRiddlesUsed()
+            loadBonusProblem()
+        }
+    }
+
+    fun onBonusAdRewardEarned() {
+        loadBonusProblem()
+    }
+
+    private fun loadBonusProblem() {
+        val bonusProblem = repository.getBonusProblem()
+        loadNewProblem(bonusProblem)
+    }
+
+    private fun loadNewProblem(problem: MathProblem?) {
+        problem?.let {
+            val shuffledAnswers = listOf(it.answer, it.distractor1, it.distractor2).shuffled()
+            _uiState.update {
+                it.copy(
+                    problem = problem,
+                    shuffledAnswers = shuffledAnswers,
+                    selectedAnswer = null,
+                    isAnswerRevealed = false,
+                    triggerWinAnimation = false,
+                    freeBonusRiddlesRemaining = SharedPreferencesManager.getFreeBonusRiddlesRemaining()
+                )
+            }
+            savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
+        }
+    }
+
+    fun onWinAnimationComplete() {
+        _uiState.update { it.copy(triggerWinAnimation = false) }
+    }
+
+    fun setBonusRewardedAdLoaded(isLoaded: Boolean) {
+        _uiState.update { it.copy(isBonusRewardedAdLoaded = isLoaded) }
+    }
+
+    companion object {
+        private const val KEY_SHUFFLED_ANSWERS = "shuffled_answers"
+        private const val KEY_SELECTED_ANSWER = "selected_answer"
+        private const val KEY_IS_ANSWER_REVEALED = "is_answer_revealed"
+    }
+}
+-----------------------------------------------------------------------------
+File: MainViewModelFactory.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui
+
+import android.app.Application
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
+
+object MainViewModelFactory : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(
+        modelClass: Class<T>,
+        extras: CreationExtras
+    ): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                ?: throw IllegalStateException("Application is required for this ViewModel")
+            val savedStateHandle = extras.createSavedStateHandle()
+            return MainViewModel(application, savedStateHandle) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+    }
+}
+-----------------------------------------------------------------------------
+File: SettingsDialogFragment.kt
+Path: 
+Content:
+package io.github.galitach.mathhero.ui.settings
+
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import com.google.android.material.snackbar.Snackbar
+import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.data.SharedPreferencesManager
+import io.github.galitach.mathhero.databinding.DialogSettingsBinding
+import io.github.galitach.mathhero.notifications.NotificationScheduler
+
+class SettingsDialogFragment : DialogFragment() {
+
+    private var _binding: DialogSettingsBinding? = null
+    private val binding get() = _binding!!
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                enableNotifications(true)
+            } else {
+                binding.notificationSwitch.isChecked = false
+                showPermissionSnackbar()
+            }
+        }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = DialogSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.toolbar.setNavigationOnClickListener { dismiss() }
+        setupSwitch()
+    }
+
+    private fun setupSwitch() {
+        binding.notificationSwitch.isChecked = SharedPreferencesManager.areNotificationsEnabled()
+        binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                requestNotificationPermission()
+            } else {
+                enableNotifications(false)
+            }
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    enableNotifications(true)
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    showPermissionSnackbar()
+                    binding.notificationSwitch.isChecked = false
+                }
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            enableNotifications(true)
+        }
+    }
+
+    private fun enableNotifications(enabled: Boolean) {
+        SharedPreferencesManager.setNotificationsEnabled(enabled)
+        if (enabled) {
+            NotificationScheduler.scheduleDailyNotification(requireContext())
+        } else {
+            NotificationScheduler.cancelDailyNotification(requireContext())
+        }
+    }
+
+    private fun showPermissionSnackbar() {
+        Snackbar.make(binding.root, R.string.notification_permission_required, Snackbar.LENGTH_LONG)
+            .setAction(R.string.action_settings) {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", requireContext().packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            .show()
+    }
+
+    override fun getTheme(): Int {
+        return R.style.FullScreenDialog
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        const val TAG = "SettingsDialogFragment"
+    }
+}
+-----------------------------------------------------------------------------
+File: bg_main_texture.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="?attr/colorSurface" />
+    <item>
+        <bitmap
+            android:alpha="0.05"
+            android:src="@drawable/noise_texture"
+            android:tileMode="repeat" />
+    </item>
+</layer-list>
+-----------------------------------------------------------------------------
+File: ic_archive.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3,3h18v2L3,5v0zM4,7h16v12L4,19v0zM9,11v2h6v-2L9,11z"
+        android:strokeAlpha="0.8"
+        android:fillAlpha="0.8"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_bonus_riddle.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnPrimary">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M17.5,12h-2.5v-2.5c0,-0.55 -0.45,-1 -1,-1s-1,0.45 -1,1V12h-2.5c-0.55,0 -1,0.45 -1,1s0.45,1 1,1H11v2.5c0,0.55 0.45,1 1,1s1,-0.45 1,-1V14h2.5c0.55,0 1,-0.45 1,-1s-0.45,-1 -1,-1zM19,2H5c-1.11,0 -2,0.9 -2,2v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2V4c0,-1.1 -0.9,-2 -2,-2zM19,18H5V4h14v14z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_close.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_empty_archive.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface"
+    android:alpha="0.6">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M20.5,11H19V7c0,-1.1 -0.9,-2 -2,-2h-4c-1.1,0 -2,0.9 -2,2v1.5c-0.83,0 -1.5,0.67 -1.5,1.5v1c0,0.83 0.67,1.5 1.5,1.5V17c0,1.1 0.9,2 2,2h4c1.1,0 2,-0.9 2,-2v-4h1.5c0.83,0 1.5,-0.67 1.5,-1.5v-1c0,-0.83 -0.67,-1.5 -1.5,-1.5zM17,17h-4V7h4v10zM3.5,11H5v4c0,1.1 0.9,2 2,2h4v-1.5c-0.83,0 -1.5,-0.67 -1.5,-1.5v-1c0,-0.83 0.67,-1.5 1.5,-1.5V7c0,-1.1 -0.9,-2 -2,-2H7c-1.1,0 -2,0.9 -2,2v4H3.5c-0.83,0 -1.5,0.67 -1.5,1.5v1c0,0.83 0.67,1.5 1.5,1.5z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_info.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8zM11,7h2v2h-2zM11,11h2v6h-2z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_launcher_background.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    android:height="108dp"
+    android:width="108dp"
+    android:viewportHeight="108"
+    android:viewportWidth="108"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#3DDC84"
+          android:pathData="M0,0h108v108h-108z"/>
+    <path android:fillColor="#00000000" android:pathData="M9,0L9,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,0L19,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M29,0L29,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M39,0L39,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M49,0L49,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M59,0L59,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M69,0L69,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M79,0L79,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M89,0L89,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M99,0L99,108"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,9L108,9"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,19L108,19"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,29L108,29"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,39L108,39"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,49L108,49"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,59L108,59"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,69L108,69"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,79L108,79"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,89L108,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M0,99L108,99"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,29L89,29"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,39L89,39"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,49L89,49"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,59L89,59"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,69L89,69"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M19,79L89,79"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M29,19L29,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M39,19L39,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M49,19L49,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M59,19L59,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M69,19L69,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+    <path android:fillColor="#00000000" android:pathData="M79,19L79,89"
+          android:strokeColor="#33FFFFFF" android:strokeWidth="0.8"/>
+</vector>
+
+-----------------------------------------------------------------------------
+File: ic_launcher_foreground.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="85.84757"
+                android:endY="92.4963"
+                android:startX="42.9492"
+                android:startY="49.59793"
+                android:type="linear">
+                <item
+                    android:color="#44000000"
+                    android:offset="0.0" />
+                <item
+                    android:color="#00000000"
+                    android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
+        android:strokeWidth="1"
+        android:strokeColor="#00000000" />
+</vector>
+-----------------------------------------------------------------------------
+File: ic_notification_icon.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8zM11,16h2v-2h-2v2zM12,13c0.55,0 1,-0.45 1,-1V8c0,-0.55 -0.45,-1 -1,-1s-1,0.45 -1,1v4c0,0.55 0.45,1 1,1z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_play_video.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorPrimary">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M8,5v14l11,-7z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: ic_share.xml
+Path: 
+Content:
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M18,16.08c-0.76,0 -1.44,0.3 -1.96,0.77L8.91,12.7c0.05,-0.23 0.09,-0.46 0.09,-0.7s-0.04,-0.47 -0.09,-0.7l7.05,-4.11c0.54,0.5 1.25,0.81 2.04,0.81 1.66,0 3,-1.34 3,-3s-1.34,-3 -3,-3 -3,1.34 -3,3c0,0.24 0.04,0.47 0.09,0.7L8.04,9.81C7.5,9.31 6.79,9 6,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3c0.79,0 1.5,-0.31 2.04,-0.81l7.12,4.16c-0.05,0.21 -0.08,0.43 -0.08,0.65 0,1.66 1.34,3 3,3s3,-1.34 3,-3 -1.34,-3 -3,-3z"/>
+</vector>
+-----------------------------------------------------------------------------
+File: noise_texture.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@android:drawable/screen_background_dark"
+    android:tileMode="repeat"
+    android:dither="true" />
+-----------------------------------------------------------------------------
+File: merriweather.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font
+        app:fontStyle="normal"
+        app:fontWeight="400"
+        app:font="@font/merriweather_regular" />
+    <font
+        app:fontStyle="normal"
+        app:fontWeight="700"
+        app:font="@font/merriweather_bold" />
+</font-family>
+-----------------------------------------------------------------------------
+File: montserrat.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font
+        app:fontStyle="normal"
+        app:fontWeight="400"
+        app:font="@font/montserrat_regular" />
+    <font
+        app:fontStyle="normal"
+        app:fontWeight="700"
+        app:font="@font/montserrat_bold" />
+</font-family>
+-----------------------------------------------------------------------------
+File: activity_main.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/app_name">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingEnd="16dp"
+                tools:ignore="RtlSymmetry">
+
+                <ImageView
+                    android:id="@+id/streak_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/streak_counter_description"
+                    android:src="@drawable/ic_streak_flame"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/streak_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorPrimary"
+                    android:visibility="gone"
+                    tools:text="7"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/bottom_actions_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/problemText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceHeadline5"
+                app:layout_constraintBottom_toTopOf="@+id/difficulty_rating"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="15 + 8 = ?" />
+
+            <RatingBar
+                android:id="@+id/difficulty_rating"
+                style="?android:attr/ratingBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:isIndicator="true"
+                android:numStars="10"
+                android:stepSize="1"
+                android:theme="@style/RatingBar"
+                app:layout_constraintBottom_toTopOf="@+id/multipleChoiceGroup"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/problemText"
+                tools:rating="3" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/multipleChoiceGroup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/difficulty_rating"
+                app:singleSelection="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_1"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="21" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_2"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="23" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_3"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="25" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:id="@+id/bottom_actions_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@id/ad_view_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <FrameLayout
+            android:id="@+id/pre_answer_actions_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonConfirmAnswer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm_answer"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/post_answer_actions_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bonusRiddleButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="@string/bonus_problem_ad" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonInfo"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/explanation_title"
+                app:icon="@drawable/ic_info" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonShare"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:contentDescription="@string/share_problem_title"
+                app:icon="@drawable/ic_share" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/ad_view_container"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-9478542207288731/6432516442" />
+    </FrameLayout>
+
+    <nl.dionsegijn.konfetti.xml.KonfettiView
+        android:id="@+id/konfettiView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------------------------------------------
+File: dialog_archive.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="?attr/colorSurface">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_close"
+            app:title="@string/archive_title" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/archive_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        tools:listitem="@layout/item_archive_problem" />
+
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:src="@drawable/ic_empty_archive"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/archive_empty"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+-----------------------------------------------------------------------------
+File: dialog_settings.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_close"
+            app:title="@string/settings" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/notification_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/enable_daily_problem_notification"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+</LinearLayout>
+-----------------------------------------------------------------------------
+File: item_archive_problem.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/problem_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            tools:text="15 + 8 = ?" />
+
+        <TextView
+            android:id="@+id/answer_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="?attr/colorPrimary"
+            tools:text="23" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+-----------------------------------------------------------------------------
+File: main_menu.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_archive"
+        android:icon="@drawable/ic_archive"
+        android:title="@string/archive"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_rate_app"
+        android:title="@string/rate_app"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_licenses"
+        android:title="@string/open_source_licenses"
+        app:showAsAction="never" />
+</menu>
+-----------------------------------------------------------------------------
+File: ic_launcher.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+-----------------------------------------------------------------------------
+File: ic_launcher_round.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+</adaptive-icon>
+-----------------------------------------------------------------------------
+File: colors.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Palette -->
+    <color name="sphinx_gold">#C2A661</color>
+    <color name="parchment">#FDF8EC</color>
+    <color name="dark_slate">#141218</color>
+    <color name="off_white">#E8E2D5</color>
+    <color name="soft_gold">#E1C28C</color>
+
+    <!-- Light Theme Material 3 Colors -->
+    <color name="colorPrimary">#765B22</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#FFDEAD</color>
+    <color name="colorOnPrimaryContainer">#291800</color>
+    <color name="colorSecondary">#6A5D3F</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#F3E1BB</color>
+    <color name="colorOnSecondaryContainer">#241A04</color>
+    <color name="colorTertiary">#496546</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorTertiaryContainer">#CBEBC3</color>
+    <color name="colorOnTertiaryContainer">#062108</color>
+    <color name="colorError">#BA1A1A</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#FFDAD6</color>
+    <color name="colorOnErrorContainer">#410002</color>
+    <color name="colorBackground">@color/parchment</color>
+    <color name="colorOnBackground">#1E1B13</color>
+    <color name="colorSurface">@color/parchment</color>
+    <color name="colorOnSurface">#1E1B13</color>
+    <color name="colorSurfaceVariant">#EDE1CF</color>
+    <color name="colorOnSurfaceVariant">#4D4639</color>
+    <color name="colorOutline">#7F7667</color>
+    <color name="colorInverseOnSurface">#F8EFE2</color>
+    <color name="colorInverseSurface">#343027</color>
+    <color name="colorInversePrimary">@color/soft_gold</color>
+
+    <!-- State Colors -->
+    <color name="correct_green">#4CAF50</color>
+    <color name="incorrect_red">#F44336</color>
+</resources>
+-----------------------------------------------------------------------------
+File: dimens.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="archive_divider_margin">16dp</dimen>
+</resources>
+-----------------------------------------------------------------------------
+File: strings.xml
+Path: 
+Content:
+<resources>
+    <string name="app_name">Math Hero</string>
+    <string name="share_problem_title">Share Problem</string>
+    <string name="archive">Archive</string>
+    <string name="no_problem_available">No math problem available. Please check back tomorrow.</string>
+    <string name="disclaimer_title">Welcome to Math Hero</string>
+    <string name="disclaimer_message">Welcome to Math Hero! Our goal is to make learning math fun. Enjoy your daily challenge!</string>
+    <string name="notification_channel_name">Daily Math Problems</string>
+    <string name="notification_channel_description">Receive a notification for your math problem of the day.</string>
+    <string name="notification_title">Your daily math challenge awaits!</string>
+    <string name="notification_text">Tap to solve today\'s math problem.</string>
+    <string name="notifications_disabled_toast">Notifications disabled. You can enable them in app settings.</string>
+    <string name="archive_title">Past Problems</string>
+    <string name="close">Close</string>
+    <string name="archive_empty">The archive is empty. Solved problems will appear here!</string>
+    <string name="rate_app">Rate App</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy_text">This app, Math Hero, is a standalone application that does not collect, store, or share any personal user data. All problems are self-contained within the app.\n\nThird-party services:\n- Google AdMob: To support the app, we use Google AdMob for advertising. AdMob may collect data to provide personalized ads. For more information, please see Google\'s Privacy Policy.\n- Google Play Services: The app may use Google Play Services for core functionalities.\n\nBy using this app, you consent to this policy.</string>
+    <string name="streak_counter_description">Daily streak counter</string>
+    <string name="bonus_problem_ad">Bonus Problem (Ad)</string>
+    <plurals name="bonus_problem_free_remaining">
+        <item quantity="one">Bonus Problem (%d Free)</item>
+        <item quantity="other">Bonus Problems (%d Free)</item>
+    </plurals>
+    <string name="confirm_answer">Confirm Answer</string>
+    <string name="notification_action_reveal">Reveal Answer</string>
+    <string name="notification_action_solved">I Solved It!</string>
+    <string name="notification_answer_title">The answer is…</string>
+    <string name="settings">Settings</string>
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="enable_daily_problem_notification">Enable daily math problem notification</string>
+    <string name="notification_permission_required">Notification permission is required. Please enable it in settings to receive daily problems.</string>
+    <string name="action_settings">Settings</string>
+    <plurals name="free_bonus_problems_available">
+        <item quantity="one">%d free bonus problem available</item>
+        <item quantity="other">%d free bonus problems available</item>
+    </plurals>
+    <string name="explanation_title">Explanation</string>
+
+    <string name="notification_primer_title">Daily Math Challenge</string>
+    <string name="notification_primer_message">Would you like to receive a notification for your new math problem each day? You can change this at any time in the settings.</string>
+    <string name="notification_primer_positive">Yes, please!</string>
+    <string name="notification_primer_negative">Maybe later</string>
+
+    <string name="bonus_problem_not_available">Bonus problem not available. Please try again later.</string>
+    <string name="share_solved_format">I solved it! Can you?\n\n\"%1$s\"\n\nTest your skills with %2$s: %3$s</string>
+    <string name="share_unsolved_format">Can you solve this problem from %1$s?\n\n\"%2$s\"\n\nGet your daily challenge: %3$s</string>
+    <string name="question_format">%1$s = ?</string>
+    <string name="default_explanation">The correct answer is %1$d.</string>
+
+    <string-array name="addition_explanations">
+        <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>
+        <item>Imagine you have %1$d blocks. If you add %2$d more blocks, you will have a total of %3$d blocks. Great job!</item>
+        <item>Starting at %1$d and counting up %2$d more steps on a number line lands you right on %3$d. That\'s the answer!</item>
+        <item>When you combine a group of %1$d with a group of %2$d, the new, bigger group has %3$d things in it.</item>
+        <item>Adding is like putting things together. So, %1$d plus %2$d makes %3$d.</item>
+        <item>If a superhero has %1$d powers and learns %2$d new ones, they now have %3$d amazing powers!</item>
+        <item>You found %1$d shiny rocks, and your friend gave you %2$d more. Now you have a collection of %3$d rocks!</item>
+        <item>A plant was %1$d inches tall. After some sunshine and water, it grew %2$d more inches. Now it\'s %3$d inches tall!</item>
+        <item>Let\'s use our fingers! Count %1$d fingers, then count %2$d more. All together, you have %3$d fingers up.</item>
+        <item>A bus has %1$d people on it. At the next stop, %2$d more people get on. The bus is now carrying %3$d people.</item>
+        <item>If you read %1$d pages of a book yesterday and %2$d pages today, you have read %3$d pages in total.</item>
+        <item>A recipe needs %1$d cups of flour and %2$d cups of sugar. The total amount of dry ingredients is %3$d cups.</item>
+        <item>You have %1$d stickers, and you win %2$d more. Your sticker book now has %3$d awesome stickers!</item>
+        <item>Two teams are playing. One team scores %1$d points, and the other scores %2$d points. The total score is %3$d points.</item>
+        <item>Think of it as climbing a ladder. You climb %1$d steps, take a break, and then climb %2$d more. You\'ve climbed %3$d steps!</item>
+        <item>A cat has %1$d toys and its owner buys %2$d new ones. The lucky cat now has %3$d toys to play with.</item>
+        <item>In a video game, you collected %1$d coins in one level and %2$d in the next. Your total is %3$d coins!</item>
+        <item>A puzzle has two sections. One has %1$d pieces, and the other has %2$d pieces. The whole puzzle has %3$d pieces.</item>
+        <item>If you save %1$d dollars and then earn %2$d more, your piggy bank will have %3$d dollars inside.</item>
+        <item>Combining %1$d and %2$d is like merging two small streams into a big river. The result is a mighty %3$d!</item>
+    </string-array>
+
+    <string-array name="subtraction_explanations">
+        <item>Subtracting %2$d from %1$d means you start with %1$d items and take %2$d away. You are left with %3$d.</item>
+        <item>If you have %1$d cookies and eat %2$d of them, you will have %3$d cookies left. Yum!</item>
+        <item>On a number line, if you start at %1$d and move back %2$d spaces, you will land on %3$d.</item>
+        <item>The difference between %1$d and %2$d is %3$d. It\'s what\'s left when you take the smaller number from the bigger one.</item>
+        <item>Taking away %2$d from %1$d leaves you with %3$d. It\'s like reverse adding!</item>
+        <item>A superhero fought %1$d villains and defeated %2$d of them. There are %3$d villains left to catch!</item>
+        <item>You have %1$d balloons, but %2$d of them pop! Oh no! You now have %3$d balloons.</item>
+        <item>A tree had %1$d apples. If %2$d apples fall to the ground, there are still %3$d apples on the tree.</item>
+        <item>You start with %1$d pieces of candy and share %2$d with your friends. You get to keep %3$d pieces for yourself.</item>
+        <item>A spaceship is on a %1$d-day mission. If %2$d days have already passed, there are %3$d days left in the mission.</item>
+        <item>If a book has %1$d pages and you have already read %2$d of them, you only have %3$d pages left to read.</item>
+        <item>You have %1$d dollars and you spend %2$d on a toy. You will have %3$d dollars remaining.</item>
+        <item>A tower made of %1$d blocks has %2$d blocks knocked off the top. The tower is now %3$d blocks high.</item>
+        <item>There are %1$d birds sitting on a wire. If %2$d of them fly away, %3$d birds are left.</item>
+        <item>What number do you need to add to %2$d to get to %1$d? That number is %3$d!</item>
+        <item>Imagine a race that is %1$d miles long. If you have already run %2$d miles, you have %3$d miles to go.</item>
+        <item>A full glass has %1$d ounces of juice. After you drink %2$d ounces, there are %3$d ounces left.</item>
+        <item>If you need to find %1$d hidden treasures and you\'ve already found %2$d, there are %3$d still waiting to be discovered.</item>
+        <item>A group of %1$d penguins is on an iceberg. If %2$d of them jump into the water, %3$d penguins remain on the ice.</item>
+        <item>Subtraction is finding out how much is left. When %2$d is taken from %1$d, the amount left is %3$d.</item>
+    </string-array>
+
+    <string-array name="multiplication_explanations">
+        <item>Multiplying %1$d by %2$d is like adding %1$d to itself %2$d times. That gives you a total of %3$d.</item>
+        <item>Imagine you have %2$d bags, and each bag has %1$d marbles. In total, you have %3$d marbles!</item>
+        <item>This is asking for %2$d groups of %1$d. If you count all the items in all the groups, you get %3$d.</item>
+        <item>Multiplication is a fast way to add. %1$d times %2$d is the same as %1$d + %1$d… (%2$d times), which equals %3$d.</item>
+        <item>When you see %1$d × %2$d, it means you have %1$d repeated %2$d times. The result is a big %3$d!</item>
+        <item>If a superhero can lift %1$d cars, and there are %2$d superheroes, together they can lift %3$d cars! Wow!</item>
+        <item>In a garden, there are %2$d rows of flowers, with %1$d flowers in each row. That makes a beautiful garden of %3$d flowers.</item>
+        <item>If you get %1$d stickers on a page, and you have %2$d pages, you have a giant collection of %3$d stickers.</item>
+        <item>A box of crayons has %1$d colors. If you have %2$d boxes, you have %3$d crayons to draw with.</item>
+        <item>An octopus has 8 arms. If there were %1$d octopuses (and each had %2$d arms), they would have %3$d arms all together!</item>
+        <item>If a car has %1$d wheels, then %2$d cars would have a total of %3$d wheels rolling down the street.</item>
+        <item>You are building with blocks. You make %2$d towers, and each tower is %1$d blocks high. You used %3$d blocks in total.</item>
+        <item>A cookie recipe makes %1$d cookies per batch. If you make %2$d batches, you will have %3$d cookies to share.</item>
+        <item>If a video game level gives you %1$d points, and you beat %2$d levels, you will earn %3$d points.</item>
+        <item>Think of a grid. A grid with %1$d rows and %2$d columns has a total of %3$d squares inside it.</item>
+        <item>If a book costs %1$d dollars, and you want to buy %2$d of them for your friends, you will need %3$d dollars.</item>
+        <item>A spider has 8 legs. If you saw %1$d spiders (and each had %2$d legs), you would see %3$d legs crawling around!</item>
+        <item>Each pack of juice has %1$d cartons. If you buy %2$d packs, you will have %3$d juice cartons.</item>
+        <item>If you save %1$d dollars every week for %2$d weeks, you will have saved up %3$d dollars.</item>
+        <item>Multiplication helps you count big groups quickly. %2$d groups of %1$d is always %3$d.</item>
+    </string-array>
+
+    <string-array name="division_explanations">
+        <item>Dividing %1$d by %2$d means you are splitting %1$d into %2$d equal groups. Each group will have %3$d items.</item>
+        <item>If you have %1$d stickers to share equally among %2$d friends, each friend gets %3$d stickers.</item>
+        <item>Division asks, "How many times does %2$d fit into %1$d?" The answer is exactly %3$d times!</item>
+        <item>Think of it like this: %2$d times what number equals %1$d? That missing number is %3$d. That\'s division!</item>
+        <item>When you break down %1$d into %2$d smaller, even parts, each part is %3$d. Well done!</item>
+        <item>A superhero has %1$d gadgets and wants to put them into %2$d utility belts, with the same number in each. Each belt will hold %3$d gadgets.</item>
+        <item>You baked %1$d cookies and want to put them into bags with %2$d cookies each. You can make %3$d bags.</item>
+        <item>A pizza is cut into %1$d slices. If %2$d people are sharing it equally, each person gets to eat %3$d slices.</item>
+        <item>A team of %1$d players needs to be split into %2$d smaller teams. Each smaller team will have %3$d players.</item>
+        <item>If you have a rope that is %1$d feet long and you cut it into %2$d equal pieces, each piece will be %3$d feet long.</item>
+        <item>Dealing cards! If you have %1$d cards and %2$d players, you can deal each player %3$d cards.</item>
+        <item>A book has %1$d pages. If you want to read it in %2$d days, reading the same amount each day, you should read %3$d pages per day.</item>
+        <item>You have %1$d toys to put away on %2$d shelves. To be fair, you should put %3$d toys on each shelf.</item>
+        <item>A total of %1$d dollars was found and is being shared by %2$d people. Each person gets a fair share of %3$d dollars.</item>
+        <item>Division is like fair sharing. When you share %1$d among %2$d, everybody gets %3$d.</item>
+        <item>How many groups of %2$d can you make from %1$d? You can make exactly %3$d groups.</item>
+        <item>A car trip is %1$d miles long. If you want to finish it in %2$d hours, you need to travel %3$d miles each hour.</item>
+        <item>You have %1$d building blocks and want to make towers that are %2$d blocks tall. You can build %3$d towers.</item>
+        <item>A farmer collected %1$d eggs and puts them into cartons that hold %2$d eggs each. The farmer can fill %3$d cartons.</item>
+        <item>Division is the opposite of multiplication. Since %2$d × %3$d = %1$d, we know that %1$d ÷ %2$d = %3$d.</item>
+    </string-array>
+</resources>
+-----------------------------------------------------------------------------
+File: themes.xml
+Path: 
+Content:
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.mathhero" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
+        <item name="colorTertiary">@color/colorTertiary</item>
+        <item name="colorOnTertiary">@color/colorOnTertiary</item>
+        <item name="colorTertiaryContainer">@color/colorTertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/colorOnTertiaryContainer</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorErrorContainer">@color/colorErrorContainer</item>
+        <item name="colorOnErrorContainer">@color/colorOnErrorContainer</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariant</item>
+        <item name="colorOutline">@color/colorOutline</item>
+        <item name="colorOnSurfaceInverse">@color/colorInverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/colorInverseSurface</item>
+        <item name="colorPrimaryInverse">@color/colorInversePrimary</item>
+
+        <!-- Typography -->
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="fontFamily">@font/montserrat</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.App.Headline6</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.App.Headline5</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.App.Body2</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.App.BodyLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
+
+        <!-- System Bar Colors -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+    </style>
+
+    <style name="TextAppearance.App.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/merriweather</item>
+        <item name="android:fontFamily">@font/merriweather</item>
+    </style>
+
+    <style name="TextAppearance.App.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/merriweather</item>
+        <item name="android:fontFamily">@font/merriweather</item>
+    </style>
+
+    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+
+    <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/merriweather</item>
+        <item name="android:fontFamily">@font/merriweather</item>
+    </style>
+
+    <style name="Theme.mathhero" parent="Base.Theme.mathhero" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorBackground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.mathhero</item>
+    </style>
+
+    <style name="FullScreenDialog" parent="Theme.mathhero">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="RatingBar" parent="Theme.AppCompat">
+        <item name="colorControlNormal">?attr/colorOutline</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+    </style>
+</resources>
+-----------------------------------------------------------------------------
+File: colors.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Material 3 Colors -->
+    <color name="colorPrimary">@color/soft_gold</color>
+    <color name="colorOnPrimary">#422C00</color>
+    <color name="colorPrimaryContainer">#5B430A</color>
+    <color name="colorOnPrimaryContainer">#FFDEAD</color>
+    <color name="colorSecondary">#D6C5A0</color>
+    <color name="colorOnSecondary">#3A3015</color>
+    <color name="colorSecondaryContainer">#51462A</color>
+    <color name="colorOnSecondaryContainer">#F3E1BB</color>
+    <color name="colorTertiary">#AFCFA8</color>
+    <color name="colorOnTertiary">#1B361B</color>
+    <color name="colorTertiaryContainer">#324D30</color>
+    <color name="colorOnTertiaryContainer">#CBEBC3</color>
+    <color name="colorError">#FFB4AB</color>
+    <color name="colorOnError">#690005</color>
+    <color name="colorErrorContainer">#93000A</color>
+    <color name="colorOnErrorContainer">#FFDAD6</color>
+    <color name="colorBackground">@color/dark_slate</color>
+    <color name="colorOnBackground">@color/off_white</color>
+    <color name="colorSurface">@color/dark_slate</color>
+    <color name="colorOnSurface">@color/off_white</color>
+    <color name="colorSurfaceVariant">#4D4639</color>
+    <color name="colorOnSurfaceVariant">#D0C5B4</color>
+    <color name="colorOutline">#999080</color>
+    <color name="colorInverseOnSurface">#1E1B13</color>
+    <color name="colorInverseSurface">@color/off_white</color>
+    <color name="colorInversePrimary">#765B22</color>
+</resources>
+-----------------------------------------------------------------------------
+File: backup_rules.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?><!--
+   Sample backup rules file; uncomment and customize as necessary.
+   See https://developer.android.com/guide/topics/data/autobackup
+   for details.
+   Note: This file is ignored for devices older than API 31
+   See https://developer.android.com/about/versions/12/backup-restore
+-->
+<full-backup-content>
+    <!--
+   <include domain="sharedpref" path="."/>
+   <exclude domain="sharedpref" path="device.xml"/>
+-->
+</full-backup-content>
+-----------------------------------------------------------------------------
+File: data_extraction_rules.xml
+Path: 
+Content:
+<?xml version="1.0" encoding="utf-8"?><!--
+   Sample data extraction rules file; uncomment and customize as necessary.
+   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   for details.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- TODO: Use <include> and <exclude> to control what is backed up.
+        <include .../>
+        <exclude .../>
+        -->
+    </cloud-backup>
+    <!--
+    <device-transfer>
+        <include .../>
+        <exclude .../>
+    </device-transfer>
+    -->
+</data-extraction-rules>
+-----------------------------------------------------------------------------
+File: ExampleUnitTest.kt
+Path: 
+Content:
+package io.github.galitach.mathhero
+
+import org.junit.Test
+
+import org.junit.Assert.*
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
+}
+-----------------------------------------------------------------------------

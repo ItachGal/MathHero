@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Palette -->
+    <color name="math_gold">#C2A661</color>
+    <color name="parchment">#FDF8EC</color>
+    <color name="dark_slate">#141218</color>
+    <color name="off_white">#E8E2D5</color>
+    <color name="soft_gold">#E1C28C</color>
+
+    <!-- Light Theme Material 3 Colors -->
+    <color name="colorPrimary">#765B22</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#FFDEAD</color>
+    <color name="colorOnPrimaryContainer">#291800</color>
+    <color name="colorSecondary">#6A5D3F</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#F3E1BB</color>
+    <color name="colorOnSecondaryContainer">#241A04</color>
+    <color name="colorTertiary">#496546</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorTertiaryContainer">#CBEBC3</color>
+    <color name="colorOnTertiaryContainer">#062108</color>
+    <color name="colorError">#BA1A1A</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#FFDAD6</color>
+    <color name="colorOnErrorContainer">#410002</color>
+    <color name="colorBackground">@color/parchment</color>
+    <color name="colorOnBackground">#1E1B13</color>
+    <color name="colorSurface">@color/parchment</color>
+    <color name="colorOnSurface">#1E1B13</color>
+    <color name="colorSurfaceVariant">#EDE1CF</color>
+    <color name="colorOnSurfaceVariant">#4D4639</color>
+    <color name="colorOutline">#7F7667</color>
+    <color name="colorInverseOnSurface">#F8EFE2</color>
+    <color name="colorInverseSurface">#343027</color>
+    <color name="colorInversePrimary">@color/soft_gold</color>
+
+    <!-- State Colors -->
+    <color name="correct_green">#4CAF50</color>
+    <color name="incorrect_red">#F44336</color>
+</resources>

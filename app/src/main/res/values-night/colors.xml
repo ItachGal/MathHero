@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Theme Material 3 Colors -->
+    <color name="colorPrimary">@color/soft_gold</color>
+    <color name="colorOnPrimary">#422C00</color>
+    <color name="colorPrimaryContainer">#5B430A</color>
+    <color name="colorOnPrimaryContainer">#FFDEAD</color>
+    <color name="colorSecondary">#D6C5A0</color>
+    <color name="colorOnSecondary">#3A3015</color>
+    <color name="colorSecondaryContainer">#51462A</color>
+    <color name="colorOnSecondaryContainer">#F3E1BB</color>
+    <color name="colorTertiary">#AFCFA8</color>
+    <color name="colorOnTertiary">#1B361B</color>
+    <color name="colorTertiaryContainer">#324D30</color>
+    <color name="colorOnTertiaryContainer">#CBEBC3</color>
+    <color name="colorError">#FFB4AB</color>
+    <color name="colorOnError">#690005</color>
+    <color name="colorErrorContainer">#93000A</color>
+    <color name="colorOnErrorContainer">#FFDAD6</color>
+    <color name="colorBackground">@color/dark_slate</color>
+    <color name="colorOnBackground">@color/off_white</color>
+    <color name="colorSurface">@color/dark_slate</color>
+    <color name="colorOnSurface">@color/off_white</color>
+    <color name="colorSurfaceVariant">#4D4639</color>
+    <color name="colorOnSurfaceVariant">#D0C5B4</color>
+    <color name="colorOutline">#999080</color>
+    <color name="colorInverseOnSurface">#1E1B13</color>
+    <color name="colorInverseSurface">@color/off_white</color>
+    <color name="colorInversePrimary">#765B22</color>
+</resources>

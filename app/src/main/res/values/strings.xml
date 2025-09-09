@@ -1,0 +1,146 @@
+<resources>
+    <string name="app_name">Math Hero</string>
+    <string name="share_problem_title">Share Problem</string>
+    <string name="archive">Archive</string>
+    <string name="no_problem_available">No math problem available. Please check back tomorrow.</string>
+    <string name="disclaimer_title">Welcome to Math Hero</string>
+    <string name="disclaimer_message">Welcome to Math Hero! Our goal is to make learning math fun. Enjoy your daily challenge!</string>
+    <string name="notification_channel_name">Daily Math Problems</string>
+    <string name="notification_channel_description">Receive a notification for your math problem of the day.</string>
+    <string name="notification_title">Your daily math challenge awaits!</string>
+    <string name="notification_text">Tap to solve today\'s math problem.</string>
+    <string name="notifications_disabled_toast">Notifications disabled. You can enable them in app settings.</string>
+    <string name="archive_title">Past Problems</string>
+    <string name="close">Close</string>
+    <string name="archive_empty">The archive is empty. Solved problems will appear here!</string>
+    <string name="rate_app">Rate App</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy_text">This app, Math Hero, is a standalone application that does not collect, store, or share any personal user data. All problems are self-contained within the app.\n\nThird-party services:\n- Google AdMob: To support the app, we use Google AdMob for advertising. AdMob may collect data to provide personalized ads. For more information, please see Google\'s Privacy Policy.\n- Google Play Services: The app may use Google Play Services for core functionalities.\n\nBy using this app, you consent to this policy.</string>
+    <string name="streak_counter_description">Daily streak counter</string>
+    <string name="bonus_problem_ad">Bonus Problem (Ad)</string>
+    <plurals name="bonus_problem_free_remaining">
+        <item quantity="one">Bonus Problem (%d Free)</item>
+        <item quantity="other">Bonus Problems (%d Free)</item>
+    </plurals>
+    <string name="confirm_answer">Confirm Answer</string>
+    <string name="notification_action_reveal">Reveal Answer</string>
+    <string name="notification_action_solved">I Solved It!</string>
+    <string name="notification_answer_title">The answer is…</string>
+    <string name="settings">Settings</string>
+    <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="enable_daily_problem_notification">Enable daily math problem notification</string>
+    <string name="notification_permission_required">Notification permission is required. Please enable it in settings to receive daily problems.</string>
+    <string name="action_settings">Settings</string>
+    <plurals name="free_bonus_problems_available">
+        <item quantity="one">%d free bonus problem available</item>
+        <item quantity="other">%d free bonus problems available</item>
+    </plurals>
+    <string name="explanation_title">Explanation</string>
+
+    <string name="notification_primer_title">Daily Math Challenge</string>
+    <string name="notification_primer_message">Would you like to receive a notification for your new math problem each day? You can change this at any time in the settings.</string>
+    <string name="notification_primer_positive">Yes, please!</string>
+    <string name="notification_primer_negative">Maybe later</string>
+
+    <string name="bonus_problem_not_available">Bonus problem not available. Please try again later.</string>
+    <string name="share_solved_format">I solved it! Can you?\n\n\"%1$s\"\n\nTest your skills with %2$s: %3$s</string>
+    <string name="share_unsolved_format">Can you solve this problem from %1$s?\n\n\"%2$s\"\n\nGet your daily challenge: %3$s</string>
+    <string name="question_format">%1$s = ?</string>
+    <string name="default_explanation">The correct answer is %1$d.</string>
+    <string name="hint">Hint</string>
+    <string name="hero_level_description">Current Math Hero Level</string>
+
+    <string-array name="addition_explanations">
+        <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>
+        <item>Imagine you have %1$d blocks. If you add %2$d more blocks, you will have a total of %3$d blocks. Great job!</item>
+        <item>Starting at %1$d and counting up %2$d more steps on a number line lands you right on %3$d. That\'s the answer!</item>
+        <item>When you combine a group of %1$d with a group of %2$d, the new, bigger group has %3$d things in it.</item>
+        <item>Adding is like putting things together. So, %1$d plus %2$d makes %3$d.</item>
+        <item>If a superhero has %1$d powers and learns %2$d new ones, they now have %3$d amazing powers!</item>
+        <item>You found %1$d shiny rocks, and your friend gave you %2$d more. Now you have a collection of %3$d rocks!</item>
+        <item>A plant was %1$d inches tall. After some sunshine and water, it grew %2$d more inches. Now it\'s %3$d inches tall!</item>
+        <item>Let\'s use our fingers! Count %1$d fingers, then count %2$d more. All together, you have %3$d fingers up.</item>
+        <item>A bus has %1$d people on it. At the next stop, %2$d more people get on. The bus is now carrying %3$d people.</item>
+        <item>If you read %1$d pages of a book yesterday and %2$d pages today, you have read %3$d pages in total.</item>
+        <item>A recipe needs %1$d cups of flour and %2$d cups of sugar. The total amount of dry ingredients is %3$d cups.</item>
+        <item>You have %1$d stickers, and you win %2$d more. Your sticker book now has %3$d awesome stickers!</item>
+        <item>Two teams are playing. One team scores %1$d points, and the other scores %2$d points. The total score is %3$d points.</item>
+        <item>Think of it as climbing a ladder. You climb %1$d steps, take a break, and then climb %2$d more. You\'ve climbed %3$d steps!</item>
+        <item>A cat has %1$d toys and its owner buys %2$d new ones. The lucky cat now has %3$d toys to play with.</item>
+        <item>In a video game, you collected %1$d coins in one level and %2$d in the next. Your total is %3$d coins!</item>
+        <item>A puzzle has two sections. One has %1$d pieces, and the other has %2$d pieces. The whole puzzle has %3$d pieces.</item>
+        <item>If you save %1$d dollars and then earn %2$d more, your piggy bank will have %3$d dollars inside.</item>
+        <item>Combining %1$d and %2$d is like merging two small streams into a big river. The result is a mighty %3$d!</item>
+    </string-array>
+
+    <string-array name="subtraction_explanations">
+        <item>Subtracting %2$d from %1$d means you start with %1$d items and take %2$d away. You are left with %3$d.</item>
+        <item>If you have %1$d cookies and eat %2$d of them, you will have %3$d cookies left. Yum!</item>
+        <item>On a number line, if you start at %1$d and move back %2$d spaces, you will land on %3$d.</item>
+        <item>The difference between %1$d and %2$d is %3$d. It\'s what\'s left when you take the smaller number from the bigger one.</item>
+        <item>Taking away %2$d from %1$d leaves you with %3$d. It\'s like reverse adding!</item>
+        <item>A superhero fought %1$d villains and defeated %2$d of them. There are %3$d villains left to catch!</item>
+        <item>You have %1$d balloons, but %2$d of them pop! Oh no! You now have %3$d balloons.</item>
+        <item>A tree had %1$d apples. If %2$d apples fall to the ground, there are still %3$d apples on the tree.</item>
+        <item>You start with %1$d pieces of candy and share %2$d with your friends. You get to keep %3$d pieces for yourself.</item>
+        <item>A spaceship is on a %1$d-day mission. If %2$d days have already passed, there are %3$d days left in the mission.</item>
+        <item>If a book has %1$d pages and you have already read %2$d of them, you only have %3$d pages left to read.</item>
+        <item>You have %1$d dollars and you spend %2$d on a toy. You will have %3$d dollars remaining.</item>
+        <item>A tower made of %1$d blocks has %2$d blocks knocked off the top. The tower is now %3$d blocks high.</item>
+        <item>There are %1$d birds sitting on a wire. If %2$d of them fly away, %3$d birds are left.</item>
+        <item>What number do you need to add to %2$d to get to %1$d? That number is %3$d!</item>
+        <item>Imagine a race that is %1$d miles long. If you have already run %2$d miles, you have %3$d miles to go.</item>
+        <item>A full glass has %1$d ounces of juice. After you drink %2$d ounces, there are %3$d ounces left.</item>
+        <item>If you need to find %1$d hidden treasures and you\'ve already found %2$d, there are %3$d still waiting to be discovered.</item>
+        <item>A group of %1$d penguins is on an iceberg. If %2$d of them jump into the water, %3$d penguins remain on the ice.</item>
+        <item>Subtraction is finding out how much is left. When %2$d is taken from %1$d, the amount left is %3$d.</item>
+    </string-array>
+
+    <string-array name="multiplication_explanations">
+        <item>Multiplying %1$d by %2$d is like adding %1$d to itself %2$d times. That gives you a total of %3$d.</item>
+        <item>Imagine you have %2$d bags, and each bag has %1$d marbles. In total, you have %3$d marbles!</item>
+        <item>This is asking for %2$d groups of %1$d. If you count all the items in all the groups, you get %3$d.</item>
+        <item>Multiplication is a fast way to add. %1$d times %2$d is the same as %1$d + %1$d… (%2$d times), which equals %3$d.</item>
+        <item>When you see %1$d × %2$d, it means you have %1$d repeated %2$d times. The result is a big %3$d!</item>
+        <item>If a superhero can lift %1$d cars, and there are %2$d superheroes, together they can lift %3$d cars! Wow!</item>
+        <item>In a garden, there are %2$d rows of flowers, with %1$d flowers in each row. That makes a beautiful garden of %3$d flowers.</item>
+        <item>If you get %1$d stickers on a page, and you have %2$d pages, you have a giant collection of %3$d stickers.</item>
+        <item>A box of crayons has %1$d colors. If you have %2$d boxes, you have %3$d crayons to draw with.</item>
+        <item>An octopus has 8 arms. If there were %1$d octopuses (and each had %2$d arms), they would have %3$d arms all together!</item>
+        <item>If a car has %1$d wheels, then %2$d cars would have a total of %3$d wheels rolling down the street.</item>
+        <item>You are building with blocks. You make %2$d towers, and each tower is %1$d blocks high. You used %3$d blocks in total.</item>
+        <item>A cookie recipe makes %1$d cookies per batch. If you make %2$d batches, you will have %3$d cookies to share.</item>
+        <item>If a video game level gives you %1$d points, and you beat %2$d levels, you will earn %3$d points.</item>
+        <item>Think of a grid. A grid with %1$d rows and %2$d columns has a total of %3$d squares inside it.</item>
+        <item>If a book costs %1$d dollars, and you want to buy %2$d of them for your friends, you will need %3$d dollars.</item>
+        <item>A spider has 8 legs. If you saw %1$d spiders (and each had %2$d legs), you would see %3$d legs crawling around!</item>
+        <item>Each pack of juice has %1$d cartons. If you buy %2$d packs, you will have %3$d juice cartons.</item>
+        <item>If you save %1$d dollars every week for %2$d weeks, you will have saved up %3$d dollars.</item>
+        <item>Multiplication helps you count big groups quickly. %2$d groups of %1$d is always %3$d.</item>
+    </string-array>
+
+    <string-array name="division_explanations">
+        <item>Dividing %1$d by %2$d means you are splitting %1$d into %2$d equal groups. Each group will have %3$d items.</item>
+        <item>If you have %1$d stickers to share equally among %2$d friends, each friend gets %3$d stickers.</item>
+        <item>Division asks, "How many times does %2$d fit into %1$d?" The answer is exactly %3$d times!</item>
+        <item>Think of it like this: %2$d times what number equals %1$d? That missing number is %3$d. That\'s division!</item>
+        <item>When you break down %1$d into %2$d smaller, even parts, each part is %3$d. Well done!</item>
+        <item>A superhero has %1$d gadgets and wants to put them into %2$d utility belts, with the same number in each. Each belt will hold %3$d gadgets.</item>
+        <item>You baked %1$d cookies and want to put them into bags with %2$d cookies each. You can make %3$d bags.</item>
+        <item>A pizza is cut into %1$d slices. If %2$d people are sharing it equally, each person gets to eat %3$d slices.</item>
+        <item>A team of %1$d players needs to be split into %2$d smaller teams. Each smaller team will have %3$d players.</item>
+        <item>If you have a rope that is %1$d feet long and you cut it into %2$d equal pieces, each piece will be %3$d feet long.</item>
+        <item>Dealing cards! If you have %1$d cards and %2$d players, you can deal each player %3$d cards.</item>
+        <item>A book has %1$d pages. If you want to read it in %2$d days, reading the same amount each day, you should read %3$d pages per day.</item>
+        <item>You have %1$d toys to put away on %2$d shelves. To be fair, you should put %3$d toys on each shelf.</item>
+        <item>A total of %1$d dollars was found and is being shared by %2$d people. Each person gets a fair share of %3$d dollars.</item>
+        <item>Division is like fair sharing. When you share %1$d among %2$d, everybody gets %3$d.</item>
+        <item>How many groups of %2$d can you make from %1$d? You can make exactly %3$d groups.</item>
+        <item>A car trip is %1$d miles long. If you want to finish it in %2$d hours, you need to travel %3$d miles each hour.</item>
+        <item>You have %1$d building blocks and want to make towers that are %2$d blocks tall. You can build %3$d towers.</item>
+        <item>A farmer collected %1$d eggs and puts them into cartons that hold %2$d eggs each. The farmer can fill %3$d cartons.</item>
+        <item>Division is the opposite of multiplication. Since %2$d × %3$d = %1$d, we know that %1$d ÷ %2$d = %3$d.</item>
+    </string-array>
+</resources>
