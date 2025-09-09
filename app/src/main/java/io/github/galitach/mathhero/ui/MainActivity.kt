@@ -454,7 +454,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadBonusProblemRewardedAd() {
         viewModel.setBonusRewardedAdLoaded(false)
-        RewardedAd.load(this, "ca-app-pub-9478542207288731/5366846785", AdRequest.Builder().build(),
+        RewardedAd.load(this, "ca-app-pub-9478542207288731/1649009341", AdRequest.Builder().build(),
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     bonusProblemRewardedAd = ad

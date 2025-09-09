@@ -254,7 +254,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             app:adSize="BANNER"
-            app:adUnitId="ca-app-pub-9478542207288731/6432516442" />
+            app:adUnitId="ca-app-pub-9478542207288731/7719593670" />
     </FrameLayout>
 
     <nl.dionsegijn.konfetti.xml.KonfettiView
