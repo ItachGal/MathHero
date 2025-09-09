@@ -41,12 +41,38 @@ class MainViewModel(
 
     init {
         repository = MathProblemRepository(application, SharedPreferencesManager)
-        loadInitialState(repository.getCurrentProblem())
+        initializeProblem()
     }
 
-    private fun loadInitialState(problem: MathProblem?) {
-        val shuffledAnswers = savedStateHandle.get<List<String>>(KEY_SHUFFLED_ANSWERS) ?:
-        problem?.let { listOf(it.answer, it.distractor1, it.distractor2).shuffled() } ?: emptyList()
+    private fun initializeProblem() {
+        val dailyProblem = repository.getCurrentProblem()
+        val isDailyProblemSolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblem.id }
+
+        val problemToLoad = if (isDailyProblemSolved) {
+            repository.getBonusProblem()
+        } else {
+            dailyProblem
+        }
+
+        // If we loaded a bonus problem because the daily was solved, it's a "new" problem,
+        // so we should clear any previously saved state.
+        loadInitialState(problemToLoad, clearSavedState = isDailyProblemSolved)
+    }
+
+    private fun loadInitialState(problem: MathProblem?, clearSavedState: Boolean) {
+        if (clearSavedState) {
+            savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
+        }
+
+        val shuffledAnswers = savedStateHandle.get<List<String>>(KEY_SHUFFLED_ANSWERS)
+            ?: problem?.let { listOf(it.answer, it.distractor1, it.distractor2).shuffled() }
+            ?: emptyList()
+
+        // Persist shuffled answers for the current problem session (e.g., across rotations)
+        if (!savedStateHandle.contains(KEY_SHUFFLED_ANSWERS)) {
+            savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
+        }
+
         val highestStreak = SharedPreferencesManager.getHighestStreakCount()
 
         _uiState.value = UiState(
@@ -144,7 +170,9 @@ class MainViewModel(
                     showVisualHint = false
                 )
             }
+            // Clear old state and save state for the new problem
             savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
+            savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
         }
     }
 
