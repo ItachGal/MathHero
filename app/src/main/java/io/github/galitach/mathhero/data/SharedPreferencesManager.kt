@@ -11,11 +11,12 @@ object SharedPreferencesManager {
     private const val KEY_ARCHIVED_PROBLEMS = "archived_math_problems"
     private const val KEY_STREAK_COUNT = "streak_count"
     private const val KEY_HIGHEST_STREAK_COUNT = "highest_streak_count"
-    private const val KEY_FREE_BONUS_USED_COUNT = "free_bonus_used_count"
+    private const val KEY_BONUS_PROBLEMS_REMAINING = "bonus_problems_remaining"
     private const val KEY_LAST_BONUS_DAY = "last_bonus_day"
     private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
     private const val MAX_ARCHIVE_SIZE = 7
-    private const val MAX_FREE_BONUS_RIDDLES = 3
+    private const val DAILY_FREE_BONUS_PROBLEMS = 3
+    private const val AD_REWARD_BONUS_PROBLEMS = 5
 
     private lateinit var prefs: SharedPreferences
 
@@ -82,34 +83,34 @@ object SharedPreferencesManager {
         prefs.edit { putInt(KEY_STREAK_COUNT, newStreak) }
     }
 
-    private fun getFreeBonusRiddlesUsedToday(): Int {
+    private fun resetDailyBonus() {
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        prefs.edit {
+            putInt(KEY_BONUS_PROBLEMS_REMAINING, DAILY_FREE_BONUS_PROBLEMS)
+            putInt(KEY_LAST_BONUS_DAY, today)
+        }
+    }
+
+    fun getBonusProblemsRemaining(): Int {
         val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
         val lastBonusDay = prefs.getInt(KEY_LAST_BONUS_DAY, -1)
 
         if (today != lastBonusDay) {
-            resetFreeBonusRiddlesUsed()
-            return 0
+            resetDailyBonus()
         }
-        return prefs.getInt(KEY_FREE_BONUS_USED_COUNT, 0)
+        return prefs.getInt(KEY_BONUS_PROBLEMS_REMAINING, DAILY_FREE_BONUS_PROBLEMS)
     }
 
-    fun incrementFreeBonusRiddlesUsed() {
-        val currentCount = getFreeBonusRiddlesUsedToday()
-        if (currentCount < MAX_FREE_BONUS_RIDDLES) {
-            prefs.edit { putInt(KEY_FREE_BONUS_USED_COUNT, currentCount + 1) }
+    fun useBonusProblem() {
+        val remaining = getBonusProblemsRemaining()
+        if (remaining > 0) {
+            prefs.edit { putInt(KEY_BONUS_PROBLEMS_REMAINING, remaining - 1) }
         }
     }
 
-    fun getFreeBonusRiddlesRemaining(): Int {
-        return (MAX_FREE_BONUS_RIDDLES - getFreeBonusRiddlesUsedToday()).coerceAtLeast(0)
-    }
-
-    fun resetFreeBonusRiddlesUsed() {
-        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-        prefs.edit {
-            putInt(KEY_FREE_BONUS_USED_COUNT, 0)
-            putInt(KEY_LAST_BONUS_DAY, today)
-        }
+    fun addBonusProblemsFromAd() {
+        val remaining = getBonusProblemsRemaining()
+        prefs.edit { putInt(KEY_BONUS_PROBLEMS_REMAINING, remaining + AD_REWARD_BONUS_PROBLEMS) }
     }
 
     fun areNotificationsEnabled(): Boolean {

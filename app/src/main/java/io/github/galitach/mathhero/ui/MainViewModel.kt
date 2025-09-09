@@ -21,7 +21,7 @@ data class UiState(
     val isBonusRewardedAdLoaded: Boolean = false,
     val streakCount: Int = 0,
     val triggerWinAnimation: Boolean = false,
-    val freeBonusRiddlesRemaining: Int = 0,
+    val bonusProblemsRemaining: Int = 0,
     val showVisualHint: Boolean = false,
     val heroLevel: Int = 1
 )
@@ -52,7 +52,7 @@ class MainViewModel(
             isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
             archivedProblems = repository.getArchivedProblems(),
             streakCount = SharedPreferencesManager.getStreakCount(),
-            freeBonusRiddlesRemaining = SharedPreferencesManager.getFreeBonusRiddlesRemaining(),
+            bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
             showVisualHint = savedStateHandle.get<Boolean>(KEY_SHOW_HINT) ?: false,
             heroLevel = calculateHeroLevel(SharedPreferencesManager.getHighestStreakCount())
         )
@@ -97,13 +97,16 @@ class MainViewModel(
     }
 
     fun onBonusProblemRequested() {
-        if (SharedPreferencesManager.getFreeBonusRiddlesRemaining() > 0) {
-            SharedPreferencesManager.incrementFreeBonusRiddlesUsed()
+        if (SharedPreferencesManager.getBonusProblemsRemaining() > 0) {
+            SharedPreferencesManager.useBonusProblem()
             loadBonusProblem()
         }
     }
 
     fun onBonusAdRewardEarned() {
+        SharedPreferencesManager.addBonusProblemsFromAd()
+        // Immediately use one of the newly earned problems
+        SharedPreferencesManager.useBonusProblem()
         loadBonusProblem()
     }
 
@@ -122,7 +125,7 @@ class MainViewModel(
                     selectedAnswer = null,
                     isAnswerRevealed = false,
                     triggerWinAnimation = false,
-                    freeBonusRiddlesRemaining = SharedPreferencesManager.getFreeBonusRiddlesRemaining(),
+                    bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
                     showVisualHint = false
                 )
             }

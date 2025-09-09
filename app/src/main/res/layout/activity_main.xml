@@ -80,7 +80,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:src="@drawable/mathhero_1" />
+                tools:src="@raw/mathhero_1" />
 
             <TextView
                 android:id="@+id/problemText"
@@ -109,19 +109,6 @@
                 app:layout_constraintTop_toBottomOf="@id/problemText"
                 tools:rating="3" />
 
-            <GridLayout
-                android:id="@+id/hint_grid"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:columnCount="10"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/difficulty_rating"
-                tools:visibility="visible" />
-
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/multipleChoiceGroup"
                 android:layout_width="0dp"
@@ -130,7 +117,7 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/hint_grid"
+                app:layout_constraintTop_toBottomOf="@id/difficulty_rating"
                 app:singleSelection="true">
 
                 <com.google.android.material.button.MaterialButton
@@ -154,6 +141,26 @@
                     android:layout_height="wrap_content"
                     tools:text="25" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <FrameLayout
+                android:id="@+id/hint_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="100dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/multipleChoiceGroup">
+
+                <GridLayout
+                    android:id="@+id/hint_grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:columnCount="10"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </FrameLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

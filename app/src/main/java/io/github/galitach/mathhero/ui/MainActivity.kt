@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
         binding.bonusRiddleButton.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            if (viewModel.uiState.value.freeBonusRiddlesRemaining > 0) {
+            if (viewModel.uiState.value.bonusProblemsRemaining > 0) {
                 viewModel.onBonusProblemRequested()
             } else {
                 showBonusProblemRewardedAd()
@@ -229,10 +229,7 @@ class MainActivity : AppCompatActivity() {
 
                 launch {
                     viewModel.uiState.map { it.heroLevel }.distinctUntilChanged().collect { level ->
-                        val heroResId = getHeroDrawableRes(level)
-                        if (heroResId != 0) {
-                            binding.heroImage.setImageResource(heroResId)
-                        }
+                        binding.heroImage.setImageResource(getHeroDrawableRes(level))
                     }
                 }
 
@@ -254,7 +251,7 @@ class MainActivity : AppCompatActivity() {
                         binding.hintGrid.visibility = View.VISIBLE
                     }
 
-                    updateBonusButton(state.freeBonusRiddlesRemaining, state.isBonusRewardedAdLoaded)
+                    updateBonusButton(state.bonusProblemsRemaining, state.isBonusRewardedAdLoaded)
 
                     if (state.streakCount > 0) {
                         binding.streakCounter.text = state.streakCount.toString()
@@ -288,8 +285,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getHeroDrawableRes(level: Int): Int {
-        val resourceName = "mathhero_$level"
-        return resources.getIdentifier(resourceName, "drawable", packageName)
+        return when (level) {
+            1 -> R.raw.mathhero_1
+            2 -> R.raw.mathhero_2
+            3 -> R.raw.mathhero_3
+            4 -> R.raw.mathhero_4
+            5 -> R.raw.mathhero_5
+            6 -> R.raw.mathhero_6
+            7 -> R.raw.mathhero_7
+            8 -> R.raw.mathhero_8
+            9 -> R.raw.mathhero_9
+            10 -> R.raw.mathhero_10
+            else -> R.raw.mathhero_1 // Default case
+        }
     }
 
     private fun renderVisualHint(problem: MathProblem?) {
@@ -339,7 +347,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateBonusButton(remaining: Int, isAdLoaded: Boolean) {
         if (remaining > 0) {
-            binding.bonusRiddleButton.text = resources.getQuantityString(R.plurals.bonus_problem_free_remaining, remaining, remaining)
+            binding.bonusRiddleButton.text = resources.getQuantityString(R.plurals.bonus_problem_remaining, remaining, remaining)
             binding.bonusRiddleButton.icon = null
             binding.bonusRiddleButton.isEnabled = true
         } else {
