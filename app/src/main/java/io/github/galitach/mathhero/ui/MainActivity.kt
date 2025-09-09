@@ -44,6 +44,7 @@ import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.ActivityMainBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
+import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -180,6 +181,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        binding.heroImage.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            val dialog = RanksDialogFragment.newInstance(viewModel.uiState.value.highestStreakCount)
+            dialog.show(supportFragmentManager, RanksDialogFragment.TAG)
+        }
         binding.buttonHint.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onHintClicked() }
         binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
@@ -228,8 +234,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
-                    viewModel.uiState.map { it.heroLevel }.distinctUntilChanged().collect { level ->
-                        binding.heroImage.setImageResource(getHeroDrawableRes(level))
+                    viewModel.uiState.map { it.currentRank }.distinctUntilChanged().collect { rank ->
+                        rank?.let {
+                            binding.heroImage.setImageResource(it.imageRes)
+                            binding.rankNameText.setText(it.nameRes)
+                        }
                     }
                 }
 
@@ -267,6 +276,11 @@ class MainActivity : AppCompatActivity() {
                         viewModel.onWinAnimationComplete()
                     }
 
+                    if (state.triggerRankUpAnimation) {
+                        triggerRankUpEffects()
+                        viewModel.onRankUpAnimationComplete()
+                    }
+
                     if (!state.isAnswerRevealed) {
                         binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>()
                             .forEachIndexed { index, button ->
@@ -281,22 +295,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
-    }
-
-    private fun getHeroDrawableRes(level: Int): Int {
-        return when (level) {
-            1 -> R.raw.mathhero_1
-            2 -> R.raw.mathhero_2
-            3 -> R.raw.mathhero_3
-            4 -> R.raw.mathhero_4
-            5 -> R.raw.mathhero_5
-            6 -> R.raw.mathhero_6
-            7 -> R.raw.mathhero_7
-            8 -> R.raw.mathhero_8
-            9 -> R.raw.mathhero_9
-            10 -> R.raw.mathhero_10
-            else -> R.raw.mathhero_1 // Default case
         }
     }
 
@@ -369,6 +367,28 @@ class MainActivity : AppCompatActivity() {
             position = Position.Relative(0.5, 0.3)
         )
         binding.konfettiView.start(party)
+    }
+
+    private fun triggerRankUpEffects() {
+        mediaPlayer?.start()
+        val party = Party(
+            speed = 10f,
+            maxSpeed = 50f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0xfab042, 0xf4d36b, 0x5e4200, 0xffffff),
+            emitter = Emitter(duration = 2, TimeUnit.SECONDS).perSecond(300),
+            position = Position.Relative(0.5, -0.1)
+        )
+        binding.konfettiView.start(party)
+
+        viewModel.uiState.value.currentRank?.let { rank ->
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.rank_up_title)
+                .setMessage(getString(R.string.rank_up_message, getString(rank.nameRes)))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
     }
 
     private fun highlightMultipleChoiceAnswers(state: UiState) {

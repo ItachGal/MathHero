@@ -48,6 +48,22 @@
     <string name="hint">Hint</string>
     <string name="hero_level_description">Current Math Hero Level</string>
 
+    <string name="ranks_title">Hero Ranks</string>
+    <string name="rank_locked">o???o</string>
+    <string name="rank_up_title">Rank Up!</string>
+    <string name="rank_up_message">Congratulations! You have achieved the rank of %1$s!</string>
+
+    <string name="rank_novice">Novice</string>
+    <string name="rank_apprentice">Apprentice</string>
+    <string name="rank_adept">Adept</string>
+    <string name="rank_specialist">Specialist</string>
+    <string name="rank_expert">Expert</string>
+    <string name="rank_master">Master</string>
+    <string name="rank_grandmaster">Grandmaster</string>
+    <string name="rank_legend">Legend</string>
+    <string name="rank_mythic">Mythic</string>
+    <string name="rank_titan">Titan</string>
+
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>
         <item>Imagine you have %1$d blocks. If you add %2$d more blocks, you will have a total of %3$d blocks. Great job!</item>

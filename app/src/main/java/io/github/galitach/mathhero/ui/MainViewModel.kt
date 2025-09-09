@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.data.MathProblemRepository
+import io.github.galitach.mathhero.data.Rank
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,10 +21,12 @@ data class UiState(
     val archivedProblems: List<MathProblem> = emptyList(),
     val isBonusRewardedAdLoaded: Boolean = false,
     val streakCount: Int = 0,
+    val highestStreakCount: Int = 0,
     val triggerWinAnimation: Boolean = false,
+    val triggerRankUpAnimation: Boolean = false,
     val bonusProblemsRemaining: Int = 0,
     val showVisualHint: Boolean = false,
-    val heroLevel: Int = 1
+    val currentRank: Rank? = null
 )
 
 class MainViewModel(
@@ -44,6 +47,7 @@ class MainViewModel(
     private fun loadInitialState(problem: MathProblem?) {
         val shuffledAnswers = savedStateHandle.get<List<String>>(KEY_SHUFFLED_ANSWERS) ?:
         problem?.let { listOf(it.answer, it.distractor1, it.distractor2).shuffled() } ?: emptyList()
+        val highestStreak = SharedPreferencesManager.getHighestStreakCount()
 
         _uiState.value = UiState(
             problem = problem,
@@ -52,9 +56,10 @@ class MainViewModel(
             isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
             archivedProblems = repository.getArchivedProblems(),
             streakCount = SharedPreferencesManager.getStreakCount(),
+            highestStreakCount = highestStreak,
             bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
             showVisualHint = savedStateHandle.get<Boolean>(KEY_SHOW_HINT) ?: false,
-            heroLevel = calculateHeroLevel(SharedPreferencesManager.getHighestStreakCount())
+            currentRank = Rank.getRankForStreak(highestStreak)
         )
     }
 
@@ -81,16 +86,25 @@ class MainViewModel(
         if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return
 
         val isCorrect = state.selectedAnswer == problem.answer
+        val oldHighestStreak = SharedPreferencesManager.getHighestStreakCount()
+        val oldRank = Rank.getRankForStreak(oldHighestStreak)
+
         SharedPreferencesManager.updateStreak(isCorrect)
         SharedPreferencesManager.addProblemToArchive(problem)
+
+        val newHighestStreak = SharedPreferencesManager.getHighestStreakCount()
+        val newRank = Rank.getRankForStreak(newHighestStreak)
+        val hasRankedUp = newRank.level > oldRank.level
 
         _uiState.update {
             it.copy(
                 isAnswerRevealed = true,
                 streakCount = SharedPreferencesManager.getStreakCount(),
-                triggerWinAnimation = isCorrect,
+                highestStreakCount = newHighestStreak,
+                triggerWinAnimation = isCorrect && !hasRankedUp,
+                triggerRankUpAnimation = isCorrect && hasRankedUp,
                 archivedProblems = repository.getArchivedProblems(),
-                heroLevel = calculateHeroLevel(SharedPreferencesManager.getHighestStreakCount())
+                currentRank = newRank
             )
         }
         savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
@@ -125,6 +139,7 @@ class MainViewModel(
                     selectedAnswer = null,
                     isAnswerRevealed = false,
                     triggerWinAnimation = false,
+                    triggerRankUpAnimation = false,
                     bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
                     showVisualHint = false
                 )
@@ -133,12 +148,12 @@ class MainViewModel(
         }
     }
 
-    private fun calculateHeroLevel(highestStreak: Int): Int {
-        return (highestStreak / 10 + 1).coerceIn(1, 10)
-    }
-
     fun onWinAnimationComplete() {
         _uiState.update { it.copy(triggerWinAnimation = false) }
+    }
+
+    fun onRankUpAnimationComplete() {
+        _uiState.update { it.copy(triggerRankUpAnimation = false) }
     }
 
     fun setBonusRewardedAdLoaded(isLoaded: Boolean) {

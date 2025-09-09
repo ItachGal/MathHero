@@ -76,11 +76,26 @@
                 android:id="@+id/hero_image"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
                 android:contentDescription="@string/hero_level_description"
+                android:focusable="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@raw/mathhero_1" />
+
+            <TextView
+                android:id="@+id/rank_name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorPrimary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/hero_image"
+                tools:text="Novice" />
 
             <TextView
                 android:id="@+id/problemText"
@@ -91,7 +106,7 @@
                 android:textAppearance="?attr/textAppearanceHeadline5"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/hero_image"
+                app:layout_constraintTop_toBottomOf="@id/rank_name_text"
                 tools:text="15 + 8 = ?" />
 
             <RatingBar
