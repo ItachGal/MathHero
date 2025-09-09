@@ -7,9 +7,9 @@ import io.github.galitach.mathhero.R
 
 data class Rank(
     val level: Int,
-    @StringRes val nameRes: Int,
+    @param:StringRes val nameRes: Int,
     val requiredStreak: Int,
-    @DrawableRes val imageRes: Int
+    @param:DrawableRes val imageRes: Int
 ) {
     @SuppressLint("ResourceType")
     companion object {
