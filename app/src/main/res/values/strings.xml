@@ -48,9 +48,9 @@
     <string name="hint">Hint</string>
     <string name="hero_level_description">Current Math Hero Level</string>
 
-    <string name="view_ranks">View All Ranks</string>
     <string name="ranks_title">Hero Ranks</string>
-    <string name="rank_locked">o???o</string>
+    <string name="view_ranks">View All Ranks</string>
+    <string name="rank_locked">x???x</string>
     <string name="rank_up_title">Rank Up!</string>
     <string name="rank_up_message">Congratulations! You have achieved the rank of %1$s!</string>
 
@@ -64,6 +64,13 @@
     <string name="rank_legend">Legend</string>
     <string name="rank_mythic">Mythic</string>
     <string name="rank_titan">Titan</string>
+
+    <string name="save_streak_dialog_title">Oh no!</string>
+    <string name="save_streak_dialog_message">You broke your streak! Watch a short video to save your progress and keep your rank.</string>
+    <string name="save_streak_dialog_positive_button">Save My Streak (Ad)</string>
+    <string name="save_streak_dialog_negative_button">Reset My Streak</string>
+    <string name="rank_requirement_unlocked">Achieved at %d streak</string>
+    <string name="rank_requirement_locked">Requires %d streak</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

@@ -42,6 +42,13 @@ class RankAdapter(
             } else {
                 context.getString(R.string.rank_locked)
             }
+
+            binding.rankRequirement.text = if (isUnlocked) {
+                context.getString(R.string.rank_requirement_unlocked, rank.requiredStreak)
+            } else {
+                context.getString(R.string.rank_requirement_locked, rank.requiredStreak)
+            }
+
             binding.root.alpha = if (isUnlocked) 1.0f else 0.5f
 
             if (isUnlocked) {

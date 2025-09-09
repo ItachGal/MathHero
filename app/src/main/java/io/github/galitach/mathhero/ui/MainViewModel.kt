@@ -20,6 +20,8 @@ data class UiState(
     val isAnswerRevealed: Boolean = false,
     val archivedProblems: List<MathProblem> = emptyList(),
     val isBonusRewardedAdLoaded: Boolean = false,
+    val isSaveStreakAdLoaded: Boolean = false,
+    val showSaveStreakDialog: Boolean = false,
     val streakCount: Int = 0,
     val highestStreakCount: Int = 0,
     val triggerWinAnimation: Boolean = false,
@@ -54,8 +56,6 @@ class MainViewModel(
             dailyProblem
         }
 
-        // If we loaded a bonus problem because the daily was solved, it's a "new" problem,
-        // so we should clear any previously saved state.
         loadInitialState(problemToLoad, clearSavedState = isDailyProblemSolved)
     }
 
@@ -68,7 +68,6 @@ class MainViewModel(
             ?: problem?.let { listOf(it.answer, it.distractor1, it.distractor2).shuffled() }
             ?: emptyList()
 
-        // Persist shuffled answers for the current problem session (e.g., across rotations)
         if (!savedStateHandle.contains(KEY_SHUFFLED_ANSWERS)) {
             savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
         }
@@ -112,11 +111,23 @@ class MainViewModel(
         if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return
 
         val isCorrect = state.selectedAnswer == problem.answer
+        SharedPreferencesManager.addProblemToArchive(problem)
+
+        _uiState.update { it.copy(isAnswerRevealed = true, archivedProblems = repository.getArchivedProblems()) }
+        savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
+
+        if (isCorrect) {
+            handleCorrectAnswer()
+        } else {
+            handleIncorrectAnswer()
+        }
+    }
+
+    private fun handleCorrectAnswer() {
         val oldHighestStreak = SharedPreferencesManager.getHighestStreakCount()
         val oldRank = Rank.getRankForStreak(oldHighestStreak)
 
-        SharedPreferencesManager.updateStreak(isCorrect)
-        SharedPreferencesManager.addProblemToArchive(problem)
+        SharedPreferencesManager.updateStreak(true)
 
         val newHighestStreak = SharedPreferencesManager.getHighestStreakCount()
         val newRank = Rank.getRankForStreak(newHighestStreak)
@@ -124,16 +135,31 @@ class MainViewModel(
 
         _uiState.update {
             it.copy(
-                isAnswerRevealed = true,
                 streakCount = SharedPreferencesManager.getStreakCount(),
                 highestStreakCount = newHighestStreak,
-                triggerWinAnimation = isCorrect && !hasRankedUp,
-                triggerRankUpAnimation = isCorrect && hasRankedUp,
-                archivedProblems = repository.getArchivedProblems(),
+                triggerWinAnimation = !hasRankedUp,
+                triggerRankUpAnimation = hasRankedUp,
                 currentRank = newRank
             )
         }
-        savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
+    }
+
+    private fun handleIncorrectAnswer() {
+        _uiState.update { it.copy(showSaveStreakDialog = true) }
+    }
+
+    fun onStreakResetConfirmed() {
+        SharedPreferencesManager.updateStreak(false)
+        _uiState.update {
+            it.copy(
+                streakCount = SharedPreferencesManager.getStreakCount(),
+                showSaveStreakDialog = false
+            )
+        }
+    }
+
+    fun onStreakSavedWithAd() {
+        _uiState.update { it.copy(showSaveStreakDialog = false) }
     }
 
     fun onBonusProblemRequested() {
@@ -145,7 +171,6 @@ class MainViewModel(
 
     fun onBonusAdRewardEarned() {
         SharedPreferencesManager.addBonusProblemsFromAd()
-        // Immediately use one of the newly earned problems
         SharedPreferencesManager.useBonusProblem()
         loadBonusProblem()
     }
@@ -170,7 +195,6 @@ class MainViewModel(
                     showVisualHint = false
                 )
             }
-            // Clear old state and save state for the new problem
             savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
             savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
         }
@@ -186,6 +210,10 @@ class MainViewModel(
 
     fun setBonusRewardedAdLoaded(isLoaded: Boolean) {
         _uiState.update { it.copy(isBonusRewardedAdLoaded = isLoaded) }
+    }
+
+    fun setSaveStreakAdLoaded(isLoaded: Boolean) {
+        _uiState.update { it.copy(isSaveStreakAdLoaded = isLoaded) }
     }
 
     companion object {

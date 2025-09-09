@@ -22,4 +22,13 @@
         android:textAppearance="?attr/textAppearanceTitleMedium"
         tools:text="Novice" />
 
+    <TextView
+        android:id="@+id/rank_requirement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?attr/textAppearanceLabelMedium"
+        android:textColor="?attr/colorSecondary"
+        tools:text="Requires 10 streak" />
+
 </LinearLayout>

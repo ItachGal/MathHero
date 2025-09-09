@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -54,7 +55,6 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import androidx.core.view.isEmpty
 
 class MainActivity : AppCompatActivity() {
 
@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
 
     private var bonusProblemRewardedAd: RewardedAd? = null
+    private var saveStreakRewardedAd: RewardedAd? = null
 
     private lateinit var prefs: SharedPreferences
     private var mediaPlayer: MediaPlayer? = null
@@ -129,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         MobileAds.initialize(this) {
             loadBannerAd()
             loadBonusProblemRewardedAd()
+            loadSaveStreakRewardedAd()
         }
     }
 
@@ -246,6 +248,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                launch {
+                    viewModel.uiState
+                        .map { it.showSaveStreakDialog }
+                        .distinctUntilChanged()
+                        .collect { showDialog ->
+                            if (showDialog) {
+                                showSaveStreakDialog()
+                            }
+                        }
+                }
+
                 viewModel.uiState.collect { state ->
                     binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
                     binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
@@ -259,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                     binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
                     binding.buttonHint.isEnabled = !state.showVisualHint
 
-                    if (state.showVisualHint && binding.hintGrid.isEmpty()) {
+                    if (state.showVisualHint && binding.hintGrid.childCount == 0) {
                         renderVisualHint(state.problem)
                         binding.hintGrid.visibility = View.VISIBLE
                     }
@@ -501,6 +514,53 @@ class MainActivity : AppCompatActivity() {
         bonusProblemRewardedAd?.show(this) {
             viewModel.onBonusAdRewardEarned()
         } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun loadSaveStreakRewardedAd() {
+        viewModel.setSaveStreakAdLoaded(false)
+        RewardedAd.load(this, "ca-app-pub-9478542207288731/1649009341", AdRequest.Builder().build(),
+            object : RewardedAdLoadCallback() {
+                override fun onAdLoaded(ad: RewardedAd) {
+                    saveStreakRewardedAd = ad
+                    viewModel.setSaveStreakAdLoaded(true)
+                }
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    saveStreakRewardedAd = null
+                    viewModel.setSaveStreakAdLoaded(false)
+                }
+            })
+    }
+
+    private fun showSaveStreakRewardedAd() {
+        saveStreakRewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                saveStreakRewardedAd = null
+                loadSaveStreakRewardedAd()
+            }
+        }
+        saveStreakRewardedAd?.show(this) {
+            viewModel.onStreakSavedWithAd()
+        } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showSaveStreakDialog() {
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.save_streak_dialog_title)
+            .setMessage(R.string.save_streak_dialog_message)
+            .setNegativeButton(R.string.save_streak_dialog_negative_button) { _, _ ->
+                viewModel.onStreakResetConfirmed()
+            }
+            .setPositiveButton(R.string.save_streak_dialog_positive_button) { _, _ ->
+                showSaveStreakRewardedAd()
+            }
+            .setCancelable(false)
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton.isEnabled = viewModel.uiState.value.isSaveStreakAdLoaded
+        }
+        dialog.show()
     }
 
     private fun openStoreForRating() {
