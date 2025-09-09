@@ -98,6 +98,25 @@
                 tools:text="Novice" />
 
             <TextView
+                android:id="@+id/view_ranks_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="@string/view_ranks"
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                android:textColor="?attr/colorSecondary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rank_name_text" />
+
+            <TextView
                 android:id="@+id/problemText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -106,7 +125,7 @@
                 android:textAppearance="?attr/textAppearanceHeadline5"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rank_name_text"
+                app:layout_constraintTop_toBottomOf="@id/view_ranks_button"
                 tools:text="15 + 8 = ?" />
 
             <RatingBar

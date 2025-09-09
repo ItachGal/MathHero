@@ -54,6 +54,7 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import androidx.core.view.isEmpty
 
 class MainActivity : AppCompatActivity() {
 
@@ -181,11 +182,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.heroImage.setOnClickListener {
-            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        val openRanksDialog = { view: View ->
+            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             val dialog = RanksDialogFragment.newInstance(viewModel.uiState.value.highestStreakCount)
             dialog.show(supportFragmentManager, RanksDialogFragment.TAG)
         }
+        binding.heroImage.setOnClickListener(openRanksDialog)
+        binding.viewRanksButton.setOnClickListener(openRanksDialog)
+
         binding.buttonHint.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onHintClicked() }
         binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
@@ -255,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                     binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
                     binding.buttonHint.isEnabled = !state.showVisualHint
 
-                    if (state.showVisualHint && binding.hintGrid.childCount == 0) {
+                    if (state.showVisualHint && binding.hintGrid.isEmpty()) {
                         renderVisualHint(state.problem)
                         binding.hintGrid.visibility = View.VISIBLE
                     }

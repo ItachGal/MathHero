@@ -48,6 +48,7 @@
     <string name="hint">Hint</string>
     <string name="hero_level_description">Current Math Hero Level</string>
 
+    <string name="view_ranks">View All Ranks</string>
     <string name="ranks_title">Hero Ranks</string>
     <string name="rank_locked">o???o</string>
     <string name="rank_up_title">Rank Up!</string>
