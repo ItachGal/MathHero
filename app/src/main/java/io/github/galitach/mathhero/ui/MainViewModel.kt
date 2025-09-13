@@ -3,6 +3,7 @@ package io.github.galitach.mathhero.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import io.github.galitach.mathhero.R
 import io.github.galitach.mathhero.data.DifficultyLevel
 import io.github.galitach.mathhero.data.DifficultySettings
 import io.github.galitach.mathhero.data.MathProblem
@@ -40,12 +41,12 @@ data class UiState(
     val currentRank: Rank? = null,
     val needsDifficultySelection: Boolean = false,
     val showSuggestLowerDifficultyDialog: Boolean = false,
-    val currentDifficultyLevel: DifficultyLevel? = null,
+    val difficultyDescription: String? = null,
     val playSoundEvent: SoundEvent? = null
 )
 
 class MainViewModel(
-    application: Application,
+    private val application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
@@ -107,14 +108,29 @@ class MainViewModel(
             bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
             showVisualHint = savedStateHandle.get<Boolean>(KEY_SHOW_HINT) ?: false,
             currentRank = Rank.getRankForStreak(highestStreak),
-            currentDifficultyLevel = DifficultyLevel.fromSettings(difficultySettings)
+            difficultyDescription = generateDifficultyDescription(difficultySettings)
         )
     }
 
     fun onDifficultySelected(settings: DifficultySettings) {
         SharedPreferencesManager.saveDifficultySettings(settings)
-        _uiState.update { it.copy(needsDifficultySelection = false) }
+        _uiState.update {
+            it.copy(
+                needsDifficultySelection = false,
+                difficultyDescription = generateDifficultyDescription(settings)
+            )
+        }
         initializeProblem()
+    }
+
+    private fun generateDifficultyDescription(settings: DifficultySettings): String {
+        val matchingLevel = DifficultyLevel.entries.find { it.settings == settings }
+        if (matchingLevel != null) {
+            return application.getString(matchingLevel.titleRes)
+        }
+
+        val ops = settings.operations.sortedBy { it.ordinal }.joinToString(", ") { it.symbol }
+        return application.getString(R.string.custom_difficulty_desc, ops, settings.maxNumber)
     }
 
     fun onHintClicked() {

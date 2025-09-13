@@ -91,8 +91,14 @@
     <string name="change_difficulty">שנה/י רמת קושי</string>
     <string name="keep_going">להמשיך</string>
     <string name="enable_sound_effects">הפעל אפקטים קוליים</string>
-    <string name="daily_quest_complete">המשימה היומית הושלמה!</string>
     <string name="next_problem">הבעיה הבאה</string>
+    <string name="difficulty_presets">רמות מוכנות</string>
+    <string name="difficulty_customize">או בהתאמה אישית</string>
+    <string name="operations">פעולות חשבון</string>
+    <string name="largest_number">המספר הגדול ביותר</string>
+    <string name="save">שמירה</string>
+    <string name="error_no_operation_selected">יש לבחור לפחות פעולת חשבון אחת.</string>
+    <string name="custom_difficulty_desc">מותאם: %1$s עד %2$d</string>
 
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>

@@ -4,11 +4,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.Menu
@@ -99,6 +99,21 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.notifications_disabled_toast), Toast.LENGTH_LONG).show()
             }
         }
+
+    private val hintColors by lazy {
+        listOf(
+            ContextCompat.getColor(this, R.color.hint_color_1),
+            ContextCompat.getColor(this, R.color.hint_color_2),
+            ContextCompat.getColor(this, R.color.hint_color_3),
+            ContextCompat.getColor(this, R.color.hint_color_4),
+            ContextCompat.getColor(this, R.color.hint_color_5),
+            ContextCompat.getColor(this, R.color.hint_color_6),
+            ContextCompat.getColor(this, R.color.hint_color_7),
+            ContextCompat.getColor(this, R.color.hint_color_8),
+            ContextCompat.getColor(this, R.color.hint_color_9),
+            ContextCompat.getColor(this, R.color.hint_color_10)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -334,8 +349,8 @@ class MainActivity : AppCompatActivity() {
             binding.heroImage.setImageResource(it.imageRes)
             binding.rankNameText.setText(it.nameRes)
         }
-        state.currentDifficultyLevel?.let {
-            binding.difficultyText.setText(it.titleRes)
+        state.difficultyDescription?.let {
+            binding.difficultyText.text = it
             binding.statusContainer.visibility = View.VISIBLE
         } ?: run {
             binding.statusContainer.visibility = View.GONE
@@ -352,19 +367,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtonStates(state: UiState) {
-        val isDailyProblemJustSolved = state.isAnswerRevealed && state.isDailyProblemSolved && state.problem?.id == viewModel.uiState.value.problem?.id
-
         updateVisibility(binding.preAnswerActionsContainer, !state.isAnswerRevealed)
-        updateVisibility(binding.dailyQuestCompleteContainer, isDailyProblemJustSolved)
-        updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed && !isDailyProblemJustSolved)
-
-        if (isDailyProblemJustSolved) {
-            Handler(Looper.getMainLooper()).postDelayed({
-                updateVisibility(binding.dailyQuestCompleteContainer, false)
-                updateVisibility(binding.postAnswerActionsContainer, true)
-            }, 2500)
-        }
-
+        updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed)
         updateVisibility(binding.buttonInfo, state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty())
 
         val isAnswerSelected = state.selectedAnswer != null
@@ -400,43 +404,69 @@ class MainActivity : AppCompatActivity() {
         problem ?: return
         binding.hintGrid.removeAllViews()
 
-        val totalItems = problem.num1.coerceAtMost(30) // Cap to avoid performance issues
         val answer = problem.answer.toIntOrNull() ?: 0
+
+        val totalStars = when (problem.operator) {
+            "+" -> (problem.num1 + problem.num2)
+            "-" -> problem.num1
+            "×" -> (problem.num1 * problem.num2)
+            "÷" -> problem.num1
+            else -> 0
+        }.coerceAtMost(100) // Cap total stars to avoid performance issues
+
+        val starSize = when {
+            totalStars > 90 -> resources.getDimensionPixelSize(R.dimen.hint_star_size_small)
+            totalStars > 70 -> resources.getDimensionPixelSize(R.dimen.hint_star_size_medium)
+            else -> resources.getDimensionPixelSize(R.dimen.hint_star_size_large)
+        }
+
+        val colorAddPrimary = ContextCompat.getColor(this, R.color.hint_add_primary)
+        val colorAddSecondary = ContextCompat.getColor(this, R.color.hint_add_secondary)
+        val colorMuted = ContextCompat.getColor(this, R.color.colorSurfaceVariant)
 
         when (problem.operator) {
             "+" -> {
                 binding.hintGrid.columnCount = 10
-                repeat(problem.num1) { addStarToHint(R.drawable.ic_star_filled) }
-                repeat(problem.num2) { addStarToHint(R.drawable.ic_star_secondary) }
+                repeat(problem.num1) { addStarToHint(colorAddPrimary, starSize) }
+                repeat(problem.num2) { addStarToHint(colorAddSecondary, starSize) }
             }
             "-" -> {
                 binding.hintGrid.columnCount = 10
-                repeat(totalItems) { index ->
-                    val drawable = if (index < answer) R.drawable.ic_star_filled else R.drawable.ic_star_gray
-                    addStarToHint(drawable)
+                repeat(problem.num1) { index ->
+                    val color = if (index < answer) colorAddPrimary else colorMuted
+                    addStarToHint(color, starSize)
                 }
             }
             "×" -> {
-                binding.hintGrid.columnCount = problem.num1
-                repeat(problem.num1 * problem.num2) { addStarToHint(R.drawable.ic_star_filled) }
+                binding.hintGrid.columnCount = problem.num1.coerceAtLeast(1)
+                repeat(totalStars) {
+                    val rowIndex = it / problem.num1
+                    val color = hintColors[rowIndex % hintColors.size]
+                    addStarToHint(color, starSize)
+                }
             }
             "÷" -> {
-                binding.hintGrid.columnCount = answer
-                repeat(totalItems) { addStarToHint(R.drawable.ic_star_filled) }
+                binding.hintGrid.columnCount = answer.coerceAtLeast(1)
+                repeat(totalStars) {
+                    val rowIndex = it / answer
+                    val color = hintColors[rowIndex % hintColors.size]
+                    addStarToHint(color, starSize)
+                }
             }
         }
     }
 
-    private fun addStarToHint(drawableRes: Int) {
+    private fun addStarToHint(color: Int, starSize: Int) {
         val star = ImageView(this).apply {
             layoutParams =
                 android.widget.GridLayout.LayoutParams().apply {
                     width = 0
-                    height = android.widget.GridLayout.LayoutParams.WRAP_CONTENT
+                    height = starSize
                     columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
-                    setMargins(4, 4, 4, 4)
+                    setMargins(2, 2, 2, 2)
                 }
-            setImageDrawable(ContextCompat.getDrawable(this@MainActivity, drawableRes))
+            setImageResource(R.drawable.ic_star_filled)
+            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
         }
         binding.hintGrid.addView(star)
     }

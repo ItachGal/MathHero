@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="archive_divider_margin">16dp</dimen>
+    <dimen name="hint_star_size_large">20dp</dimen>
+    <dimen name="hint_star_size_medium">14dp</dimen>
+    <dimen name="hint_star_size_small">10dp</dimen>
 </resources>

@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:layoutDirection="ltr"
     tools:context=".ui.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -255,29 +256,6 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
         </FrameLayout>
-
-        <LinearLayout
-            android:id="@+id/daily_quest_complete_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_check_circle" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/daily_quest_complete"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
-        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/post_answer_actions_container"

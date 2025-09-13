@@ -9,7 +9,7 @@ object MathProblemGenerator {
 
     fun generateProblem(context: Context, settings: DifficultySettings, streak: Int, seed: Long): MathProblem {
         val random = Random(seed)
-        val operation = settings.operations.random(random)
+        val operation = selectOperationByDifficulty(settings.operations, streak, random)
 
         // Progressive difficulty: increase number range based on streak
         val maxNumber = settings.maxNumber
@@ -20,8 +20,14 @@ object MathProblemGenerator {
         val (question: String, answer: Int, num1: Int, num2: Int) = when (operation) {
             Operation.ADDITION -> generateAddition(random, rangeStart, rangeEnd)
             Operation.SUBTRACTION -> generateSubtraction(random, rangeStart, rangeEnd)
-            Operation.MULTIPLICATION -> generateMultiplication(random, rangeStart, rangeEnd.coerceAtMost(12)) // Keep multiplication manageable
-            Operation.DIVISION -> generateDivision(random, rangeStart, rangeEnd.coerceAtMost(12))
+            Operation.MULTIPLICATION -> {
+                val (multStart, multEnd) = getProgressiveRangeForCappedOps(minNumber, 12, streak)
+                generateMultiplication(random, multStart, multEnd)
+            }
+            Operation.DIVISION -> {
+                val (divStart, divEnd) = getProgressiveRangeForCappedOps(minNumber, 12, streak)
+                generateDivision(random, divStart, divEnd)
+            }
         }
 
         val difficulty = calculateDifficulty(num1, num2, operation)
@@ -41,6 +47,35 @@ object MathProblemGenerator {
             operator = operation.symbol
         )
     }
+
+    private fun getProgressiveRangeForCappedOps(minNumber: Int, cap: Int, streak: Int): Pair<Int, Int> {
+        val rangeStart = max(minNumber, (cap * (streak / 50.0)).toInt())
+        // Ensure rangeEnd is always greater than rangeStart
+        val rangeEnd = max(rangeStart + 1, (cap * (0.5 + streak / 100.0)).toInt()).coerceAtMost(cap)
+        return Pair(rangeStart.coerceAtMost(rangeEnd -1), rangeEnd)
+    }
+
+    private fun selectOperationByDifficulty(operations: Set<Operation>, streak: Int, random: Random): Operation {
+        if (operations.size <= 1) return operations.firstOrNull() ?: Operation.ADDITION
+
+        val easyOps = operations.filter { it == Operation.ADDITION || it == Operation.SUBTRACTION }
+        val hardOps = operations.filter { it == Operation.MULTIPLICATION || it == Operation.DIVISION }
+
+        // If streak is low, prefer easy operations if they are available.
+        val streakThreshold = 20
+        if (streak < streakThreshold && easyOps.isNotEmpty()) {
+            // 80% chance for an easy operation, 20% for a hard one (if available)
+            return if (random.nextInt(10) < 8) {
+                easyOps.random(random)
+            } else {
+                hardOps.randomOrNull(random) ?: easyOps.random(random)
+            }
+        }
+
+        // Otherwise, pick any operation randomly.
+        return operations.random(random)
+    }
+
 
     private fun calculateDifficulty(num1: Int, num2: Int, operation: Operation): Int {
         val numberMagnitude = (num1 + num2) / 2.0

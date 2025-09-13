@@ -38,4 +38,19 @@
     <!-- State Colors -->
     <color name="correct_green">#4CAF50</color>
     <color name="incorrect_red">#F44336</color>
+
+    <!-- Hint Colors -->
+    <color name="hint_add_primary">#1E88E5</color> <!-- Blue -->
+    <color name="hint_add_secondary">#FB8C00</color> <!-- Orange -->
+
+    <color name="hint_color_1">#E53935</color> <!-- Red -->
+    <color name="hint_color_2">#1E88E5</color> <!-- Blue -->
+    <color name="hint_color_3">#43A047</color> <!-- Green -->
+    <color name="hint_color_4">#FFB300</color> <!-- Amber -->
+    <color name="hint_color_5">#FB8C00</color> <!-- Orange -->
+    <color name="hint_color_6">#8E24AA</color> <!-- Purple -->
+    <color name="hint_color_7">#00ACC1</color> <!-- Cyan -->
+    <color name="hint_color_8">#D81B60</color> <!-- Pink -->
+    <color name="hint_color_9">#7CB342</color> <!-- Lime -->
+    <color name="hint_color_10">#546E7A</color> <!-- Blue Grey -->
 </resources>
