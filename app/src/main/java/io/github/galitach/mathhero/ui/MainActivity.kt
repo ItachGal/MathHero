@@ -52,7 +52,7 @@ import io.github.galitach.mathhero.databinding.ActivityMainBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
-import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
+import io.github.galitach.mathhero.ui.hint.HintDialogFragment
 import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
@@ -270,10 +270,10 @@ class MainActivity : AppCompatActivity() {
                 viewModel.oneTimeEvent.onEach { event ->
                     when (event) {
                         is OneTimeEvent.LaunchPurchaseFlow -> billingManager.launchPurchaseFlow(this@MainActivity)
-                        is OneTimeEvent.ShowHintSheet -> {
-                            if (supportFragmentManager.findFragmentByTag(HintBottomSheetFragment.TAG) == null) {
-                                HintBottomSheetFragment.newInstance(event.problem)
-                                    .show(supportFragmentManager, HintBottomSheetFragment.TAG)
+                        is OneTimeEvent.ShowHintDialog -> {
+                            if (supportFragmentManager.findFragmentByTag(HintDialogFragment.TAG) == null) {
+                                HintDialogFragment.newInstance(event.problem)
+                                    .show(supportFragmentManager, HintDialogFragment.TAG)
                             }
                         }
                     }

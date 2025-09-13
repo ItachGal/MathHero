@@ -70,12 +70,11 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/hero_card"
-            style="?attr/materialCardViewFilledStyle"
+            style="?attr/materialCardViewOutlinedStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
             app:layout_constraintBottom_toTopOf="@+id/problem_card"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -132,6 +131,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="16dp"
             app:layout_constraintBottom_toTopOf="@+id/multipleChoiceGroup"
             app:layout_constraintEnd_toEndOf="parent"

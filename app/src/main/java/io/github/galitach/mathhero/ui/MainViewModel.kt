@@ -31,7 +31,7 @@ sealed class SoundEvent {
 
 sealed class OneTimeEvent {
     data class LaunchPurchaseFlow(val productDetails: ProductDetails) : OneTimeEvent()
-    data class ShowHintSheet(val problem: MathProblem) : OneTimeEvent()
+    data class ShowHintDialog(val problem: MathProblem) : OneTimeEvent()
 }
 
 data class UiState(
@@ -170,7 +170,7 @@ class MainViewModel(
     fun onHintClicked() {
         viewModelScope.launch {
             _uiState.value.problem?.let {
-                _oneTimeEvent.emit(OneTimeEvent.ShowHintSheet(it))
+                _oneTimeEvent.emit(OneTimeEvent.ShowHintDialog(it))
             }
         }
     }
