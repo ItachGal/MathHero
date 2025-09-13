@@ -55,6 +55,7 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import androidx.core.view.isEmpty
 
 class MainActivity : AppCompatActivity() {
 
@@ -272,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
                     binding.buttonHint.isEnabled = !state.showVisualHint
 
-                    if (state.showVisualHint && binding.hintGrid.childCount == 0) {
+                    if (state.showVisualHint && binding.hintGrid.isEmpty()) {
                         renderVisualHint(state.problem)
                         binding.hintGrid.visibility = View.VISIBLE
                     }
