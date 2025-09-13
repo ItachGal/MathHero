@@ -45,10 +45,11 @@ class SettingsDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { dismiss() }
-        setupSwitch()
+        setupSwitches()
     }
 
-    private fun setupSwitch() {
+    private fun setupSwitches() {
+        // Notification Switch
         binding.notificationSwitch.isChecked = SharedPreferencesManager.areNotificationsEnabled()
         binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -56,6 +57,12 @@ class SettingsDialogFragment : DialogFragment() {
             } else {
                 enableNotifications(false)
             }
+        }
+
+        // Sound Switch
+        binding.soundSwitch.isChecked = SharedPreferencesManager.isSoundEnabled()
+        binding.soundSwitch.setOnCheckedChangeListener { _, isChecked ->
+            SharedPreferencesManager.setSoundEnabled(isChecked)
         }
     }
 

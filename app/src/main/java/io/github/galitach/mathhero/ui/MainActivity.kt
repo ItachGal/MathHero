@@ -1,12 +1,14 @@
 package io.github.galitach.mathhero.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
@@ -19,10 +21,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.children
+import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +38,10 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -45,17 +51,17 @@ import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.ActivityMainBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
+import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import androidx.core.view.isEmpty
 
 class MainActivity : AppCompatActivity() {
 
@@ -68,8 +74,17 @@ class MainActivity : AppCompatActivity() {
     private var bonusProblemRewardedAd: RewardedAd? = null
     private var saveStreakRewardedAd: RewardedAd? = null
 
-    private lateinit var prefs: SharedPreferences
-    private var mediaPlayer: MediaPlayer? = null
+    private var correctSoundPlayer: MediaPlayer? = null
+    private var incorrectSoundPlayer: MediaPlayer? = null
+
+    private lateinit var appUpdateManager: AppUpdateManager
+    private val appUpdateResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            // Handle update failure or cancellation if needed.
+        }
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
@@ -88,15 +103,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
+        checkForAppUpdates()
+
+        setupSoundPlayers()
         setupClickListeners()
-        prefs = getSharedPreferences("main_prefs", MODE_PRIVATE)
-        mediaPlayer = MediaPlayer.create(this, R.raw.riddle_complete)
 
-
-        handleFirstLaunch()
+        handleOnboardingIfNeeded()
         setupConsentAndAds()
         observeUiState()
         animateContentIn()
+    }
+
+    private fun setupSoundPlayers() {
+        correctSoundPlayer = MediaPlayer.create(this, R.raw.riddle_complete)
+        incorrectSoundPlayer = MediaPlayer.create(this, R.raw.incorrect_answer)
     }
 
     private fun animateContentIn() {
@@ -135,14 +156,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleFirstLaunch() {
-        val isFirstLaunch = prefs.getBoolean("isFirstLaunch", true)
-        if (isFirstLaunch) {
+    private fun handleOnboardingIfNeeded() {
+        if (!SharedPreferencesManager.isOnboardingCompleted()) {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.disclaimer_title)
                 .setMessage(R.string.disclaimer_message)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    prefs.edit { putBoolean("isFirstLaunch", false) }
                     dialog.dismiss()
                     showNotificationPrimerDialog()
                 }
@@ -158,10 +177,12 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.notification_primer_positive) { dialog, _ ->
                 dialog.dismiss()
                 requestNotificationPermission()
+                SharedPreferencesManager.setOnboardingCompleted()
             }
             .setNegativeButton(R.string.notification_primer_negative) { dialog, _ ->
                 enableNotifications(false)
                 dialog.dismiss()
+                SharedPreferencesManager.setOnboardingCompleted()
             }
             .setCancelable(false)
             .show()
@@ -196,10 +217,10 @@ class MainActivity : AppCompatActivity() {
         binding.buttonHint.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onHintClicked() }
         binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
-        binding.bonusRiddleButton.setOnClickListener {
+        binding.nextProblemButton.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             if (viewModel.uiState.value.bonusProblemsRemaining > 0) {
-                viewModel.onBonusProblemRequested()
+                viewModel.onNextProblemRequested()
             } else {
                 showBonusProblemRewardedAd()
             }
@@ -232,87 +253,142 @@ class MainActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.uiState.map { it.problem?.id }.distinctUntilChanged().collect {
-                        resetMultipleChoiceButtonStates()
-                        binding.hintGrid.visibility = View.GONE
-                        binding.hintGrid.removeAllViews()
-                    }
-                }
-
-                launch {
-                    viewModel.uiState.map { it.currentRank }.distinctUntilChanged().collect { rank ->
-                        rank?.let {
-                            binding.heroImage.setImageResource(it.imageRes)
-                            binding.rankNameText.setText(it.nameRes)
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.uiState
-                        .map { it.showSaveStreakDialog }
-                        .distinctUntilChanged()
-                        .collect { showDialog ->
-                            if (showDialog) {
-                                showSaveStreakDialog()
-                            }
-                        }
-                }
-
+                // Collect general UI state
                 viewModel.uiState.collect { state ->
-                    binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
-                    binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
-
-                    updateVisibility(binding.preAnswerActionsContainer, !state.isAnswerRevealed)
-                    updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed)
-                    updateVisibility(binding.buttonInfo, state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty())
-
-                    val isAnswerSelected = state.selectedAnswer != null
-                    binding.hintButtonContainer.visibility = if (isAnswerSelected) View.INVISIBLE else View.VISIBLE
-                    binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
-                    binding.buttonHint.isEnabled = !state.showVisualHint
-
-                    if (state.showVisualHint && binding.hintGrid.isEmpty()) {
-                        renderVisualHint(state.problem)
-                        binding.hintGrid.visibility = View.VISIBLE
+                    updateProblemUI(state)
+                    updateGamificationUI(state)
+                    updateButtonStates(state)
+                    updateAnswerUI(state)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Collect single-shot events
+                launch {
+                    viewModel.uiState.map { it.playSoundEvent }.distinctUntilChanged().collect { event ->
+                        event?.let {
+                            playSound(it)
+                            viewModel.onSoundEventHandled()
+                        }
                     }
-
-                    updateBonusButton(state.bonusProblemsRemaining, state.isBonusRewardedAdLoaded)
-
-                    if (state.streakCount > 0) {
-                        binding.streakCounter.text = state.streakCount.toString()
-                        binding.streakCounter.visibility = View.VISIBLE
-                        binding.streakIcon.visibility = View.VISIBLE
-                    } else {
-                        binding.streakCounter.visibility = View.GONE
-                        binding.streakIcon.visibility = View.GONE
+                }
+                launch {
+                    viewModel.uiState.map { it.triggerWinAnimation }.distinctUntilChanged().collect { trigger ->
+                        if (trigger) {
+                            triggerWinEffects()
+                            viewModel.onWinAnimationComplete()
+                        }
                     }
-
-                    if (state.triggerWinAnimation) {
-                        triggerWinEffects()
-                        viewModel.onWinAnimationComplete()
+                }
+                launch {
+                    viewModel.uiState.map { it.triggerRankUpAnimation }.distinctUntilChanged().collect { trigger ->
+                        if (trigger) {
+                            triggerRankUpEffects()
+                            viewModel.onRankUpAnimationComplete()
+                        }
                     }
-
-                    if (state.triggerRankUpAnimation) {
-                        triggerRankUpEffects()
-                        viewModel.onRankUpAnimationComplete()
+                }
+                launch {
+                    viewModel.uiState.map { it.showSaveStreakDialog }.distinctUntilChanged().collect { show ->
+                        if (show) showSaveStreakDialog()
                     }
-
-                    if (!state.isAnswerRevealed) {
-                        binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>()
-                            .forEachIndexed { index, button ->
-                                button.text = state.shuffledAnswers.getOrNull(index) ?: ""
-                            }
+                }
+                launch {
+                    viewModel.uiState.map { it.needsDifficultySelection }.distinctUntilChanged().collect { needsSelection ->
+                        if (needsSelection) {
+                            DifficultySelectionDialogFragment.newInstance(isFirstTime = true)
+                                .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
+                        }
                     }
-
-                    if (state.isAnswerRevealed) {
-                        highlightMultipleChoiceAnswers(state)
-                    } else {
-                        updateMultipleChoiceSelection(state)
+                }
+                launch {
+                    viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
+                        if (show) showSuggestLowerDifficultyDialog()
                     }
                 }
             }
+        }
+    }
+
+    private fun updateProblemUI(state: UiState) {
+        binding.mainContent.isVisible = state.problem != null
+        binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
+        binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
+
+        if (state.showVisualHint && binding.hintGrid.isEmpty()) {
+            renderVisualHint(state.problem)
+            binding.hintGrid.visibility = View.VISIBLE
+        } else if (!state.showVisualHint) {
+            binding.hintGrid.visibility = View.GONE
+            binding.hintGrid.removeAllViews()
+        }
+    }
+
+    private fun updateGamificationUI(state: UiState) {
+        state.currentRank?.let {
+            binding.heroImage.setImageResource(it.imageRes)
+            binding.rankNameText.setText(it.nameRes)
+        }
+        state.currentDifficultyLevel?.let {
+            binding.difficultyText.setText(it.titleRes)
+            binding.statusContainer.visibility = View.VISIBLE
+        } ?: run {
+            binding.statusContainer.visibility = View.GONE
+        }
+
+        if (state.streakCount > 0) {
+            binding.streakCounter.text = state.streakCount.toString()
+            binding.streakCounter.visibility = View.VISIBLE
+            binding.streakIcon.visibility = View.VISIBLE
+        } else {
+            binding.streakCounter.visibility = View.GONE
+            binding.streakIcon.visibility = View.GONE
+        }
+    }
+
+    private fun updateButtonStates(state: UiState) {
+        val isDailyProblemJustSolved = state.isAnswerRevealed && state.isDailyProblemSolved && state.problem?.id == viewModel.uiState.value.problem?.id
+
+        updateVisibility(binding.preAnswerActionsContainer, !state.isAnswerRevealed)
+        updateVisibility(binding.dailyQuestCompleteContainer, isDailyProblemJustSolved)
+        updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed && !isDailyProblemJustSolved)
+
+        if (isDailyProblemJustSolved) {
+            Handler(Looper.getMainLooper()).postDelayed({
+                updateVisibility(binding.dailyQuestCompleteContainer, false)
+                updateVisibility(binding.postAnswerActionsContainer, true)
+            }, 2500)
+        }
+
+        updateVisibility(binding.buttonInfo, state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty())
+
+        val isAnswerSelected = state.selectedAnswer != null
+        binding.hintButtonContainer.visibility = if (isAnswerSelected) View.INVISIBLE else View.VISIBLE
+        binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
+        binding.buttonHint.isEnabled = !state.showVisualHint
+
+        updateNextProblemButton(state.bonusProblemsRemaining, state.isBonusRewardedAdLoaded)
+    }
+
+    private fun updateAnswerUI(state: UiState) {
+        if (state.isAnswerRevealed) {
+            highlightMultipleChoiceAnswers(state)
+        } else {
+            resetMultipleChoiceButtonStates()
+            binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>()
+                .forEachIndexed { index, button ->
+                    button.text = state.shuffledAnswers.getOrNull(index) ?: ""
+                }
+            updateMultipleChoiceSelection(state)
+        }
+    }
+
+    private fun playSound(event: SoundEvent) {
+        if (!SharedPreferencesManager.isSoundEnabled()) return
+        when (event) {
+            is SoundEvent.Correct -> correctSoundPlayer?.start()
+            is SoundEvent.Incorrect -> incorrectSoundPlayer?.start()
         }
     }
 
@@ -361,20 +437,19 @@ class MainActivity : AppCompatActivity() {
         binding.hintGrid.addView(star)
     }
 
-    private fun updateBonusButton(remaining: Int, isAdLoaded: Boolean) {
+    private fun updateNextProblemButton(remaining: Int, isAdLoaded: Boolean) {
         if (remaining > 0) {
-            binding.bonusRiddleButton.text = resources.getQuantityString(R.plurals.bonus_problem_remaining, remaining, remaining)
-            binding.bonusRiddleButton.icon = null
-            binding.bonusRiddleButton.isEnabled = true
+            binding.nextProblemButton.text = resources.getQuantityString(R.plurals.bonus_problem_remaining, remaining, remaining)
+            binding.nextProblemButton.icon = null
+            binding.nextProblemButton.isEnabled = true
         } else {
-            binding.bonusRiddleButton.setText(R.string.bonus_problem_ad)
-            binding.bonusRiddleButton.setIconResource(R.drawable.ic_bonus_riddle)
-            binding.bonusRiddleButton.isEnabled = isAdLoaded
+            binding.nextProblemButton.setText(R.string.bonus_problem_ad)
+            binding.nextProblemButton.setIconResource(R.drawable.ic_bonus_riddle)
+            binding.nextProblemButton.isEnabled = isAdLoaded
         }
     }
 
     private fun triggerWinEffects() {
-        mediaPlayer?.start()
         val party = Party(
             speed = 0f,
             maxSpeed = 30f,
@@ -388,7 +463,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun triggerRankUpEffects() {
-        mediaPlayer?.start()
         val party = Party(
             speed = 10f,
             maxSpeed = 50f,
@@ -448,6 +522,7 @@ class MainActivity : AppCompatActivity() {
     private fun resetMultipleChoiceButtonStates() {
         binding.multipleChoiceGroup.clearChecked()
         binding.multipleChoiceGroup.children.filterIsInstance<MaterialButton>().forEach { button ->
+            button.isEnabled = true
             button.strokeWidth = 2
             button.setStrokeColorResource(R.color.colorOutline)
             button.alpha = 1.0f
@@ -564,12 +639,46 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun showSuggestLowerDifficultyDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.suggest_lower_difficulty_title)
+            .setMessage(R.string.suggest_lower_difficulty_message)
+            .setPositiveButton(R.string.change_difficulty) { _, _ ->
+                viewModel.onSuggestLowerDifficultyDismissed()
+                DifficultySelectionDialogFragment.newInstance()
+                    .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
+            }
+            .setNegativeButton(R.string.keep_going) { _, _ ->
+                viewModel.onSuggestLowerDifficultyDismissed()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
     private fun openStoreForRating() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
         } catch (_: ActivityNotFoundException) {
             startActivity(Intent(Intent.ACTION_VIEW,
                 "https://play.google.com/store/apps/details?id=$packageName".toUri()))
+        }
+    }
+
+    private fun checkForAppUpdates() {
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+            if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                appUpdateManager.startUpdateFlowForResult(info, AppUpdateType.IMMEDIATE, this, 101)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+            if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                appUpdateManager.startUpdateFlowForResult(info, AppUpdateType.IMMEDIATE, this, 101)
+            }
         }
     }
 
@@ -583,6 +692,11 @@ class MainActivity : AppCompatActivity() {
             R.id.action_archive -> {
                 val dialog = ArchiveDialogFragment.newInstance(viewModel.uiState.value.archivedProblems)
                 dialog.show(supportFragmentManager, ArchiveDialogFragment.TAG)
+                true
+            }
+            R.id.action_difficulty -> {
+                DifficultySelectionDialogFragment.newInstance()
+                    .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
                 true
             }
             R.id.action_rate_app -> {
@@ -603,7 +717,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
+        correctSoundPlayer?.release()
+        incorrectSoundPlayer?.release()
+        correctSoundPlayer = null
+        incorrectSoundPlayer = null
     }
 }

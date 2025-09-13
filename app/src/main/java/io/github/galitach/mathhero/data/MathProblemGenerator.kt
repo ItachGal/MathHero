@@ -2,24 +2,31 @@ package io.github.galitach.mathhero.data
 
 import android.content.Context
 import io.github.galitach.mathhero.R
+import kotlin.math.max
 import kotlin.random.Random
 
 object MathProblemGenerator {
 
-    fun generateProblem(context: Context, seed: Long): MathProblem {
+    fun generateProblem(context: Context, settings: DifficultySettings, streak: Int, seed: Long): MathProblem {
         val random = Random(seed)
-        val difficulty = random.nextInt(1, 11)
+        val operation = settings.operations.random(random)
 
-        val (question: String, answer: Int, num1: Int, num2: Int, operator: String) = when (difficulty) {
-            in 1..2 -> generateAddition(random, 1, 10)
-            in 3..4 -> generateSubtraction(random, 1, 20)
-            in 5..6 -> generateAddition(random, 10, 50)
-            in 7..8 -> generateMultiplication(random, 2, 10)
-            else -> generateDivision(random, 2, 10)
+        // Progressive difficulty: increase number range based on streak
+        val maxNumber = settings.maxNumber
+        val minNumber = if (operation == Operation.MULTIPLICATION || operation == Operation.DIVISION) 2 else 1
+        val rangeStart = max(minNumber, (maxNumber * (streak / 50.0)).toInt())
+        val rangeEnd = max(rangeStart + 1, (maxNumber * (0.5 + streak / 100.0)).toInt()).coerceAtMost(maxNumber)
+
+        val (question: String, answer: Int, num1: Int, num2: Int) = when (operation) {
+            Operation.ADDITION -> generateAddition(random, rangeStart, rangeEnd)
+            Operation.SUBTRACTION -> generateSubtraction(random, rangeStart, rangeEnd)
+            Operation.MULTIPLICATION -> generateMultiplication(random, rangeStart, rangeEnd.coerceAtMost(12)) // Keep multiplication manageable
+            Operation.DIVISION -> generateDivision(random, rangeStart, rangeEnd.coerceAtMost(12))
         }
 
+        val difficulty = calculateDifficulty(num1, num2, operation)
         val distractors = generateDistractors(answer, difficulty, random)
-        val explanation = generateExplanation(context, question, answer, random)
+        val explanation = generateExplanation(context, answer, num1, num2, operation, random)
 
         return MathProblem(
             id = seed.toInt(),
@@ -31,40 +38,52 @@ object MathProblemGenerator {
             explanation = explanation,
             num1 = num1,
             num2 = num2,
-            operator = operator
+            operator = operation.symbol
         )
     }
 
-    private fun generateAddition(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int, String> {
+    private fun calculateDifficulty(num1: Int, num2: Int, operation: Operation): Int {
+        val numberMagnitude = (num1 + num2) / 2.0
+        val operationMultiplier = when (operation) {
+            Operation.ADDITION -> 1.0
+            Operation.SUBTRACTION -> 1.2
+            Operation.MULTIPLICATION -> 2.0
+            Operation.DIVISION -> 2.5
+        }
+        return (numberMagnitude / 10.0 * operationMultiplier).coerceIn(1.0, 10.0).toInt()
+    }
+
+    private fun generateAddition(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int> {
         val a = random.nextInt(min, max + 1)
         val b = random.nextInt(min, max + 1)
-        return Quadruple("$a + $b", a + b, a, b, "+")
+        return Quadruple("$a + $b", a + b, a, b)
     }
 
-    private fun generateSubtraction(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int, String> {
+    private fun generateSubtraction(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int> {
         val a = random.nextInt(min, max + 1)
-        val b = random.nextInt(min, a + 1)
-        return Quadruple("$a - $b", a - b, a, b, "-")
+        val b = random.nextInt(min, a + 1) // Ensure positive result
+        return Quadruple("$a - $b", a - b, a, b)
     }
 
-    private fun generateMultiplication(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int, String> {
+    private fun generateMultiplication(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int> {
         val a = random.nextInt(min, max + 1)
         val b = random.nextInt(min, max + 1)
-        return Quadruple("$a × $b", a * b, a, b, "×")
+        return Quadruple("$a × $b", a * b, a, b)
     }
 
-    private fun generateDivision(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int, String> {
+    private fun generateDivision(random: Random, min: Int, max: Int): Quadruple<String, Int, Int, Int> {
         val b = random.nextInt(min, max + 1)
         val answer = random.nextInt(min, max + 1)
         val a = answer * b
-        return Quadruple("$a ÷ $b", answer, a, b, "÷")
+        return Quadruple("$a ÷ $b", answer, a, b)
     }
 
     private fun generateDistractors(answer: Int, difficulty: Int, random: Random): Pair<Int, Int> {
         val distractors = mutableSetOf<Int>()
         val range = when(difficulty) {
-            in 1..4 -> 5
-            in 5..8 -> 10
+            in 1..2 -> 3
+            in 3..5 -> 5
+            in 6..8 -> 10
             else -> 15
         }
 
@@ -79,17 +98,12 @@ object MathProblemGenerator {
         return distractors.first() to distractors.last()
     }
 
-    private fun generateExplanation(context: Context, question: String, answer: Int, random: Random): String {
-        val parts = question.replace(" ", "").split(Regex("[+\\-×÷]"))
-        val num1 = parts[0].toInt()
-        val num2 = parts[1].toInt()
-
-        val explanationTemplates = when {
-            question.contains('+') -> context.resources.getStringArray(R.array.addition_explanations)
-            question.contains('-') -> context.resources.getStringArray(R.array.subtraction_explanations)
-            question.contains('×') -> context.resources.getStringArray(R.array.multiplication_explanations)
-            question.contains('÷') -> context.resources.getStringArray(R.array.division_explanations)
-            else -> return context.getString(R.string.default_explanation, answer)
+    private fun generateExplanation(context: Context, answer: Int, num1: Int, num2: Int, operation: Operation, random: Random): String {
+        val explanationTemplates = when (operation) {
+            Operation.ADDITION -> context.resources.getStringArray(R.array.addition_explanations)
+            Operation.SUBTRACTION -> context.resources.getStringArray(R.array.subtraction_explanations)
+            Operation.MULTIPLICATION -> context.resources.getStringArray(R.array.multiplication_explanations)
+            Operation.DIVISION -> context.resources.getStringArray(R.array.division_explanations)
         }
 
         val randomTemplate = explanationTemplates.random(random)
@@ -98,4 +112,4 @@ object MathProblemGenerator {
 }
 
 // Helper class to return multiple values
-data class Quadruple<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E)
+data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

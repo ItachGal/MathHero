@@ -3,17 +3,26 @@ package io.github.galitach.mathhero.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import io.github.galitach.mathhero.data.DifficultyLevel
+import io.github.galitach.mathhero.data.DifficultySettings
 import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.data.MathProblemRepository
 import io.github.galitach.mathhero.data.Rank
 import io.github.galitach.mathhero.data.SharedPreferencesManager
+import java.util.Calendar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+sealed class SoundEvent {
+    object Correct : SoundEvent()
+    object Incorrect : SoundEvent()
+}
+
 data class UiState(
     val problem: MathProblem? = null,
+    val isDailyProblemSolved: Boolean = false,
     val showMultipleChoice: Boolean = true,
     val shuffledAnswers: List<String> = emptyList(),
     val selectedAnswer: String? = null,
@@ -28,7 +37,11 @@ data class UiState(
     val triggerRankUpAnimation: Boolean = false,
     val bonusProblemsRemaining: Int = 0,
     val showVisualHint: Boolean = false,
-    val currentRank: Rank? = null
+    val currentRank: Rank? = null,
+    val needsDifficultySelection: Boolean = false,
+    val showSuggestLowerDifficultyDialog: Boolean = false,
+    val currentDifficultyLevel: DifficultyLevel? = null,
+    val playSoundEvent: SoundEvent? = null
 )
 
 class MainViewModel(
@@ -37,29 +50,36 @@ class MainViewModel(
 ) : AndroidViewModel(application) {
 
     private val repository: MathProblemRepository
+    private var dailyProblemId: Int = -1
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     init {
         repository = MathProblemRepository(application, SharedPreferencesManager)
-        initializeProblem()
+        dailyProblemId = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+
+        if (!SharedPreferencesManager.isDifficultySet()) {
+            _uiState.update { it.copy(needsDifficultySelection = true) }
+        } else {
+            initializeProblem()
+        }
     }
 
     private fun initializeProblem() {
         val dailyProblem = repository.getCurrentProblem()
-        val isDailyProblemSolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblem.id }
+        val isDailyProblemAlreadySolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblemId }
 
-        val problemToLoad = if (isDailyProblemSolved) {
+        val problemToLoad = if (isDailyProblemAlreadySolved) {
             repository.getBonusProblem()
         } else {
             dailyProblem
         }
 
-        loadInitialState(problemToLoad, clearSavedState = isDailyProblemSolved)
+        loadInitialState(problemToLoad, isDailyProblemAlreadySolved, clearSavedState = isDailyProblemAlreadySolved)
     }
 
-    private fun loadInitialState(problem: MathProblem?, clearSavedState: Boolean) {
+    private fun loadInitialState(problem: MathProblem?, isDailySolved: Boolean, clearSavedState: Boolean) {
         if (clearSavedState) {
             savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
         }
@@ -73,9 +93,11 @@ class MainViewModel(
         }
 
         val highestStreak = SharedPreferencesManager.getHighestStreakCount()
+        val difficultySettings = SharedPreferencesManager.getDifficultySettings()
 
         _uiState.value = UiState(
             problem = problem,
+            isDailyProblemSolved = isDailySolved,
             shuffledAnswers = shuffledAnswers,
             selectedAnswer = savedStateHandle.get<String>(KEY_SELECTED_ANSWER),
             isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
@@ -84,8 +106,15 @@ class MainViewModel(
             highestStreakCount = highestStreak,
             bonusProblemsRemaining = SharedPreferencesManager.getBonusProblemsRemaining(),
             showVisualHint = savedStateHandle.get<Boolean>(KEY_SHOW_HINT) ?: false,
-            currentRank = Rank.getRankForStreak(highestStreak)
+            currentRank = Rank.getRankForStreak(highestStreak),
+            currentDifficultyLevel = DifficultyLevel.fromSettings(difficultySettings)
         )
+    }
+
+    fun onDifficultySelected(settings: DifficultySettings) {
+        SharedPreferencesManager.saveDifficultySettings(settings)
+        _uiState.update { it.copy(needsDifficultySelection = false) }
+        initializeProblem()
     }
 
     fun onHintClicked() {
@@ -124,6 +153,7 @@ class MainViewModel(
     }
 
     private fun handleCorrectAnswer() {
+        SharedPreferencesManager.resetConsecutiveWrongAnswers()
         val oldHighestStreak = SharedPreferencesManager.getHighestStreakCount()
         val oldRank = Rank.getRankForStreak(oldHighestStreak)
 
@@ -133,36 +163,61 @@ class MainViewModel(
         val newRank = Rank.getRankForStreak(newHighestStreak)
         val hasRankedUp = newRank.level > oldRank.level
 
+        val problemId = _uiState.value.problem?.id
+        val isDailyProblemNowSolved = problemId == dailyProblemId || _uiState.value.isDailyProblemSolved
+
         _uiState.update {
             it.copy(
                 streakCount = SharedPreferencesManager.getStreakCount(),
                 highestStreakCount = newHighestStreak,
                 triggerWinAnimation = !hasRankedUp,
                 triggerRankUpAnimation = hasRankedUp,
-                currentRank = newRank
+                currentRank = newRank,
+                playSoundEvent = SoundEvent.Correct,
+                isDailyProblemSolved = isDailyProblemNowSolved
             )
         }
     }
 
     private fun handleIncorrectAnswer() {
-        _uiState.update { it.copy(showSaveStreakDialog = true) }
+        SharedPreferencesManager.incrementConsecutiveWrongAnswers()
+        _uiState.update { it.copy(playSoundEvent = SoundEvent.Incorrect) }
+
+        if (uiState.value.streakCount > 0) {
+            _uiState.update { it.copy(showSaveStreakDialog = true) }
+        } else {
+            // Streak is already 0, just check if we should suggest lowering difficulty
+            val consecutiveWrong = SharedPreferencesManager.getConsecutiveWrongAnswers()
+            val shouldSuggestLowering = consecutiveWrong >= 3
+            _uiState.update { it.copy(showSuggestLowerDifficultyDialog = shouldSuggestLowering) }
+        }
     }
 
     fun onStreakResetConfirmed() {
         SharedPreferencesManager.updateStreak(false)
+        val consecutiveWrong = SharedPreferencesManager.getConsecutiveWrongAnswers()
+        val shouldSuggestLowering = consecutiveWrong >= 3
+
         _uiState.update {
             it.copy(
                 streakCount = SharedPreferencesManager.getStreakCount(),
-                showSaveStreakDialog = false
+                showSaveStreakDialog = false,
+                showSuggestLowerDifficultyDialog = shouldSuggestLowering
             )
         }
     }
 
+    fun onSuggestLowerDifficultyDismissed() {
+        SharedPreferencesManager.resetConsecutiveWrongAnswers()
+        _uiState.update { it.copy(showSuggestLowerDifficultyDialog = false) }
+    }
+
     fun onStreakSavedWithAd() {
+        SharedPreferencesManager.resetConsecutiveWrongAnswers()
         _uiState.update { it.copy(showSaveStreakDialog = false) }
     }
 
-    fun onBonusProblemRequested() {
+    fun onNextProblemRequested() {
         if (SharedPreferencesManager.getBonusProblemsRemaining() > 0) {
             SharedPreferencesManager.useBonusProblem()
             loadBonusProblem()
@@ -206,6 +261,10 @@ class MainViewModel(
 
     fun onRankUpAnimationComplete() {
         _uiState.update { it.copy(triggerRankUpAnimation = false) }
+    }
+
+    fun onSoundEventHandled() {
+        _uiState.update { it.copy(playSoundEvent = null) }
     }
 
     fun setBonusRewardedAdLoaded(isLoaded: Boolean) {

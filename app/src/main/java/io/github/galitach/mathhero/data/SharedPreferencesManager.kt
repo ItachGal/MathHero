@@ -14,6 +14,11 @@ object SharedPreferencesManager {
     private const val KEY_BONUS_PROBLEMS_REMAINING = "bonus_problems_remaining"
     private const val KEY_LAST_BONUS_DAY = "last_bonus_day"
     private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+    private const val KEY_DIFFICULTY_OPERATIONS = "difficulty_operations"
+    private const val KEY_DIFFICULTY_MAX_NUMBER = "difficulty_max_number"
+    private const val KEY_CONSECUTIVE_WRONG_ANSWERS = "consecutive_wrong_answers"
+    private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+    private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val MAX_ARCHIVE_SIZE = 7
     private const val DAILY_FREE_BONUS_PROBLEMS = 3
     private const val AD_REWARD_BONUS_PROBLEMS = 5
@@ -22,6 +27,22 @@ object SharedPreferencesManager {
 
     fun initialize(context: Context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    fun isSoundEnabled(): Boolean {
+        return prefs.getBoolean(KEY_SOUND_ENABLED, true)
+    }
+
+    fun setSoundEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(KEY_SOUND_ENABLED, enabled) }
+    }
+
+    fun isOnboardingCompleted(): Boolean {
+        return prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
+    }
+
+    fun setOnboardingCompleted() {
+        prefs.edit { putBoolean(KEY_ONBOARDING_COMPLETED, true) }
     }
 
     fun getArchivedProblems(): List<MathProblem> {
@@ -119,5 +140,50 @@ object SharedPreferencesManager {
 
     fun setNotificationsEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled) }
+    }
+
+    fun isDifficultySet(): Boolean {
+        return prefs.contains(KEY_DIFFICULTY_MAX_NUMBER)
+    }
+
+    fun saveDifficultySettings(settings: DifficultySettings) {
+        val operationNames = settings.operations.map { it.name }.toSet()
+        prefs.edit {
+            putStringSet(KEY_DIFFICULTY_OPERATIONS, operationNames)
+            putInt(KEY_DIFFICULTY_MAX_NUMBER, settings.maxNumber)
+        }
+    }
+
+    fun getDifficultySettings(): DifficultySettings {
+        val defaultSettings = DifficultyLevel.NOVICE.settings
+        val operationNames = prefs.getStringSet(KEY_DIFFICULTY_OPERATIONS, null)
+        val maxNumber = prefs.getInt(KEY_DIFFICULTY_MAX_NUMBER, -1)
+
+        if (operationNames == null || maxNumber == -1) {
+            return defaultSettings
+        }
+
+        val operations = operationNames.mapNotNull {
+            try {
+                Operation.valueOf(it)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+        }.toSet()
+
+        return DifficultySettings(operations, maxNumber)
+    }
+
+    fun getConsecutiveWrongAnswers(): Int {
+        return prefs.getInt(KEY_CONSECUTIVE_WRONG_ANSWERS, 0)
+    }
+
+    fun incrementConsecutiveWrongAnswers() {
+        val current = getConsecutiveWrongAnswers()
+        prefs.edit { putInt(KEY_CONSECUTIVE_WRONG_ANSWERS, current + 1) }
+    }
+
+    fun resetConsecutiveWrongAnswers() {
+        prefs.edit { putInt(KEY_CONSECUTIVE_WRONG_ANSWERS, 0) }
     }
 }

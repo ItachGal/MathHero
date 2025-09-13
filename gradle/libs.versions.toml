@@ -17,6 +17,7 @@ espressoCore = "3.7.0"
 googleAds = "24.5.0"
 googleUmp = "3.2.0"
 playServicesOssLicenses = "17.2.2"
+googlePlayAppUpdate = "2.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,9 +38,14 @@ google-play-services-oss-licenses = { group = "com.google.android.gms", name = "
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+google-play-appUpdate = { group = "com.google.android.play", name = "app-update", version.ref = "googlePlayAppUpdate" }
+google-play-appUpdateKtx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "googlePlayAppUpdate" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-oss-licenses = { id = "com.google.android.gms.oss-licenses-plugin", version = "0.10.8" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+
+[bundles]
+google-play-appUpdate = ["google-play-appUpdate", "google-play-appUpdateKtx"]

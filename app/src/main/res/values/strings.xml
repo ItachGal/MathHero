@@ -20,8 +20,9 @@
     <string name="streak_counter_description">Daily streak counter</string>
     <string name="bonus_problem_ad">Bonus Problem (Ad)</string>
     <plurals name="bonus_problem_remaining">
-        <item quantity="one">Bonus Problem (%d Left)</item>
-        <item quantity="other">Bonus Problems (%d Left)</item>
+        <item quantity="one">Next Problem (%d Left)</item>
+        <item quantity="two">Next Problem (%d Left)</item>
+        <item quantity="other">Next Problem (%d Left)</item>
     </plurals>
     <string name="confirm_answer">Confirm Answer</string>
     <string name="notification_action_reveal">Reveal Answer</string>
@@ -72,6 +73,27 @@
     <string name="rank_requirement_unlocked">Achieved at %d streak</string>
     <string name="rank_requirement_locked">Requires %d streak</string>
 
+    <string name="difficulty">Difficulty</string>
+    <string name="difficulty_selection_title">Choose Your Challenge</string>
+    <string name="difficulty_selection_subtitle">Select a level to start. You can change this later in the settings.</string>
+    <string name="difficulty_novice">Novice</string>
+    <string name="difficulty_novice_desc">Simple addition with numbers up to 10.</string>
+    <string name="difficulty_apprentice">Apprentice</string>
+    <string name="difficulty_apprentice_desc">Addition and subtraction with numbers up to 20.</string>
+    <string name="difficulty_adept">Adept</string>
+    <string name="difficulty_adept_desc">Addition and subtraction with numbers up to 50.</string>
+    <string name="difficulty_expert">Expert</string>
+    <string name="difficulty_expert_desc">Addition, subtraction, and multiplication with numbers up to 20.</string>
+    <string name="difficulty_master">Master</string>
+    <string name="difficulty_master_desc">All operations: addition, subtraction, multiplication, and division with numbers up to 100.</string>
+    <string name="suggest_lower_difficulty_title">Finding it Tricky?</string>
+    <string name="suggest_lower_difficulty_message">It looks like you\'re finding this level a bit challenging. Would you like to try an easier difficulty?</string>
+    <string name="change_difficulty">Change Difficulty</string>
+    <string name="keep_going">Keep Going</string>
+    <string name="enable_sound_effects">Enable sound effects</string>
+    <string name="daily_quest_complete">Daily Quest Complete!</string>
+    <string name="next_problem">Next Problem</string>
+
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>
         <item>Imagine you have %1$d blocks. If you add %2$d more blocks, you will have a total of %3$d blocks. Great job!</item>
@@ -93,6 +115,11 @@
         <item>A puzzle has two sections. One has %1$d pieces, and the other has %2$d pieces. The whole puzzle has %3$d pieces.</item>
         <item>If you save %1$d dollars and then earn %2$d more, your piggy bank will have %3$d dollars inside.</item>
         <item>Combining %1$d and %2$d is like merging two small streams into a big river. The result is a mighty %3$d!</item>
+        <item>If a magical gnome has %1$d shiny gems and finds %2$d more in a sparkling cave, they now have %3$d gems in their treasure pouch!</item>
+        <item>Picture a friendly dragon with %1$d cookies. If you give it %2$d more, it will happily munch on %3$d cookies!</item>
+        <item>On a big, green lily pad sat %1$d frogs. When %2$d more froggy friends hopped on, there was a party of %3$d frogs!</item>
+        <item>You built a tower with %1$d blocks. Your friend added %2$d more blocks on top. Wow! Your tower is now %3$d blocks tall!</item>
+        <item>Imagine you have %1$d happy thoughts. If you think of %2$d more, your mind will be filled with %3$d happy thoughts!</item>
     </string-array>
 
     <string-array name="subtraction_explanations">
@@ -116,6 +143,11 @@
         <item>If you need to find %1$d hidden treasures and you\'ve already found %2$d, there are %3$d still waiting to be discovered.</item>
         <item>A group of %1$d penguins is on an iceberg. If %2$d of them jump into the water, %3$d penguins remain on the ice.</item>
         <item>Subtraction is finding out how much is left. When %2$d is taken from %1$d, the amount left is %3$d.</item>
+        <item>A fluffy cloud was holding %1$d raindrops. After %2$d drops fell, the cloud had %3$d raindrops left, waiting for another day.</item>
+        <item>A little squirrel gathered %1$d acorns for the winter. If it ate %2$d for a snack, it still has %3$d acorns saved up.</item>
+        <item>There were %1$d magical fireflies lighting up the night. When %2$d flew away to say hello to the moon, %3$d fireflies remained.</item>
+        <item>You had %1$d puzzle pieces. After fitting %2$d pieces into the puzzle, you only have %3$d left to find a place for!</item>
+        <item>A spaceship had %1$d alien passengers. When %2$d aliens got off at Planet Giggles, there were %3$d passengers left on board.</item>
     </string-array>
 
     <string-array name="multiplication_explanations">
@@ -139,6 +171,11 @@
         <item>Each pack of juice has %1$d cartons. If you buy %2$d packs, you will have %3$d juice cartons.</item>
         <item>If you save %1$d dollars every week for %2$d weeks, you will have saved up %3$d dollars.</item>
         <item>Multiplication helps you count big groups quickly. %2$d groups of %1$d is always %3$d.</item>
+        <item>If one magical spell requires %1$d star sparkles, and a wizard casts the spell %2$d times, they will use a total of %3$d sparkles!</item>
+        <item>A super-fast cheetah has %1$d spots on one leg. If you could count the spots on all %2$d legs, you\'d find %3$d spots!</item>
+        <item>Each flower in the enchanted garden has %1$d petals. If you pick a bouquet of %2$d flowers, you\'ll have %3$d beautiful petals.</item>
+        <item>A baker makes special cupcakes in batches of %1$d. If they bake %2$d batches, they will have %3$d yummy cupcakes to sell!</item>
+        <item>In a video game, each treasure chest gives you %1$d gold coins. If you find %2$d chests, you\'ll be rich with %3$d coins!</item>
     </string-array>
 
     <string-array name="division_explanations">
@@ -162,5 +199,10 @@
         <item>You have %1$d building blocks and want to make towers that are %2$d blocks tall. You can build %3$d towers.</item>
         <item>A farmer collected %1$d eggs and puts them into cartons that hold %2$d eggs each. The farmer can fill %3$d cartons.</item>
         <item>Division is the opposite of multiplication. Since %2$d × %3$d = %1$d, we know that %1$d ÷ %2$d = %3$d.</item>
+        <item>A pirate found a treasure of %1$d gold coins! To share it fairly with a crew of %2$d pirates, each pirate gets %3$d shiny coins.</item>
+        <item>A mother bird has %1$d yummy worms to feed her %2$d baby birds. Each baby gets to eat %3$d worms. Chirp chirp!</item>
+        <item>You have %1$d storybooks to put on your bookshelf. If each shelf can hold %2$d books, you can fill up %3$d shelves.</item>
+        <item>A group of %1$d friendly aliens wants to ride a rollercoaster. If each car fits %2$d aliens, they will need %3$d cars for everyone to ride!</item>
+        <item>You have %1$d beads to make bracelets. If each bracelet needs %2$d beads, you can create %3$d beautiful bracelets for your friends.</item>
     </string-array>
 </resources>

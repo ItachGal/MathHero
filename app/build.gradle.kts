@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.google.ads)
     implementation(libs.google.ump)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.bundles.google.play.appUpdate)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

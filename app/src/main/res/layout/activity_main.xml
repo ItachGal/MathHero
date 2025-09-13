@@ -85,17 +85,36 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@raw/mathhero_1" />
 
-            <TextView
-                android:id="@+id/rank_name_text"
+            <LinearLayout
+                android:id="@+id/status_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceTitleLarge"
-                android:textColor="?attr/colorPrimary"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/hero_image"
-                tools:text="Novice" />
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/rank_name_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="?attr/colorPrimary"
+                    tools:text="Novice" />
+
+                <TextView
+                    android:id="@+id/difficulty_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="Apprentice" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/view_ranks_button"
@@ -114,7 +133,7 @@
                 android:textColor="?attr/colorSecondary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rank_name_text" />
+                app:layout_constraintTop_toBottomOf="@id/status_container" />
 
             <TextView
                 android:id="@+id/problemText"
@@ -238,6 +257,29 @@
         </FrameLayout>
 
         <LinearLayout
+            android:id="@+id/daily_quest_complete_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_check_circle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/daily_quest_complete"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/post_answer_actions_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -247,7 +289,7 @@
             tools:visibility="visible">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/bonusRiddleButton"
+                android:id="@+id/nextProblemButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
@@ -8,6 +9,7 @@
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -16,26 +18,29 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_close"
-            app:title="@string/settings" />
+            app:title="@string/difficulty_selection_title" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/notification_switch"
+    <TextView
+        android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/enable_daily_problem_notification"
-        android:textAppearance="?attr/textAppearanceBodyLarge" />
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/difficulty_selection_subtitle"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/sound_switch"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/difficulty_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/enable_sound_effects"
-        android:textAppearance="?attr/textAppearanceBodyLarge" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_difficulty_level" />
 
 </LinearLayout>
