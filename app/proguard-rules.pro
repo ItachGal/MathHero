@@ -11,6 +11,7 @@
 -keep class com.google.android.gms.ads.** { *; }
 -keep class com.google.android.ump.** { *; }
 -keep class nl.dionsegijn.konfetti.** { *; }
+-keep class com.google.android.play.core.** { *; }
 
 # --- Keep Application Entry Points ---
 -keep public class * extends android.app.Activity
@@ -58,4 +59,11 @@
 -keepclassmembers public final class **.data.** {
     public <init>(...);
     public final <methods>;
+}
+
+# --- Keep Enums ---
+# Keep all members of enums, which is crucial for methods like valueOf().
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
 }
