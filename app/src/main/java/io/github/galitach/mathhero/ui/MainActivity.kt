@@ -113,9 +113,9 @@ class MainActivity : AppCompatActivity() {
 
         setupSoundPlayers()
         setupClickListeners()
+        setupConsentAndAds() // This needs to be called on every launch.
 
         handleOnboardingIfNeeded()
-        setupConsentAndAds()
         observeUiState()
         animateContentIn()
     }
@@ -152,7 +152,9 @@ class MainActivity : AppCompatActivity() {
                 if (consentInformation.canRequestAds()) initializeMobileAds()
             }
             },
-            { }
+            { formError ->
+                Log.w("MainActivity", "Consent form error: ${formError.message}")
+            }
         )
         if (consentInformation.canRequestAds()) initializeMobileAds()
     }
@@ -168,34 +170,52 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleOnboardingIfNeeded() {
         if (!SharedPreferencesManager.isOnboardingCompleted()) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.disclaimer_title)
-                .setMessage(R.string.disclaimer_message)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    dialog.dismiss()
-                    showNotificationPrimerDialog()
-                }
-                .setCancelable(false)
-                .show()
+            showDisclaimerDialog()
         }
     }
 
+    private fun showDisclaimerDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.disclaimer_title)
+            .setMessage(R.string.disclaimer_message)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                showNotificationPrimerDialog()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
     private fun showNotificationPrimerDialog() {
+        val onFinishOnboarding = {
+            SharedPreferencesManager.setOnboardingCompleted()
+            if (viewModel.uiState.value.needsDifficultySelection) {
+                showDifficultySelectionDialog()
+            }
+        }
+
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.notification_primer_title)
             .setMessage(R.string.notification_primer_message)
             .setPositiveButton(R.string.notification_primer_positive) { dialog, _ ->
                 dialog.dismiss()
                 requestNotificationPermission()
-                SharedPreferencesManager.setOnboardingCompleted()
+                onFinishOnboarding()
             }
             .setNegativeButton(R.string.notification_primer_negative) { dialog, _ ->
                 enableNotifications(false)
                 dialog.dismiss()
-                SharedPreferencesManager.setOnboardingCompleted()
+                onFinishOnboarding()
             }
             .setCancelable(false)
             .show()
+    }
+
+    private fun showDifficultySelectionDialog() {
+        if (supportFragmentManager.findFragmentByTag(DifficultySelectionDialogFragment.TAG) == null) {
+            DifficultySelectionDialogFragment.newInstance(isFirstTime = true)
+                .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
+        }
     }
 
     private fun requestNotificationPermission() {
@@ -262,6 +282,11 @@ class MainActivity : AppCompatActivity() {
                     updateGamificationUI(state)
                     updateButtonStates(state)
                     updateAnswerUI(state)
+
+                    // This observer handles cases where difficulty is not set on a subsequent app launch (e.g., cleared data)
+                    if (state.needsDifficultySelection && SharedPreferencesManager.isOnboardingCompleted()) {
+                        showDifficultySelectionDialog()
+                    }
                 }
             }
         }
@@ -299,12 +324,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 viewModel.uiState.map { it.showSaveStreakDialog }.distinctUntilChanged().collect { show ->
                     if (show) showSaveStreakDialog()
-                }
-                viewModel.uiState.map { it.needsDifficultySelection }.distinctUntilChanged().collect { needsSelection ->
-                    if (needsSelection) {
-                        DifficultySelectionDialogFragment.newInstance(isFirstTime = true)
-                            .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
-                    }
                 }
                 viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
                     if (show) showSuggestLowerDifficultyDialog()
@@ -406,7 +425,7 @@ class MainActivity : AppCompatActivity() {
             maxSpeed = 30f,
             damping = 0.9f,
             spread = 360,
-            colors = listOf(0xfab042, 0xf4d36b, 0x5e4200),
+            colors = listOf(0x765B22, 0xC2A661, 0x496546), // Dark Gold, Bright Gold, Green
             emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
             position = Position.Relative(0.5, 0.3)
         )
@@ -419,7 +438,7 @@ class MainActivity : AppCompatActivity() {
             maxSpeed = 50f,
             damping = 0.9f,
             spread = 360,
-            colors = listOf(0xfab042, 0xf4d36b, 0x5e4200, 0xffffff),
+            colors = listOf(0x765B22, 0xC2A661, 0x496546, 0xBA1A1A), // Dark Gold, Bright Gold, Green, Red
             emitter = Emitter(duration = 2, TimeUnit.SECONDS).perSecond(300),
             position = Position.Relative(0.5, -0.1)
         )

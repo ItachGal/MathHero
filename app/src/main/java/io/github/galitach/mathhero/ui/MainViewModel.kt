@@ -77,11 +77,12 @@ class MainViewModel(
         repository = MathProblemRepository(application, SharedPreferencesManager)
         dailyProblemId = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
 
+        val needsSelection = !SharedPreferencesManager.isDifficultySet()
+        _uiState.update { it.copy(needsDifficultySelection = needsSelection) }
+
         observeBillingChanges()
 
-        if (!SharedPreferencesManager.isDifficultySet()) {
-            _uiState.update { it.copy(needsDifficultySelection = true) }
-        } else {
+        if (!needsSelection) {
             initializeProblem()
         }
     }
@@ -132,18 +133,20 @@ class MainViewModel(
         val highestStreak = SharedPreferencesManager.getHighestStreakCount()
         val difficultySettings = SharedPreferencesManager.getDifficultySettings()
 
-        _uiState.value = _uiState.value.copy(
-            problem = problem,
-            isDailyProblemSolved = isDailySolved,
-            shuffledAnswers = shuffledAnswers,
-            selectedAnswer = savedStateHandle.get<String>(KEY_SELECTED_ANSWER),
-            isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
-            archivedProblems = repository.getArchivedProblems(),
-            streakCount = SharedPreferencesManager.getStreakCount(),
-            highestStreakCount = highestStreak,
-            currentRank = Rank.getRankForStreak(highestStreak),
-            difficultyDescription = generateDifficultyDescription(difficultySettings)
-        )
+        _uiState.update {
+            it.copy(
+                problem = problem,
+                isDailyProblemSolved = isDailySolved,
+                shuffledAnswers = shuffledAnswers,
+                selectedAnswer = savedStateHandle.get<String>(KEY_SELECTED_ANSWER),
+                isAnswerRevealed = savedStateHandle.get<Boolean>(KEY_IS_ANSWER_REVEALED) ?: false,
+                archivedProblems = repository.getArchivedProblems(),
+                streakCount = SharedPreferencesManager.getStreakCount(),
+                highestStreakCount = highestStreak,
+                currentRank = Rank.getRankForStreak(highestStreak),
+                difficultyDescription = generateDifficultyDescription(difficultySettings)
+            )
+        }
     }
 
     fun onDifficultySelected(settings: DifficultySettings) {
