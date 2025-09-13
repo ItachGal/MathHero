@@ -14,8 +14,17 @@ object MathProblemGenerator {
         // Progressive difficulty: increase number range based on streak
         val maxNumber = settings.maxNumber
         val minNumber = if (operation == Operation.MULTIPLICATION || operation == Operation.DIVISION) 2 else 1
-        val rangeStart = max(minNumber, (maxNumber * (streak / 50.0)).toInt())
-        val rangeEnd = max(rangeStart + 1, (maxNumber * (0.5 + streak / 100.0)).toInt()).coerceAtMost(maxNumber)
+
+        val rangeStartUncoerced = max(minNumber, (maxNumber * (streak / 50.0)).toInt())
+        val rangeEndUncoerced = max(rangeStartUncoerced + 1, (maxNumber * (0.5 + streak / 100.0)).toInt())
+
+        val rangeEnd = rangeEndUncoerced.coerceAtMost(maxNumber)
+        var rangeStart = rangeStartUncoerced.coerceAtMost(rangeEnd)
+
+        // Ensure there's always a valid range for number generation.
+        if (rangeStart >= rangeEnd) {
+            rangeStart = (rangeEnd - 1).coerceAtLeast(minNumber)
+        }
 
         val (question: String, answer: Int, num1: Int, num2: Int) = when (operation) {
             Operation.ADDITION -> generateAddition(random, rangeStart, rangeEnd)
