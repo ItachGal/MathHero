@@ -40,6 +40,9 @@
         <!-- System Bar Colors -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
+
+        <!-- Component Styles -->
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
 
     <style name="TextAppearance.App.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
@@ -84,4 +87,13 @@
         <item name="colorControlNormal">?attr/colorOutline</item>
         <item name="colorControlActivated">?attr/colorPrimary</item>
     </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="android:background">@drawable/bottom_sheet_background</item>
+    </style>
+
 </resources>

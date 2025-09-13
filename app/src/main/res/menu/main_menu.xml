@@ -7,6 +7,11 @@
         android:title="@string/archive"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_progress"
+        android:icon="@drawable/ic_progress_report"
+        android:title="@string/progress_report"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_difficulty"
         android:title="@string/difficulty"
         app:showAsAction="never" />
@@ -18,7 +23,10 @@
         android:id="@+id/action_rate_app"
         android:title="@string/rate_app"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/action_upgrade_pro"
+        android:title="@string/upgrade_to_pro"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_licenses"
         android:title="@string/open_source_licenses"

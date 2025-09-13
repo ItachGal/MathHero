@@ -1,0 +1,224 @@
+<resources>
+    <string name="app_name">גיבור חשבון</string>
+    <string name="share_problem_title">שיתוף בעיה</string>
+    <string name="archive">ארכיון</string>
+    <string name="no_problem_available">אין בעיות חשבון זמינות. אנא חזור/י מחר.</string>
+    <string name="disclaimer_title">ברוכים הבאים לגיבור חשבון</string>
+    <string name="disclaimer_message">המטרה שלנו היא להפוך את לימוד המתמטיקה לחוויה מהנה. תהנו מהאתגר היומי!</string>
+    <string name="notification_channel_name">בעיות חשבון יומיות</string>
+    <string name="notification_channel_description">קבלת התראה יומית עם בעיית החשבון של היום.</string>
+    <string name="notification_title">אתגר החשבון היומי שלך מחכה!</string>
+    <string name="notification_text">לחץ/י כדי לפתור את בעיית החשבון של היום.</string>
+    <string name="notifications_disabled_toast">ההתראות כבויות. ניתן להפעיל אותן בהגדרות האפליקציה.</string>
+    <string name="archive_title">בעיות קודמות</string>
+    <string name="close">סגירה</string>
+    <string name="archive_empty">הארכיון ריק. בעיות שפתרת יופיעו כאן!</string>
+    <string name="rate_app">דרג/י את האפליקציה</string>
+    <string name="privacy_policy">מדיניות פרטיות</string>
+    <string name="privacy_policy_title">מדיניות פרטיות</string>
+    <string name="privacy_policy_text">אפליקציה זו, גיבור חשבון, היא אפליקציה עצמאית שאינה אוספת, מאחסנת או משתפת נתוני משתמש אישיים. כל הבעיות כלולות בתוך האפליקציה.\n\nשירותי צד שלישי:\n- Google AdMob: כדי לתמוך באפליקציה, אנו משתמשים ב-Google AdMob לפרסום. AdMob עשוי לאסוף נתונים כדי לספק מודעות מותאמות אישית. למידע נוסף, עיין/י במדיניות הפרטיות של גוגל.\n- Google Play Services: האפליקציה עשויה להשתמש בשירותי Google Play לפונקציות ליבה.\n\nעל ידי שימוש באפליקציה זו, את/ה מסכים/ה למדיניות זו.</string>
+    <string name="streak_counter_description">מונה רצף יומי</string>
+    <string name="confirm_answer">אישור תשובה</string>
+    <string name="notification_action_reveal">גלה/י את התשובה</string>
+    <string name="notification_action_solved">פתרתי!</string>
+    <string name="notification_answer_title">התשובה היא…</string>
+    <string name="settings">הגדרות</string>
+    <string name="open_source_licenses">רישיונות קוד פתוח</string>
+    <string name="notifications_title">התראות</string>
+    <string name="enable_daily_problem_notification">הפעל התראות לבעיית חשבון יומית</string>
+    <string name="notification_permission_required">נדרשת הרשאה לשליחת התראות. אנא הפעל/י אותה בהגדרות כדי לקבל אתגרים יומיים.</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="explanation_title">הסבר</string>
+
+    <string name="notification_primer_title">אתגר חשבון יומי</string>
+    <string name="notification_primer_message">האם תרצה/י לקבל התראה יומית עם בעיית חשבון חדשה? ניתן לשנות זאת בכל עת בהגדרות.</string>
+    <string name="notification_primer_positive">כן, בטח!</string>
+    <string name="notification_primer_negative">אולי בפעם אחרת</string>
+
+    <string name="bonus_problem_not_available">בעיית הבונוס אינה זמינה כעת. אנא נסה/י שוב מאוחר יותר.</string>
+    <string name="share_solved_format">פתרתי את זה! מה איתך?\n\n\"%1$s\"\n\nבחן/י את כישוריך עם %2$s: %3$s</string>
+    <string name="share_unsolved_format">האם תצליח/י לפתור את הבעיה הזו מ-%1$s?\n\n\"%2$s\"\n\nהורד/י את האפליקציה לאתגר יומי: %3$s</string>
+    <string name="question_format">%1$s = ?</string>
+    <string name="default_explanation">התשובה הנכונה היא %1$d.</string>
+    <string name="hint">רמז</string>
+    <string name="hero_level_description">דרגת גיבור החשבון הנוכחית</string>
+
+    <string name="ranks_title">דרגות הגיבור</string>
+    <string name="rank_locked">נעול</string>
+    <string name="rank_up_title">עלית דרגה!</string>
+    <string name="rank_up_message">כל הכבוד! עלית לדרגת %1$s!</string>
+
+    <string name="rank_novice">טירון</string>
+    <string name="rank_apprentice">שוליה</string>
+    <string name="rank_adept">מומחה</string>
+    <string name="rank_specialist">מומחה בכיר</string>
+    <string name="rank_expert">אמן</string>
+    <string name="rank_master">מאסטר</string>
+    <string name="rank_grandmaster">רב-אמן</string>
+    <string name="rank_legend">אגדה</string>
+    <string name="rank_mythic">מיתי</string>
+    <string name="rank_titan">טיטאן</string>
+
+    <string name="save_streak_dialog_title">אוי לא!</string>
+    <string name="save_streak_dialog_message">הרצף שלך נשבר! צפה/י בסרטון קצר כדי לשמור על ההתקדמות והדרגה שלך.</string>
+    <string name="save_streak_dialog_positive_button">שמור/י על הרצף (מודעה)</string>
+    <string name="save_streak_dialog_negative_button">אפס/י את הרצף</string>
+    <string name="rank_requirement_unlocked">הושג ברצף של %d</string>
+    <string name="rank_requirement_locked">דורש רצף של %d</string>
+
+    <string name="difficulty">רמת קושי</string>
+    <string name="difficulty_selection_title">בחר/י את האתגר שלך</string>
+    <string name="difficulty_selection_subtitle">בחר/י רמה כדי להתחיל. ניתן לשנות זאת מאוחר יותר בהגדרות.</string>
+    <string name="difficulty_novice">טירון</string>
+    <string name="difficulty_novice_desc">חיבור פשוט עם מספרים עד 10.</string>
+    <string name="difficulty_apprentice">שוליה</string>
+    <string name="difficulty_apprentice_desc">חיבור וחיסור עם מספרים עד 20.</string>
+    <string name="difficulty_adept">מומחה</string>
+    <string name="difficulty_adept_desc">חיבור וחיסור עם מספרים עד 50.</string>
+    <string name="difficulty_expert">אמן</string>
+    <string name="difficulty_expert_desc">חיבור, חיסור וכפל עם מספרים עד 20.</string>
+    <string name="difficulty_master">מאסטר</string>
+    <string name="difficulty_master_desc">כל הפעולות: חיבור, חיסור, כפל וחילוק עם מספרים עד 100.</string>
+    <string name="suggest_lower_difficulty_title">קצת מאתגר?</string>
+    <string name="suggest_lower_difficulty_message">נראה שהרמה הנוכחית מעט מאתגרת. האם תרצה/י לנסות רמת קושי נמוכה יותר?</string>
+    <string name="change_difficulty">שנה/י רמת קושי</string>
+    <string name="keep_going">להמשיך</string>
+    <string name="enable_sound_effects">הפעל אפקטים קוליים</string>
+    <string name="next_problem">הבעיה הבאה</string>
+    <string name="difficulty_presets">רמות מוכנות</string>
+    <string name="difficulty_customize">או בהתאמה אישית</string>
+    <string name="operations">פעולות חשבון</string>
+    <string name="largest_number">המספר הגדול ביותר</string>
+    <string name="save">שמירה</string>
+    <string name="error_no_operation_selected">יש לבחור לפחות פעולת חשבון אחת.</string>
+    <string name="custom_difficulty_desc">מותאם: %1$s עד %2$d</string>
+
+    <string name="streak_saved_pro">הרצף שלך בטוח! (הטבת PRO)</string>
+    <string name="progress_report">דוח התקדמות</string>
+    <string name="upgrade_to_pro">שדרוג ל-PRO</string>
+    <string name="upgrade_to_pro_price">שדרוג ל-PRO (%s)</string>
+    <string name="pro_user_status">את/ה משתמש/ת PRO!</string>
+    <string name="progress_locked_title">גלה/י דוחות התקדמות</string>
+    <string name="progress_locked_desc">שדרג/י ל-PRO כדי לראות דוחות מפורטים על דיוק, התקדמות שבועית ועוד!</string>
+    <string name="progress_summary">סיכום</string>
+    <string name="progress_accuracy">דיוק לפי פעולה</string>
+    <string name="progress_total_solved">סה"כ בעיות שנפתרו: %d</string>
+    <string name="progress_last_7_days">נפתרו ב-7 הימים האחרונים: %d</string>
+    <string name="progress_average_per_day">ממוצע ליום: %s</string>
+    <string name="progress_longest_streak">רצף שיא: %d</string>
+    <string name="progress_no_accuracy_data">פתור/י כמה בעיות כדי לראות את סטטיסטיקת הדיוק שלך כאן!</string>
+    <string name="progress_percentage">%d%%</string>
+    <string name="progress_accuracy_details">%1$d נכונות מתוך %2$d</string>
+
+    <string-array name="addition_explanations">
+        <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>
+        <item>דמיין/י שיש לך %1$d קוביות. אם תוסיף/י עוד %2$d קוביות, יהיו לך בסך הכל %3$d קוביות. כל הכבוד!</item>
+        <item>התחלה מ-%1$d וספירה של עוד %2$d צעדים על ציר המספרים תביא אותך בדיוק ל-%3$d. זאת התשובה!</item>
+        <item>כשאתה משלב קבוצה של %1$d עם קבוצה של %2$d, הקבוצה החדשה והגדולה יותר מכילה %3$d דברים.</item>
+        <item>חיבור זה כמו לשים דברים יחד. אז, %1$d ועוד %2$d יוצרים %3$d.</item>
+        <item>אם לגיבור-על יש %1$d כוחות והוא לומד %2$d חדשים, עכשיו יש לו %3$d כוחות מדהימים!</item>
+        <item>מצאת %1$d אבנים נוצצות, וחבר נתן לך עוד %2$d. עכשיו יש לך אוסף של %3$d אבנים!</item>
+        <item>צמח היה בגובה %1$d סנטימטרים. אחרי קצת שמש ומים, הוא צמח בעוד %2$d סנטימטרים. עכשיו גובהו %3$d סנטימטרים!</item>
+        <item>בוא/י נשתמש באצבעות! ספר/י %1$d אצבעות, ואז עוד %2$d. בסך הכל, הרמת %3$d אצבעות.</item>
+        <item>באוטובוס יש %1$d אנשים. בתחנה הבאה, עוד %2$d אנשים עולים. האוטובוס נוסע עכשיו עם %3$d אנשים.</item>
+        <item>אם קראת %1$d עמודים בספר אתמול ו-%2$d עמודים היום, קראת בסך הכל %3$d עמודים.</item>
+        <item>מתכון דורש %1$d כוסות קמח ו-%2$d כוסות סוכר. הכמות הכוללת של המרכיבים היבשים היא %3$d כוסות.</item>
+        <item>יש לך %1$d מדבקות, וזכית בעוד %2$d. באלבום המדבקות שלך יש עכשיו %3$d מדבקות מדהימות!</item>
+        <item>שתי קבוצות משחקות. קבוצה אחת קלעה %1$d נקודות, והשנייה %2$d נקודות. התוצאה הכוללת היא %3$d נקודות.</item>
+        <item>חשוב/י על זה כמו טיפוס על סולם. טיפסת %1$d שלבים, לקחת הפסקה, ואז טיפסת עוד %2$d. טיפסת %3$d שלבים!</item>
+        <item>לחתול יש %1$d צעצועים והבעלים שלו קונה לו %2$d חדשים. לחתול המאושר יש עכשיו %3$d צעצועים לשחק איתם.</item>
+        <item>במשחק וידאו, אספת %1$d מטבעות בשלב אחד ו-%2$d בשלב הבא. הסכום הכולל שלך הוא %3$d מטבעות!</item>
+        <item>לפאזל יש שני חלקים. באחד יש %1$d חלקים, ובשני %2$d. הפאזל השלם מורכב מ-%3$d חלקים.</item>
+        <item>אם חסכת %1$d שקלים ואז הרווחת עוד %2$d, בקופת החיסכון שלך יהיו %3$d שקלים.</item>
+        <item>לשלב %1$d ו-%2$d זה כמו למזג שני נחלים קטנים לנהר גדול. התוצאה היא %3$d אדיר!</item>
+        <item>אם לגמד קסום יש %1$d אבני חן נוצצות והוא מוצא עוד %2$d במערה מנצנצת, עכשיו יש לו %3$d אבני חן בכיס האוצר שלו!</item>
+        <item>דמיין/י דרקון חברותי עם %1$d עוגיות. אם תיתן/י לו עוד %2$d, הוא ינשנש בשמחה %3$d עוגיות!</item>
+        <item>על עלה שושן מים גדול וירוק ישבו %1$d צפרדעים. כש-%2$d חברים צפרדעים נוספים קפצו עליו, התקיימה מסיבה של %3$d צפרדעים!</item>
+        <item>בנית מגדל עם %1$d קוביות. חבר שלך הוסיף עוד %2$d קוביות למעלה. וואו! המגדל שלך עכשיו בגובה %3$d קוביות!</item>
+        <item>דמיין/י שיש לך %1$d מחשבות שמחות. אם תחשוב/בי על עוד %2$d, המוח שלך יתמלא ב-%3$d מחשבות שמחות!</item>
+    </string-array>
+
+    <string-array name="subtraction_explanations">
+        <item>חיסור של %2$d מ-%1$d אומר שאתה מתחיל עם %1$d פריטים ולוקח %2$d מהם. נשארת עם %3$d.</item>
+        <item>אם יש לך %1$d עוגיות ואת/ה אוכל/ת %2$d מהן, יישארו לך %3$d עוגיות. יאמי!</item>
+        <item>על ציר מספרים, אם תתחיל/י ב-%1$d ותזוז/י אחורה %2$d צעדים, תנחת/י על %3$d.</item>
+        <item>ההבדל בין %1$d ל-%2$d הוא %3$d. זה מה שנשאר כשאתה לוקח את המספר הקטן מהגדול.</item>
+        <item>לקחת %2$d מ-%1$d משאיר אותך עם %3$d. זה כמו חיבור הפוך!</item>
+        <item>גיבור-על נלחם ב-%1$d נבלים והביס %2$d מהם. נשארו %3$d נבלים לתפוס!</item>
+        <item>יש לך %1$d בלונים, אבל %2$d מהם התפוצצו! אוי לא! עכשיו יש לך %3$d בלונים.</item>
+        <item>על עץ היו %1$d תפוחים. אם %2$d תפוחים נפלו על האדמה, עדיין יש %3$d תפוחים על העץ.</item>
+        <item>התחלת עם %1$d ממתקים וחלקת %2$d עם חברים. נשארו לך %3$d ממתקים לעצמך.</item>
+        <item>חללית נמצאת במשימה של %1$d ימים. אם כבר עברו %2$d ימים, נשארו %3$d ימים למשימה.</item>
+        <item>אם בספר יש %1$d עמודים וכבר קראת %2$d מהם, נשארו לך רק %3$d עמודים לקרוא.</item>
+        <item>יש לך %1$d שקלים ואת/ה מוציא/ה %2$d על צעצוע. יישארו לך %3$d שקלים.</item>
+        <item>מגדל שנבנה מ-%1$d קוביות איבד %2$d קוביות מהחלק העליון. המגדל עכשיו בגובה %3$d קוביות.</item>
+        <item>יש %1$d ציפורים על חוט חשמל. אם %2$d מהן עפו, נשארו %3$d ציפורים.</item>
+        <item>איזה מספר צריך להוסיף ל-%2$d כדי להגיע ל-%1$d? המספר הזה הוא %3$d!</item>
+        <item>דמיין/י מרוץ באורך %1$d קילומטרים. אם כבר רצת %2$d קילומטרים, נשארו לך עוד %3$d.</item>
+        <item>בכוס מלאה יש %1$d מ"ל מיץ. אחרי ששתית %2$d מ"ל, נשארו %3$d מ"ל.</item>
+        <item>אם את/ה צריך/ה למצוא %1$d אוצרות חבויים וכבר מצאת %2$d, יש עוד %3$d שמחכים להתגלות.</item>
+        <item>קבוצה של %1$d פינגווינים נמצאת על קרחון. אם %2$d מהם קופצים למים, %3$d פינגווינים נשארים על הקרח.</item>
+        <item>חיסור הוא למצוא כמה נשאר. כש-%2$d נלקח מ-%1$d, הכמות שנותרת היא %3$d.</item>
+        <item>ענן רך החזיק %1$d טיפות גשם. אחרי ש-%2$d טיפות נפלו, נשארו בענן %3$d טיפות, שמחכות ליום אחר.</item>
+        <item>סנאי קטן אסף %1$d בלוטים לחורף. אם הוא אכל %2$d כנשנוש, עדיין נשארו לו %3$d בלוטים שמורים.</item>
+        <item>היו %1$d גחליליות קסומות שהאירו את הלילה. כש-%2$d מהן עפו כדי להגיד שלום לירח, נשארו %3$d גחליליות.</item>
+        <item>היו לך %1$d חלקי פאזל. אחרי שהתאמת %2$d חלקים לפאזל, נשארו לך רק %3$d למצוא להם מקום!</item>
+        <item>בחללית היו %1$d נוסעים חייזרים. כש-%2$d חייזרים ירדו בכוכב צחקוקים, נשארו %3$d נוסעים על הסיפון.</item>
+    </string-array>
+
+    <string-array name="multiplication_explanations">
+        <item>להכפיל %1$d ב-%2$d זה כמו לחבר %1$d לעצמו %2$d פעמים. זה נותן לך סך הכל %3$d.</item>
+        <item>דמיין/י שיש לך %2$d שקיות, ובכל שקית יש %1$d גולות. בסך הכל, יש לך %3$d גולות!</item>
+        <item>זה מבקש %2$d קבוצות של %1$d. אם תספור/י את כל הפריטים בכל הקבוצות, תקבלי %3$d.</item>
+        <item>כפל הוא דרך מהירה לחבר. %1$d כפול %2$d זהה ל-%1$d + %1$d… (%2$d פעמים), ששווה ל-%3$d.</item>
+        <item>כשאת/ה רואה %1$d × %2$d, זה אומר שיש לך %1$d שחוזר על עצמו %2$d פעמים. התוצאה היא %3$d גדול!</item>
+        <item>אם גיבור-על יכול להרים %1$d מכוניות, ו-%2$d גיבורי-על נמצאים שם, יחד הם יכולים להרים %3$d מכוניות! וואו!</item>
+        <item>בגינה יש %2$d שורות של פרחים, עם %1$d פרחים בכל שורה. זה יוצר גינה יפהפייה של %3$d פרחים.</item>
+        <item>אם את/ה מקבל/ת %1$d מדבקות בעמוד, ויש לך %2$d עמודים, יש לך אוסף ענק של %3$d מדבקות.</item>
+        <item>בקופסת צבעים יש %1$d צבעים. אם יש לך %2$d קופסאות, יש לך %3$d צבעים לצייר איתם.</item>
+        <item>לתמנון יש 8 זרועות. אם היו %1$d תמנונים (ולכל אחד %2$d זרועות), היו להם %3$d זרועות בסך הכל!</item>
+        <item>אם למכונית יש %1$d גלגלים, אז ל-%2$d מכוניות יהיו בסך הכל %3$d גלגלים שמתגלגלים על הכביש.</item>
+        <item>את/ה בונה בקוביות. את/ה יוצר/ת %2$d מגדלים, וכל מגדל בגובה %1$d קוביות. השתמשת ב-%3$d קוביות בסך הכל.</item>
+        <item>מתכון לעוגיות מפיק %1$d עוגיות בכל אפייה. אם תכין/י %2$d נגלות, יהיו לך %3$d עוגיות לחלוק.</item>
+        <item>אם שלב במשחק וידאו נותן לך %1$d נקודות, ואת/ה מנצח/ת %2$d שלבים, תרוויח/י %3$d נקודות.</item>
+        <item>חשוב/י על רשת. רשת עם %1$d שורות ו-%2$d עמודות מכילה בסך הכל %3$d ריבועים.</item>
+        <item>אם ספר עולה %1$d שקלים, ואת/ה רוצה לקנות %2$d מהם לחברים, תצטרך/י %3$d שקלים.</item>
+        <item>לעכביש יש 8 רגליים. אם ראית %1$d עכבישים (ולכל אחד %2$d רגליים), היית רואה %3$d רגליים זוחלות!</item>
+        <item>בכל מארז מיצים יש %1$d קרטוניות. אם תקנה/י %2$d מארזים, יהיו לך %3$d קרטוניות מיץ.</item>
+        <item>אם תחסוך/כי %1$d שקלים כל שבוע במשך %2$d שבועות, תחסוך/כי %3$d שקלים.</item>
+        <item>כפל עוזר לך לספור קבוצות גדולות במהירות. %2$d קבוצות של %1$d זה תמיד %3$d.</item>
+        <item>אם כישוף קסום אחד דורש %1$d נצנוצי כוכבים, וקוסם מטיל את הכישוף %2$d פעמים, הוא ישתמש בסך הכל ב-%3$d נצנוצים!</item>
+        <item>לצ\'יטה סופר-מהירה יש %1$d כתמים על רגל אחת. אם היית יכול/ה לספור את הכתמים על כל %2$d הרגליים, היית מוצא/ת %3$d כתמים!</item>
+        <item>לכל פרח בגינה הקסומה יש %1$d עלי כותרת. אם תקטוף/פי זר של %2$d פרחים, יהיו לך %3$d עלי כותרת יפהפיים.</item>
+        <item>אופה מכין קאפקייקס מיוחדים בקבוצות של %1$d. אם הוא יאפה %2$d קבוצות, יהיו לו %3$d קאפקייקס טעימים למכירה!</item>
+        <item>במשחק וידאו, כל תיבת אוצר נותנת לך %1$d מטבעות זהב. אם תמצא/י %2$d תיבות, תהיה/י עשיר/ה עם %3$d מטבעות!</item>
+    </string-array>
+
+    <string-array name="division_explanations">
+        <item>לחלק %1$d ב-%2$d אומר שאתה מפצל %1$d ל-%2$d קבוצות שוות. בכל קבוצה יהיו %3$d פריטים.</item>
+        <item>אם יש לך %1$d מדבקות לחלוק שווה בשווה בין %2$d חברים, כל חבר יקבל %3$d מדבקות.</item>
+        <item>חילוק שואל, "כמה פעמים %2$d נכנס ב-%1$d?" התשובה היא בדיוק %3$d פעמים!</item>
+        <item>חשוב/י על זה כך: %2$d כפול איזה מספר שווה ל-%1$d? המספר החסר הוא %3$d. זה חילוק!</item>
+        <item>כשאת/ה מפרק/ת %1$d ל-%2$d חלקים קטנים ואחידים, כל חלק הוא %3$d. כל הכבוד!</item>
+        <item>לגיבור-על יש %1$d גאדג\'טים והוא רוצה לשים אותם ב-%2$d חגורות, עם אותו מספר בכל אחת. כל חגורה תחזיק %3$d גאדג\'טים.</item>
+        <item>אפית %1$d עוגיות ורוצה לשים אותן בשקיות של %2$d עוגיות כל אחת. תוכלי להכין %3$d שקיות.</item>
+        <item>פיצה נחתכה ל-%1$d משולשים. אם %2$d אנשים חולקים אותה שווה בשווה, כל אחד יאכל %3$d משולשים.</item>
+        <item>קבוצה של %1$d שחקנים צריכה להתחלק ל-%2$d קבוצות קטנות יותר. בכל קבוצה קטנה יהיו %3$d שחקנים.</item>
+        <item>אם יש לך חבל באורך %1$d מטרים ואת/ה חותך/ת אותו ל-%2$d חתיכות שוות, כל חתיכה תהיה באורך %3$d מטרים.</item>
+        <item>מחלקים קלפים! אם יש לך %1$d קלפים ו-%2$d שחקנים, אפשר לחלק לכל שחקן %3$d קלפים.</item>
+        <item>בספר יש %1$d עמודים. אם תרצה/י לקרוא אותו ב-%2$d ימים, ולקרוא כל יום אותו מספר עמודים, תצטרך/י לקרוא %3$d עמודים ביום.</item>
+        <item>יש לך %1$d צעצועים לסדר על %2$d מדפים. כדי שיהיה מסודר, צריך לשים %3$d צעצועים על כל מדף.</item>
+        <item>סכום של %1$d שקלים נמצא והוא מחולק בין %2$d אנשים. כל אחד מקבל חלק שווה של %3$d שקלים.</item>
+        <item>חילוק זה כמו חלוקה הוגנת. כשחולקים %1$d בין %2$d, כל אחד מקבל %3$d.</item>
+        <item>כמה קבוצות של %2$d אפשר ליצור מ-%1$d? אפשר ליצור בדיוק %3$d קבוצות.</item>
+        <item>נסיעה ברכב היא באורך %1$d קילומטרים. אם רוצים לסיים אותה ב-%2$d שעות, צריך לנסוע %3$d קילומטרים בכל שעה.</item>
+        <item>יש לך %1$d קוביות בנייה ואת/ה רוצה לבנות מגדלים בגובה %2$d קוביות. תוכלי לבנות %3$d מגדלים.</item>
+        <item>חקלאי אסף %1$d ביצים ושם אותן בקרטונים שמכילים %2$d ביצים כל אחד. החקלאי יכול למלא %3$d קרטונים.</item>
+        <item>חילוק הוא הפעולה ההפוכה מכפל. מכיוון ש-%2$d × %3$d = %1$d, אנחנו יודעים ש-%1$d ÷ %2$d = %3$d.</item>
+        <item>פיראט מצא אוצר של %1$d מטבעות זהב! כדי לחלוק אותו בצדק עם צוות של %2$d פיראטים, כל פיראט מקבל %3$d מטבעות נוצצים.</item>
+        <item>לאמא ציפור יש %1$d תולעים טעימות להאכיל את %2$d גוזליה. כל גוזל זוכה לאכול %3$d תולעים. צייף צייף!</item>
+        <item>יש לך %1$d ספרי סיפורים לשים על מדף הספרים שלך. אם כל מדף יכול להכיל %2$d ספרים, תוכלי למלא %3$d מדפים.</item>
+        <item>קבוצה של %1$d חייזרים חברותיים רוצה לעלות על רכבת הרים. אם כל קרון מתאים ל-%2$d חייזרים, הם יצטרכו %3$d קרונות כדי שכולם יוכלו לנסוע!</item>
+        <item>יש לך %1$d חרוזים להכנת צמידים. אם כל צמיד דורש %2$d חרוזים, תוכלי ליצור %3$d צמידים יפהפיים לחברים שלך.</item>
+    </string-array>
+</resources>

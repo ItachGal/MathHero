@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
+import io.github.galitach.mathhero.MathHeroApplication
 
 object MainViewModelFactory : ViewModelProvider.Factory {
 
@@ -14,10 +15,10 @@ object MainViewModelFactory : ViewModelProvider.Factory {
         extras: CreationExtras
     ): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                ?: throw IllegalStateException("Application is required for this ViewModel")
+            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MathHeroApplication
             val savedStateHandle = extras.createSavedStateHandle()
-            return MainViewModel(application, savedStateHandle) as T
+            val billingManager = application.billingManager
+            return MainViewModel(application, savedStateHandle, billingManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

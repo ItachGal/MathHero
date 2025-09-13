@@ -4,8 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
@@ -15,17 +13,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.children
-import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -49,19 +44,24 @@ import com.google.android.play.core.ktx.requestAppUpdateInfo
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
+import io.github.galitach.mathhero.MathHeroApplication
 import io.github.galitach.mathhero.R
-import io.github.galitach.mathhero.data.MathProblem
+import io.github.galitach.mathhero.billing.BillingManager
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.ActivityMainBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
+import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
+import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
@@ -71,11 +71,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels { MainViewModelFactory }
+    private lateinit var billingManager: BillingManager
 
     private lateinit var consentInformation: ConsentInformation
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
 
-    private var bonusProblemRewardedAd: RewardedAd? = null
     private var saveStreakRewardedAd: RewardedAd? = null
 
     private var correctSoundPlayer: MediaPlayer? = null
@@ -100,21 +100,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private val hintColors by lazy {
-        listOf(
-            ContextCompat.getColor(this, R.color.hint_color_1),
-            ContextCompat.getColor(this, R.color.hint_color_2),
-            ContextCompat.getColor(this, R.color.hint_color_3),
-            ContextCompat.getColor(this, R.color.hint_color_4),
-            ContextCompat.getColor(this, R.color.hint_color_5),
-            ContextCompat.getColor(this, R.color.hint_color_6),
-            ContextCompat.getColor(this, R.color.hint_color_7),
-            ContextCompat.getColor(this, R.color.hint_color_8),
-            ContextCompat.getColor(this, R.color.hint_color_9),
-            ContextCompat.getColor(this, R.color.hint_color_10)
-        )
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -122,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        billingManager = (application as MathHeroApplication).billingManager
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
         checkForAppUpdates()
 
@@ -152,6 +138,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupConsentAndAds() {
+        if (SharedPreferencesManager.isProUser()) {
+            binding.adViewContainer.visibility = View.GONE
+            return
+        }
+
         val params = ConsentRequestParameters.Builder().build()
         consentInformation = UserMessagingPlatform.getConsentInformation(this)
         consentInformation.requestConsentInfoUpdate(
@@ -167,10 +158,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeMobileAds() {
+        if (SharedPreferencesManager.isProUser()) return
         if (isMobileAdsInitializeCalled.getAndSet(true)) return
         MobileAds.initialize(this) {
             loadBannerAd()
-            loadBonusProblemRewardedAd()
             loadSaveStreakRewardedAd()
         }
     }
@@ -225,24 +216,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        val openRanksDialog = { view: View ->
+        binding.heroCard.setOnClickListener { view ->
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             val dialog = RanksDialogFragment.newInstance(viewModel.uiState.value.highestStreakCount)
             dialog.show(supportFragmentManager, RanksDialogFragment.TAG)
         }
-        binding.heroImage.setOnClickListener(openRanksDialog)
-        binding.viewRanksButton.setOnClickListener(openRanksDialog)
 
         binding.buttonHint.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onHintClicked() }
         binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
         binding.nextProblemButton.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            if (viewModel.uiState.value.bonusProblemsRemaining > 0) {
-                viewModel.onNextProblemRequested()
-            } else {
-                showBonusProblemRewardedAd()
-            }
+            viewModel.onNextProblemRequested()
         }
         binding.buttonInfo.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -272,7 +257,6 @@ class MainActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Collect general UI state
                 viewModel.uiState.collect { state ->
                     updateProblemUI(state)
                     updateGamificationUI(state)
@@ -283,65 +267,76 @@ class MainActivity : AppCompatActivity() {
         }
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Collect single-shot events
-                launch {
-                    viewModel.uiState.map { it.playSoundEvent }.distinctUntilChanged().collect { event ->
-                        event?.let {
-                            playSound(it)
-                            viewModel.onSoundEventHandled()
+                viewModel.oneTimeEvent.onEach { event ->
+                    when (event) {
+                        is OneTimeEvent.LaunchPurchaseFlow -> billingManager.launchPurchaseFlow(this@MainActivity)
+                        is OneTimeEvent.ShowHintSheet -> {
+                            if (supportFragmentManager.findFragmentByTag(HintBottomSheetFragment.TAG) == null) {
+                                HintBottomSheetFragment.newInstance(event.problem)
+                                    .show(supportFragmentManager, HintBottomSheetFragment.TAG)
+                            }
                         }
                     }
-                }
-                launch {
-                    viewModel.uiState.map { it.triggerWinAnimation }.distinctUntilChanged().collect { trigger ->
-                        if (trigger) {
-                            triggerWinEffects()
-                            viewModel.onWinAnimationComplete()
-                        }
+                }.launchIn(this)
+
+                viewModel.uiState.map { it.playSoundEvent }.distinctUntilChanged().collect { event ->
+                    event?.let {
+                        playSound(it)
+                        viewModel.onSoundEventHandled()
                     }
                 }
-                launch {
-                    viewModel.uiState.map { it.triggerRankUpAnimation }.distinctUntilChanged().collect { trigger ->
-                        if (trigger) {
-                            triggerRankUpEffects()
-                            viewModel.onRankUpAnimationComplete()
-                        }
+                viewModel.uiState.map { it.triggerWinAnimation }.distinctUntilChanged().collect { trigger ->
+                    if (trigger) {
+                        triggerWinEffects()
+                        viewModel.onWinAnimationComplete()
                     }
                 }
-                launch {
-                    viewModel.uiState.map { it.showSaveStreakDialog }.distinctUntilChanged().collect { show ->
-                        if (show) showSaveStreakDialog()
+                viewModel.uiState.map { it.triggerRankUpAnimation }.distinctUntilChanged().collect { trigger ->
+                    if (trigger) {
+                        triggerRankUpEffects()
+                        viewModel.onRankUpAnimationComplete()
                     }
                 }
-                launch {
-                    viewModel.uiState.map { it.needsDifficultySelection }.distinctUntilChanged().collect { needsSelection ->
-                        if (needsSelection) {
-                            DifficultySelectionDialogFragment.newInstance(isFirstTime = true)
-                                .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
-                        }
+                viewModel.uiState.map { it.showSaveStreakDialog }.distinctUntilChanged().collect { show ->
+                    if (show) showSaveStreakDialog()
+                }
+                viewModel.uiState.map { it.needsDifficultySelection }.distinctUntilChanged().collect { needsSelection ->
+                    if (needsSelection) {
+                        DifficultySelectionDialogFragment.newInstance(isFirstTime = true)
+                            .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
                     }
                 }
-                launch {
-                    viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
-                        if (show) showSuggestLowerDifficultyDialog()
+                viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
+                    if (show) showSuggestLowerDifficultyDialog()
+                }
+                viewModel.uiState.map { it.isPro }.distinctUntilChanged().collect { isPro ->
+                    handleProStatusChange(isPro)
+                }
+                viewModel.uiState.map { it.showStreakSavedToast }.distinctUntilChanged().collect { show ->
+                    if (show) {
+                        Toast.makeText(this@MainActivity, R.string.streak_saved_pro, Toast.LENGTH_SHORT).show()
+                        viewModel.onStreakSaveToastShown()
                     }
                 }
             }
         }
     }
 
+    private fun handleProStatusChange(isPro: Boolean) {
+        if (isPro) {
+            binding.adViewContainer.visibility = View.GONE
+            saveStreakRewardedAd = null
+        } else {
+            binding.adViewContainer.visibility = View.VISIBLE
+            initializeMobileAds()
+        }
+        updateNextProblemButton()
+    }
+
     private fun updateProblemUI(state: UiState) {
         binding.mainContent.isVisible = state.problem != null
         binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
         binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
-
-        if (state.showVisualHint && binding.hintGrid.isEmpty()) {
-            renderVisualHint(state.problem)
-            binding.hintGrid.visibility = View.VISIBLE
-        } else if (!state.showVisualHint) {
-            binding.hintGrid.visibility = View.GONE
-            binding.hintGrid.removeAllViews()
-        }
     }
 
     private fun updateGamificationUI(state: UiState) {
@@ -374,9 +369,8 @@ class MainActivity : AppCompatActivity() {
         val isAnswerSelected = state.selectedAnswer != null
         binding.hintButtonContainer.visibility = if (isAnswerSelected) View.INVISIBLE else View.VISIBLE
         binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
-        binding.buttonHint.isEnabled = !state.showVisualHint
 
-        updateNextProblemButton(state.bonusProblemsRemaining, state.isBonusRewardedAdLoaded)
+        updateNextProblemButton()
     }
 
     private fun updateAnswerUI(state: UiState) {
@@ -400,87 +394,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun renderVisualHint(problem: MathProblem?) {
-        problem ?: return
-        binding.hintGrid.removeAllViews()
-
-        val answer = problem.answer.toIntOrNull() ?: 0
-
-        val totalStars = when (problem.operator) {
-            "+" -> (problem.num1 + problem.num2)
-            "-" -> problem.num1
-            "×" -> (problem.num1 * problem.num2)
-            "÷" -> problem.num1
-            else -> 0
-        }.coerceAtMost(100) // Cap total stars to avoid performance issues
-
-        val starSize = when {
-            totalStars > 90 -> resources.getDimensionPixelSize(R.dimen.hint_star_size_small)
-            totalStars > 70 -> resources.getDimensionPixelSize(R.dimen.hint_star_size_medium)
-            else -> resources.getDimensionPixelSize(R.dimen.hint_star_size_large)
-        }
-
-        val colorAddPrimary = ContextCompat.getColor(this, R.color.hint_add_primary)
-        val colorAddSecondary = ContextCompat.getColor(this, R.color.hint_add_secondary)
-        val colorMuted = ContextCompat.getColor(this, R.color.colorSurfaceVariant)
-
-        when (problem.operator) {
-            "+" -> {
-                binding.hintGrid.columnCount = 10
-                repeat(problem.num1) { addStarToHint(colorAddPrimary, starSize) }
-                repeat(problem.num2) { addStarToHint(colorAddSecondary, starSize) }
-            }
-            "-" -> {
-                binding.hintGrid.columnCount = 10
-                repeat(problem.num1) { index ->
-                    val color = if (index < answer) colorAddPrimary else colorMuted
-                    addStarToHint(color, starSize)
-                }
-            }
-            "×" -> {
-                binding.hintGrid.columnCount = problem.num1.coerceAtLeast(1)
-                repeat(totalStars) {
-                    val rowIndex = it / problem.num1
-                    val color = hintColors[rowIndex % hintColors.size]
-                    addStarToHint(color, starSize)
-                }
-            }
-            "÷" -> {
-                binding.hintGrid.columnCount = answer.coerceAtLeast(1)
-                repeat(totalStars) {
-                    val rowIndex = it / answer
-                    val color = hintColors[rowIndex % hintColors.size]
-                    addStarToHint(color, starSize)
-                }
-            }
-        }
-    }
-
-    private fun addStarToHint(color: Int, starSize: Int) {
-        val star = ImageView(this).apply {
-            layoutParams =
-                android.widget.GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = starSize
-                    columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
-                    setMargins(2, 2, 2, 2)
-                }
-            setImageResource(R.drawable.ic_star_filled)
-            colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-        }
-        binding.hintGrid.addView(star)
-    }
-
-    private fun updateNextProblemButton(remaining: Int, isAdLoaded: Boolean) {
-        if (remaining > 0) {
-            binding.nextProblemButton.text = resources.getQuantityString(R.plurals.bonus_problem_remaining, remaining, remaining)
-            binding.nextProblemButton.icon = null
-            binding.nextProblemButton.isEnabled = true
-        } else {
-            binding.nextProblemButton.setText(R.string.bonus_problem_ad)
-            binding.nextProblemButton.setIconResource(R.drawable.ic_bonus_riddle)
-            binding.nextProblemButton.isEnabled = isAdLoaded
-        }
+    private fun updateNextProblemButton() {
+        binding.nextProblemButton.setText(R.string.next_problem)
+        binding.nextProblemButton.icon = null
+        binding.nextProblemButton.isEnabled = true
     }
 
     private fun triggerWinEffects() {
@@ -599,33 +516,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadBannerAd() = binding.adView.loadAd(AdRequest.Builder().build())
 
-    private fun loadBonusProblemRewardedAd() {
-        viewModel.setBonusRewardedAdLoaded(false)
-        RewardedAd.load(this, "ca-app-pub-9478542207288731/1649009341", AdRequest.Builder().build(),
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    bonusProblemRewardedAd = ad
-                    viewModel.setBonusRewardedAdLoaded(true)
-                }
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    bonusProblemRewardedAd = null
-                    viewModel.setBonusRewardedAdLoaded(false)
-                }
-            })
-    }
-
-    private fun showBonusProblemRewardedAd() {
-        bonusProblemRewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdDismissedFullScreenContent() {
-                bonusProblemRewardedAd = null
-                loadBonusProblemRewardedAd()
-            }
-        }
-        bonusProblemRewardedAd?.show(this) {
-            viewModel.onBonusAdRewardEarned()
-        } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
-    }
-
     private fun loadSaveStreakRewardedAd() {
         viewModel.setSaveStreakAdLoaded(false)
         RewardedAd.load(this, "ca-app-pub-9478542207288731/1649009341", AdRequest.Builder().build(),
@@ -649,7 +539,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         saveStreakRewardedAd?.show(this) {
-            viewModel.onStreakSavedWithAd()
+            viewModel.onStreakSavedByAd()
         } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
     }
 
@@ -737,7 +627,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        lifecycleScope.launch {
+            viewModel.uiState.map { it.isPro }.distinctUntilChanged().collect {
+                invalidateOptionsMenu()
+            }
+        }
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val upgradeItem = menu.findItem(R.id.action_upgrade_pro)
+        upgradeItem?.isVisible = !viewModel.uiState.value.isPro
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -762,6 +663,14 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_licenses -> {
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
+                true
+            }
+            R.id.action_progress -> {
+                ProgressDialogFragment.newInstance().show(supportFragmentManager, ProgressDialogFragment.TAG)
+                true
+            }
+            R.id.action_upgrade_pro -> {
+                viewModel.initiatePurchaseFlow()
                 true
             }
             else -> super.onOptionsItemSelected(item)

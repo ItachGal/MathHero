@@ -18,12 +18,6 @@
     <string name="privacy_policy_title">מדיניות פרטיות</string>
     <string name="privacy_policy_text">אפליקציה זו, גיבור חשבון, היא אפליקציה עצמאית שאינה אוספת, מאחסנת או משתפת נתוני משתמש אישיים. כל הבעיות כלולות בתוך האפליקציה.\n\nשירותי צד שלישי:\n- Google AdMob: כדי לתמוך באפליקציה, אנו משתמשים ב-Google AdMob לפרסום. AdMob עשוי לאסוף נתונים כדי לספק מודעות מותאמות אישית. למידע נוסף, עיין/י במדיניות הפרטיות של גוגל.\n- Google Play Services: האפליקציה עשויה להשתמש בשירותי Google Play לפונקציות ליבה.\n\nעל ידי שימוש באפליקציה זו, את/ה מסכים/ה למדיניות זו.</string>
     <string name="streak_counter_description">מונה רצף יומי</string>
-    <string name="bonus_problem_ad">בעיית בונוס (צפה/י במודעה)</string>
-    <plurals name="bonus_problem_remaining">
-        <item quantity="one">הבעיה הבאה (נשארה %d)</item>
-        <item quantity="two">הבעיה הבאה (נשארו %d)</item>
-        <item quantity="other">הבעיה הבאה (נשארו %d)</item>
-    </plurals>
     <string name="confirm_answer">אישור תשובה</string>
     <string name="notification_action_reveal">גלה/י את התשובה</string>
     <string name="notification_action_solved">פתרתי!</string>
@@ -50,7 +44,6 @@
     <string name="hero_level_description">דרגת גיבור החשבון הנוכחית</string>
 
     <string name="ranks_title">דרגות הגיבור</string>
-    <string name="view_ranks">הצג את כל הדרגות</string>
     <string name="rank_locked">נעול</string>
     <string name="rank_up_title">עלית דרגה!</string>
     <string name="rank_up_message">כל הכבוד! עלית לדרגת %1$s!</string>
@@ -99,6 +92,23 @@
     <string name="save">שמירה</string>
     <string name="error_no_operation_selected">יש לבחור לפחות פעולת חשבון אחת.</string>
     <string name="custom_difficulty_desc">מותאם: %1$s עד %2$d</string>
+
+    <string name="streak_saved_pro">הרצף שלך בטוח! (הטבת PRO)</string>
+    <string name="progress_report">דוח התקדמות</string>
+    <string name="upgrade_to_pro">שדרוג ל-PRO</string>
+    <string name="upgrade_to_pro_price">שדרוג ל-PRO (%s)</string>
+    <string name="pro_user_status">את/ה משתמש/ת PRO!</string>
+    <string name="progress_locked_title">גלה/י דוחות התקדמות</string>
+    <string name="progress_locked_desc">שדרג/י ל-PRO כדי לראות דוחות מפורטים על דיוק, התקדמות שבועית ועוד!</string>
+    <string name="progress_summary">סיכום</string>
+    <string name="progress_accuracy">דיוק לפי פעולה</string>
+    <string name="progress_total_solved">סה"כ בעיות שנפתרו: %d</string>
+    <string name="progress_last_7_days">נפתרו ב-7 הימים האחרונים: %d</string>
+    <string name="progress_average_per_day">ממוצע ליום: %s</string>
+    <string name="progress_longest_streak">רצף שיא: %d</string>
+    <string name="progress_no_accuracy_data">פתור/י כמה בעיות כדי לראות את סטטיסטיקת הדיוק שלך כאן!</string>
+    <string name="progress_percentage">%d%%</string>
+    <string name="progress_accuracy_details">%1$d נכונות מתוך %2$d</string>
 
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>

@@ -3,7 +3,6 @@ package io.github.galitach.mathhero.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import java.util.Calendar
 
 object SharedPreferencesManager {
 
@@ -11,17 +10,16 @@ object SharedPreferencesManager {
     private const val KEY_ARCHIVED_PROBLEMS = "archived_math_problems"
     private const val KEY_STREAK_COUNT = "streak_count"
     private const val KEY_HIGHEST_STREAK_COUNT = "highest_streak_count"
-    private const val KEY_BONUS_PROBLEMS_REMAINING = "bonus_problems_remaining"
-    private const val KEY_LAST_BONUS_DAY = "last_bonus_day"
     private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
     private const val KEY_DIFFICULTY_OPERATIONS = "difficulty_operations"
     private const val KEY_DIFFICULTY_MAX_NUMBER = "difficulty_max_number"
     private const val KEY_CONSECUTIVE_WRONG_ANSWERS = "consecutive_wrong_answers"
     private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
+    private const val KEY_IS_PRO_USER = "is_pro_user"
+    private const val KEY_PROGRESS_DATA = "progress_data"
     private const val MAX_ARCHIVE_SIZE = 7
-    private const val DAILY_FREE_BONUS_PROBLEMS = 3
-    private const val AD_REWARD_BONUS_PROBLEMS = 5
+    private const val MAX_PROGRESS_ENTRIES = 200
 
     private lateinit var prefs: SharedPreferences
 
@@ -104,36 +102,6 @@ object SharedPreferencesManager {
         prefs.edit { putInt(KEY_STREAK_COUNT, newStreak) }
     }
 
-    private fun resetDailyBonus() {
-        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-        prefs.edit {
-            putInt(KEY_BONUS_PROBLEMS_REMAINING, DAILY_FREE_BONUS_PROBLEMS)
-            putInt(KEY_LAST_BONUS_DAY, today)
-        }
-    }
-
-    fun getBonusProblemsRemaining(): Int {
-        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-        val lastBonusDay = prefs.getInt(KEY_LAST_BONUS_DAY, -1)
-
-        if (today != lastBonusDay) {
-            resetDailyBonus()
-        }
-        return prefs.getInt(KEY_BONUS_PROBLEMS_REMAINING, DAILY_FREE_BONUS_PROBLEMS)
-    }
-
-    fun useBonusProblem() {
-        val remaining = getBonusProblemsRemaining()
-        if (remaining > 0) {
-            prefs.edit { putInt(KEY_BONUS_PROBLEMS_REMAINING, remaining - 1) }
-        }
-    }
-
-    fun addBonusProblemsFromAd() {
-        val remaining = getBonusProblemsRemaining()
-        prefs.edit { putInt(KEY_BONUS_PROBLEMS_REMAINING, remaining + AD_REWARD_BONUS_PROBLEMS) }
-    }
-
     fun areNotificationsEnabled(): Boolean {
         return prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, false) // Default to false
     }
@@ -166,7 +134,7 @@ object SharedPreferencesManager {
         val operations = operationNames.mapNotNull {
             try {
                 Operation.valueOf(it)
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 null
             }
         }.toSet()
@@ -185,5 +153,55 @@ object SharedPreferencesManager {
 
     fun resetConsecutiveWrongAnswers() {
         prefs.edit { putInt(KEY_CONSECUTIVE_WRONG_ANSWERS, 0) }
+    }
+
+    fun isProUser(): Boolean {
+        return prefs.getBoolean(KEY_IS_PRO_USER, false)
+    }
+
+    fun setProUser(isPro: Boolean) {
+        prefs.edit { putBoolean(KEY_IS_PRO_USER, isPro) }
+    }
+
+    fun getProgressData(): List<ProblemResult> {
+        val dataStrings = prefs.getStringSet(KEY_PROGRESS_DATA, emptySet()) ?: emptySet()
+        return dataStrings.mapNotNull { deserializeProgress(it) }.sortedByDescending { it.timestamp }
+    }
+
+    fun logProblemResult(problem: MathProblem, wasCorrect: Boolean) {
+        val operation = try {
+            Operation.entries.first { it.symbol == problem.operator }
+        } catch (_: NoSuchElementException) {
+            return
+        }
+
+        val result = ProblemResult(
+            timestamp = System.currentTimeMillis(),
+            operation = operation,
+            wasCorrect = wasCorrect
+        )
+
+        val currentData = getProgressData().toMutableList()
+        currentData.add(0, result)
+        val updatedData = currentData.take(MAX_PROGRESS_ENTRIES)
+        val dataStrings = updatedData.map { serializeProgress(it) }.toSet()
+        prefs.edit { putStringSet(KEY_PROGRESS_DATA, dataStrings) }
+    }
+
+    private fun serializeProgress(result: ProblemResult): String {
+        return "${result.timestamp}|${result.operation.name}|${result.wasCorrect}"
+    }
+
+    private fun deserializeProgress(dataString: String): ProblemResult? {
+        return try {
+            val parts = dataString.split('|')
+            ProblemResult(
+                timestamp = parts[0].toLong(),
+                operation = Operation.valueOf(parts[1]),
+                wasCorrect = parts[2].toBoolean()
+            )
+        } catch (_: Exception) {
+            null
+        }
     }
 }

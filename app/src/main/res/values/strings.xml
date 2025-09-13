@@ -18,11 +18,6 @@
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy_text">This app, Math Hero, is a standalone application that does not collect, store, or share any personal user data. All problems are self-contained within the app.\n\nThird-party services:\n- Google AdMob: To support the app, we use Google AdMob for advertising. AdMob may collect data to provide personalized ads. For more information, please see Google\'s Privacy Policy.\n- Google Play Services: The app may use Google Play Services for core functionalities.\n\nBy using this app, you consent to this policy.</string>
     <string name="streak_counter_description">Daily streak counter</string>
-    <string name="bonus_problem_ad">Bonus Problem (Ad)</string>
-    <plurals name="bonus_problem_remaining">
-        <item quantity="one">Next Problem (%d Left)</item>
-        <item quantity="other">Next Problem (%d Left)</item>
-    </plurals>
     <string name="confirm_answer">Confirm Answer</string>
     <string name="notification_action_reveal">Reveal Answer</string>
     <string name="notification_action_solved">I Solved It!</string>
@@ -49,7 +44,6 @@
     <string name="hero_level_description">Current Math Hero Level</string>
 
     <string name="ranks_title">Hero Ranks</string>
-    <string name="view_ranks">View All Ranks</string>
     <string name="rank_locked">x???x</string>
     <string name="rank_up_title">Rank Up!</string>
     <string name="rank_up_message">Congratulations! You have achieved the rank of %1$s!</string>
@@ -98,6 +92,23 @@
     <string name="save">Save</string>
     <string name="error_no_operation_selected">Please select at least one operation.</string>
     <string name="custom_difficulty_desc">Custom: %1$s up to %2$d</string>
+
+    <string name="streak_saved_pro">Your streak is safe! (PRO Perk)</string>
+    <string name="progress_report">Progress Report</string>
+    <string name="upgrade_to_pro">Upgrade to PRO</string>
+    <string name="upgrade_to_pro_price">Upgrade to PRO (%s)</string>
+    <string name="pro_user_status">You are a PRO user!</string>
+    <string name="progress_locked_title">Unlock Progress Reports</string>
+    <string name="progress_locked_desc">Upgrade to PRO to see detailed reports on accuracy, weekly progress, and more!</string>
+    <string name="progress_summary">Summary</string>
+    <string name="progress_accuracy">Accuracy by Operation</string>
+    <string name="progress_total_solved">Total Problems Solved: %d</string>
+    <string name="progress_last_7_days">Solved in Last 7 Days: %d</string>
+    <string name="progress_average_per_day">Average Per Day: %s</string>
+    <string name="progress_longest_streak">Longest Streak: %d</string>
+    <string name="progress_no_accuracy_data">Solve some problems to see your accuracy stats here!</string>
+    <string name="progress_percentage">%d%%</string>
+    <string name="progress_accuracy_details">%1$d correct out of %2$d</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

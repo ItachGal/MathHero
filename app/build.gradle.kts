@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.bundles.google.play.appUpdate)
     testImplementation(libs.junit)
+    implementation(libs.google.play.billing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.konfetti.view)

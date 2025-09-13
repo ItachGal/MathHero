@@ -57,167 +57,151 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_actions_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_content"
-            android:layout_width="match_parent"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/hero_card"
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="24dp">
-
-            <ImageView
-                android:id="@+id/hero_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/hero_level_description"
-                android:focusable="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:src="@raw/mathhero_1" />
+            android:clickable="true"
+            android:focusable="true"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:layout_constraintBottom_toTopOf="@+id/problem_card"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
 
             <LinearLayout
-                android:id="@+id/status_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/hero_image"
-                tools:visibility="visible">
+                android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/rank_name_text"
+                <ImageView
+                    android:id="@+id/hero_image"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:contentDescription="@string/hero_level_description"
+                    tools:src="@raw/mathhero_1" />
+
+                <LinearLayout
+                    android:id="@+id/status_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="?attr/colorPrimary"
-                    tools:text="Novice" />
-
-                <TextView
-                    android:id="@+id/difficulty_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="Apprentice" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/view_ranks_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingStart="12dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="4dp"
-                android:text="@string/view_ranks"
-                android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textColor="?attr/colorSecondary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/status_container" />
-
-            <TextView
-                android:id="@+id/problemText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textAlignment="center"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/view_ranks_button"
-                tools:text="15 + 8 = ?" />
-
-            <RatingBar
-                android:id="@+id/difficulty_rating"
-                style="?android:attr/ratingBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:isIndicator="true"
-                android:numStars="10"
-                android:stepSize="1"
-                android:theme="@style/RatingBar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/problemText"
-                tools:rating="3" />
-
-            <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/multipleChoiceGroup"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/difficulty_rating"
-                app:singleSelection="true">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/multiple_choice_1"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="21" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/multiple_choice_2"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="23" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/multiple_choice_3"
-                    style="?attr/materialButtonOutlinedStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="25" />
-            </com.google.android.material.button.MaterialButtonToggleGroup>
-
-            <FrameLayout
-                android:id="@+id/hint_container"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:minHeight="100dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/multipleChoiceGroup">
-
-                <GridLayout
-                    android:id="@+id/hint_grid"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:columnCount="10"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
                     android:visibility="gone"
-                    tools:visibility="visible" />
-            </FrameLayout>
+                    tools:visibility="visible">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+                    <TextView
+                        android:id="@+id/rank_name_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:textColor="?attr/colorPrimary"
+                        tools:text="Novice" />
+
+                    <TextView
+                        android:id="@+id/difficulty_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        tools:text="Apprentice" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/problem_card"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/multipleChoiceGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/hero_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/problemText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    tools:text="15 + 8 = ?" />
+
+                <RatingBar
+                    android:id="@+id/difficulty_rating"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:isIndicator="true"
+                    android:numStars="10"
+                    android:stepSize="1"
+                    android:theme="@style/RatingBar"
+                    tools:rating="3" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/multipleChoiceGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/problem_card"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/multiple_choice_1"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="21" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/multiple_choice_2"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="23" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/multiple_choice_3"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="25" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/bottom_actions_container"
@@ -271,7 +255,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                tools:text="@string/bonus_problem_ad" />
+                tools:text="@string/next_problem" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonInfo"
@@ -297,16 +281,15 @@
     <FrameLayout
         android:id="@+id/ad_view_container"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/adView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             app:adSize="BANNER"
             app:adUnitId="ca-app-pub-9478542207288731/7719593670" />
     </FrameLayout>
