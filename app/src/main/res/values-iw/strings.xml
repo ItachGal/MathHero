@@ -60,8 +60,9 @@
     <string name="rank_titan">טיטאן</string>
 
     <string name="save_streak_dialog_title">אוי לא!</string>
-    <string name="save_streak_dialog_message">הרצף שלך נשבר! צפה/י בסרטון קצר כדי לשמור על ההתקדמות והדרגה שלך.</string>
+    <string name="save_streak_dialog_message">הרצף שלך נשבר! האם תרצה/י לשמור על ההתקדמות שלך?</string>
     <string name="save_streak_dialog_positive_button">שמור/י על הרצף (מודעה)</string>
+    <string name="save_streak_dialog_positive_button_pro">שמור/י על הרצף (הטבת PRO)</string>
     <string name="save_streak_dialog_negative_button">אפס/י את הרצף</string>
     <string name="rank_requirement_unlocked">הושג ברצף של %d</string>
     <string name="rank_requirement_locked">דורש רצף של %d</string>

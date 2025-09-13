@@ -88,6 +88,13 @@ object SharedPreferencesManager {
         return prefs.getInt(KEY_STREAK_COUNT, 0)
     }
 
+    fun setStreakCount(count: Int) {
+        prefs.edit { putInt(KEY_STREAK_COUNT, count) }
+        if (count > getHighestStreakCount()) {
+            prefs.edit { putInt(KEY_HIGHEST_STREAK_COUNT, count) }
+        }
+    }
+
     fun getHighestStreakCount(): Int {
         return prefs.getInt(KEY_HIGHEST_STREAK_COUNT, 0)
     }

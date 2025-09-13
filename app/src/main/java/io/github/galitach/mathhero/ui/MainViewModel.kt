@@ -32,6 +32,7 @@ sealed class SoundEvent {
 sealed class OneTimeEvent {
     data class LaunchPurchaseFlow(val productDetails: ProductDetails) : OneTimeEvent()
     data class ShowHintDialog(val problem: MathProblem) : OneTimeEvent()
+    data class ShowSaveStreakDialog(val brokenStreakValue: Int) : OneTimeEvent()
 }
 
 data class UiState(
@@ -43,7 +44,6 @@ data class UiState(
     val isAnswerRevealed: Boolean = false,
     val archivedProblems: List<MathProblem> = emptyList(),
     val isSaveStreakAdLoaded: Boolean = false,
-    val showSaveStreakDialog: Boolean = false,
     val streakCount: Int = 0,
     val highestStreakCount: Int = 0,
     val triggerWinAnimation: Boolean = false,
@@ -157,7 +157,8 @@ class MainViewModel(
                 difficultyDescription = generateDifficultyDescription(settings)
             )
         }
-        initializeProblem()
+        val newProblem = repository.getCurrentProblem()
+        loadNewProblem(newProblem)
     }
 
     private fun generateDifficultyDescription(settings: DifficultySettings): String {
@@ -199,7 +200,6 @@ class MainViewModel(
         SharedPreferencesManager.addProblemToArchive(problem)
         SharedPreferencesManager.logProblemResult(problem, isCorrect)
 
-        _uiState.update { it.copy(isAnswerRevealed = true, archivedProblems = repository.getArchivedProblems()) }
         savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
 
         if (isCorrect) {
@@ -220,32 +220,38 @@ class MainViewModel(
         val newRank = Rank.getRankForStreak(newHighestStreak)
         val hasRankedUp = newRank.level > oldRank.level
 
-        val problemId = _uiState.value.problem?.id
-        val isDailyProblemNowSolved = problemId == dailyProblemId || _uiState.value.isDailyProblemSolved
-
         _uiState.update {
             it.copy(
+                isAnswerRevealed = true,
+                archivedProblems = repository.getArchivedProblems(),
                 streakCount = SharedPreferencesManager.getStreakCount(),
                 highestStreakCount = newHighestStreak,
                 triggerWinAnimation = !hasRankedUp,
                 triggerRankUpAnimation = hasRankedUp,
                 currentRank = newRank,
                 playSoundEvent = SoundEvent.Correct,
-                isDailyProblemSolved = isDailyProblemNowSolved
             )
         }
     }
 
     private fun handleIncorrectAnswer() {
         SharedPreferencesManager.incrementConsecutiveWrongAnswers()
-        _uiState.update { it.copy(playSoundEvent = SoundEvent.Incorrect) }
+        val streakBeforeReset = _uiState.value.streakCount
 
-        if (uiState.value.streakCount > 0) {
-            if (uiState.value.isPro) {
-                _uiState.update { it.copy(showStreakSavedToast = true) }
-                onStreakSaveCompleted()
-            } else {
-                _uiState.update { it.copy(showSaveStreakDialog = true) }
+        // Always reveal answer, play sound, and update archive
+        _uiState.update {
+            it.copy(
+                isAnswerRevealed = true,
+                archivedProblems = repository.getArchivedProblems(),
+                playSoundEvent = SoundEvent.Incorrect
+            )
+        }
+
+        if (streakBeforeReset > 0) {
+            SharedPreferencesManager.updateStreak(false) // Reset streak to 0
+            _uiState.update { it.copy(streakCount = 0) } // Update UI to show streak is gone
+            viewModelScope.launch {
+                _oneTimeEvent.emit(OneTimeEvent.ShowSaveStreakDialog(streakBeforeReset))
             }
         } else {
             val consecutiveWrong = SharedPreferencesManager.getConsecutiveWrongAnswers()
@@ -255,14 +261,11 @@ class MainViewModel(
     }
 
     fun onStreakResetConfirmed() {
-        SharedPreferencesManager.updateStreak(false)
         val consecutiveWrong = SharedPreferencesManager.getConsecutiveWrongAnswers()
         val shouldSuggestLowering = consecutiveWrong >= 3
 
         _uiState.update {
             it.copy(
-                streakCount = SharedPreferencesManager.getStreakCount(),
-                showSaveStreakDialog = false,
                 showSuggestLowerDifficultyDialog = shouldSuggestLowering
             )
         }
@@ -273,13 +276,15 @@ class MainViewModel(
         _uiState.update { it.copy(showSuggestLowerDifficultyDialog = false) }
     }
 
-    fun onStreakSavedByAd() {
-        onStreakSaveCompleted()
-    }
-
-    private fun onStreakSaveCompleted() {
+    fun onStreakSaveCompleted(restoredStreak: Int) {
         SharedPreferencesManager.resetConsecutiveWrongAnswers()
-        _uiState.update { it.copy(showSaveStreakDialog = false) }
+        SharedPreferencesManager.setStreakCount(restoredStreak)
+        _uiState.update {
+            it.copy(
+                streakCount = restoredStreak,
+                showStreakSavedToast = uiState.value.isPro
+            )
+        }
     }
 
     fun onNextProblemRequested() {

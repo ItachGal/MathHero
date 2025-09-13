@@ -60,8 +60,9 @@
     <string name="rank_titan">Titan</string>
 
     <string name="save_streak_dialog_title">Oh no!</string>
-    <string name="save_streak_dialog_message">You broke your streak! Watch a short video to save your progress and keep your rank.</string>
+    <string name="save_streak_dialog_message">You broke your streak! Would you like to save your progress?</string>
     <string name="save_streak_dialog_positive_button">Save My Streak (Ad)</string>
+    <string name="save_streak_dialog_positive_button_pro">Save My Streak (PRO Perk)</string>
     <string name="save_streak_dialog_negative_button">Reset My Streak</string>
     <string name="rank_requirement_unlocked">Achieved at %d streak</string>
     <string name="rank_requirement_locked">Requires %d streak</string>

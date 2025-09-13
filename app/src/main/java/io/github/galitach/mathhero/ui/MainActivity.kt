@@ -8,6 +8,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.AttrRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -58,6 +60,7 @@ import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -301,6 +304,7 @@ class MainActivity : AppCompatActivity() {
                                     .show(supportFragmentManager, HintDialogFragment.TAG)
                             }
                         }
+                        is OneTimeEvent.ShowSaveStreakDialog -> showSaveStreakDialog(event.brokenStreakValue)
                     }
                 }.launchIn(this)
 
@@ -321,9 +325,6 @@ class MainActivity : AppCompatActivity() {
                         triggerRankUpEffects()
                         viewModel.onRankUpAnimationComplete()
                     }
-                }
-                viewModel.uiState.map { it.showSaveStreakDialog }.distinctUntilChanged().collect { show ->
-                    if (show) showSaveStreakDialog()
                 }
                 viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
                     if (show) showSuggestLowerDifficultyDialog()
@@ -419,7 +420,14 @@ class MainActivity : AppCompatActivity() {
         binding.nextProblemButton.isEnabled = true
     }
 
+    private fun getThemeColor(@AttrRes colorAttr: Int): Int {
+        val typedValue = TypedValue()
+        theme.resolveAttribute(colorAttr, typedValue, true)
+        return typedValue.data
+    }
+
     private fun triggerWinEffects() {
+        binding.konfettiView.bringToFront()
         val party = Party(
             speed = 0f,
             maxSpeed = 30f,
@@ -433,6 +441,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun triggerRankUpEffects() {
+        binding.konfettiView.bringToFront()
         val party = Party(
             speed = 10f,
             maxSpeed = 50f,
@@ -550,7 +559,7 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
-    private fun showSaveStreakRewardedAd() {
+    private fun showSaveStreakRewardedAd(brokenStreak: Int) {
         saveStreakRewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 saveStreakRewardedAd = null
@@ -558,26 +567,45 @@ class MainActivity : AppCompatActivity() {
             }
         }
         saveStreakRewardedAd?.show(this) {
-            viewModel.onStreakSavedByAd()
+            viewModel.onStreakSaveCompleted(brokenStreak)
         } ?: Toast.makeText(this, getString(R.string.bonus_problem_not_available), Toast.LENGTH_SHORT).show()
     }
 
-    private fun showSaveStreakDialog() {
-        val dialog = MaterialAlertDialogBuilder(this)
+    private fun showSaveStreakDialog(brokenStreak: Int) {
+        val isPro = viewModel.uiState.value.isPro
+        val builder = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.save_streak_dialog_title)
             .setMessage(R.string.save_streak_dialog_message)
             .setNegativeButton(R.string.save_streak_dialog_negative_button) { _, _ ->
                 viewModel.onStreakResetConfirmed()
             }
-            .setPositiveButton(R.string.save_streak_dialog_positive_button) { _, _ ->
-                showSaveStreakRewardedAd()
-            }
             .setCancelable(false)
-            .create()
+
+        if (isPro) {
+            builder.setPositiveButton(R.string.save_streak_dialog_positive_button_pro) { _, _ ->
+                viewModel.onStreakSaveCompleted(brokenStreak)
+            }
+        } else {
+            builder.setPositiveButton(R.string.save_streak_dialog_positive_button) { _, _ ->
+                showSaveStreakRewardedAd(brokenStreak)
+            }
+        }
+
+        val dialog = builder.create()
+        var adStateObserverJob: Job? = null
 
         dialog.setOnShowListener {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.isEnabled = viewModel.uiState.value.isSaveStreakAdLoaded
+            if (!isPro) {
+                adStateObserverJob = lifecycleScope.launch {
+                    viewModel.uiState.map { it.isSaveStreakAdLoaded }.distinctUntilChanged().collect { isLoaded ->
+                        positiveButton.isEnabled = isLoaded
+                    }
+                }
+            }
+        }
+        dialog.setOnDismissListener {
+            adStateObserverJob?.cancel()
         }
         dialog.show()
     }
