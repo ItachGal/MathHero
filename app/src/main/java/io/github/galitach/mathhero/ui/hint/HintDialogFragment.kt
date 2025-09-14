@@ -16,6 +16,8 @@ import androidx.fragment.app.DialogFragment
 import io.github.galitach.mathhero.R
 import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.databinding.DialogHintBinding
+import kotlin.math.max
+import kotlin.math.min
 
 class HintDialogFragment : DialogFragment() {
 
@@ -55,7 +57,7 @@ class HintDialogFragment : DialogFragment() {
             @Suppress("DEPRECATION")
             arguments?.getParcelable(ARG_PROBLEM)
         }
-        renderVisualHint(problem)
+        renderHint(problem)
 
         binding.root.setOnClickListener {
             dismiss()
@@ -67,19 +69,45 @@ class HintDialogFragment : DialogFragment() {
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     }
 
-    private fun renderVisualHint(problem: MathProblem?) {
+    private fun renderHint(problem: MathProblem?) {
         problem ?: return
-        binding.hintGrid.removeAllViews()
 
-        val answer = problem.answer.toIntOrNull() ?: 0
-
-        val totalStars = when (problem.operator) {
-            "+" -> (problem.num1 + problem.num2)
+        val totalItems = when (problem.operator) {
+            "+" -> problem.num1 + problem.num2
             "-" -> problem.num1
-            "×" -> (problem.num1 * problem.num2)
+            "×" -> problem.num1 * problem.num2
             "÷" -> problem.num1
             else -> 0
-        }.coerceAtMost(100)
+        }
+
+        if (totalItems > MAX_VISUAL_HINT_ITEMS && (problem.operator == "×" || problem.operator == "÷")) {
+            binding.hintGrid.visibility = View.GONE
+            binding.textHintView.visibility = View.VISIBLE
+            binding.textHintView.text = generateTextHint(problem)
+        } else {
+            binding.hintGrid.visibility = View.VISIBLE
+            binding.textHintView.visibility = View.GONE
+            binding.hintGrid.removeAllViews()
+            renderStarsHint(problem, totalItems)
+        }
+    }
+
+    private fun generateTextHint(problem: MathProblem): String {
+        return when (problem.operator) {
+            "×" -> {
+                val numToBreakDown = max(problem.num1, problem.num2)
+                val otherNum = min(problem.num1, problem.num2)
+                val tens = (numToBreakDown / 10) * 10
+                val ones = numToBreakDown % 10
+                getString(R.string.hint_large_multiplication, otherNum, numToBreakDown, tens, ones)
+            }
+            "÷" -> getString(R.string.hint_large_division, problem.num1, problem.num2)
+            else -> ""
+        }
+    }
+
+    private fun renderStarsHint(problem: MathProblem, totalStars: Int) {
+        val answer = problem.answer.toIntOrNull() ?: 0
 
         val starSize = when {
             totalStars > 90 -> resources.getDimensionPixelSize(R.dimen.hint_star_size_small)
@@ -146,6 +174,7 @@ class HintDialogFragment : DialogFragment() {
     companion object {
         const val TAG = "HintDialogFragment"
         private const val ARG_PROBLEM = "arg_problem"
+        private const val MAX_VISUAL_HINT_ITEMS = 100
 
         fun newInstance(problem: MathProblem): HintDialogFragment {
             return HintDialogFragment().apply {

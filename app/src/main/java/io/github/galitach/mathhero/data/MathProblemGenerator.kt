@@ -29,6 +29,8 @@ object MathProblemGenerator {
     private const val MIN_WINDOW_FRACTION = 0.4   // At max streak, window is 40% of total range
     private const val MIN_WINDOW_SIZE = 3         // Never shrink below this many values
     private const val MIN_DIVISOR = 2             // Avoid trivial ÷1 problems
+    private const val MIN_QUOTIENT = 2            // Avoid trivial answers of 1
+    private const val PRACTICAL_MAX_DIVISOR = 12  // Keep divisors in a mentally-solvable range
     private const val WEIGHT_RAMP = 14.0          // Controls how fast hard ops become common
     private const val MAX_DISTRACTOR_DISTANCE_FACTOR = 3
     private const val MAX_DISTRACTOR_DISTANCE_CAP = 25
@@ -58,7 +60,7 @@ object MathProblemGenerator {
             Operation.ADDITION -> generateAddition(random, rangeStart, rangeEnd)
             Operation.SUBTRACTION -> generateSubtraction(random, rangeStart, rangeEnd)
             Operation.MULTIPLICATION -> generateMultiplication(random, rangeStart, rangeEnd)
-            Operation.DIVISION -> generateDivision(random, rangeStart, rangeEnd, safeMaxNumber)
+            Operation.DIVISION -> generateDivision(random, rangeStart, rangeEnd)
         }
 
         val difficulty = calculateDifficulty(num1, num2, answer, operation)
@@ -140,15 +142,39 @@ object MathProblemGenerator {
         return Quadruple("$a × $b", a * b, a, b)
     }
 
-    private fun generateDivision(r: Random, min: Int, max: Int, overallMax: Int): Quadruple<String, Int, Int, Int> {
-        // Construct a valid problem to avoid expensive searches and ensure numbers are in range.
-        val b = r.nextInt(max(MIN_DIVISOR, min), max + 1)
-        // Ensure the answer, when multiplied by b, doesn't grossly exceed the user's max difficulty.
-        val maxQuotient = (overallMax / b).coerceAtLeast(1)
-        val q = r.nextInt(1, maxQuotient + 1)
+    private fun generateDivision(r: Random, aRangeStart: Int, aRangeEnd: Int): Quadruple<String, Int, Int, Int> {
+        val attempts = 50
+        for (i in 0 until attempts) {
+            // 1. Pick a potential dividend 'a' from the progressive range.
+            val a = r.nextInt(aRangeStart, aRangeEnd + 1)
+
+            // 2. Find all valid divisors for 'a'.
+            val divisors = (MIN_DIVISOR..PRACTICAL_MAX_DIVISOR).filter { b ->
+                if (a % b == 0) {
+                    val q = a / b
+                    q >= MIN_QUOTIENT // Ensure the answer isn't trivial
+                } else {
+                    false
+                }
+            }
+
+            // 3. If we found any, pick one and we're done.
+            if (divisors.isNotEmpty()) {
+                val b = divisors.random(r)
+                val q = a / b
+                return Quadruple("$a ÷ $b", q, a, b)
+            }
+        }
+
+        // 4. Fallback if we couldn't find a suitable problem after many attempts.
+        // This might happen if the progressive range is full of small prime numbers.
+        // Let's just construct a simple, valid problem.
+        val b = r.nextInt(MIN_DIVISOR, 5) // small divisor
+        val q = r.nextInt(MIN_QUOTIENT, 10) // small quotient
         val a = b * q
         return Quadruple("$a ÷ $b", q, a, b)
     }
+
 
     // === DIFFICULTY ===
     private fun calculateDifficulty(num1: Int, num2: Int, answer: Int, op: Operation): Int {

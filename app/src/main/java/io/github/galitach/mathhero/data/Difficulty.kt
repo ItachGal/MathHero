@@ -45,6 +45,6 @@ enum class DifficultyLevel(
         R.string.difficulty_master,
         R.string.difficulty_master_desc,
         R.drawable.ic_preset_master,
-        DifficultySettings(setOf(Operation.ADDITION, Operation.SUBTRACTION, Operation.MULTIPLICATION, Operation.DIVISION), 100)
+        DifficultySettings(setOf(Operation.ADDITION, Operation.SUBTRACTION, Operation.MULTIPLICATION, Operation.DIVISION), 200)
     );
 }

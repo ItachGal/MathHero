@@ -60,9 +60,9 @@ class DifficultySelectionDialogFragment : DialogFragment() {
                 id = View.generateViewId()
                 text = getString(level.titleRes)
                 tag = level
-                setCompoundDrawablesWithIntrinsicBounds(level.iconRes, 0, 0, 0)
+                setCompoundDrawablesRelativeWithIntrinsicBounds(level.iconRes, 0, 0, 0)
                 TextViewCompat.setCompoundDrawableTintList(this, ContextCompat.getColorStateList(requireContext(), R.color.selector_preset_icon_tint))
-                compoundDrawableTintMode = PorterDuff.Mode.SRC_IN
+                TextViewCompat.setCompoundDrawableTintMode(this, PorterDuff.Mode.SRC_IN)
             }
             binding.presetsGroup.addView(radioButton)
         }
@@ -70,7 +70,7 @@ class DifficultySelectionDialogFragment : DialogFragment() {
         Operation.entries.forEach { op ->
             val chip = (layoutInflater.inflate(R.layout.chip_operation, binding.operationsGroup, false) as Chip).apply {
                 id = View.generateViewId()
-                text = op.name.lowercase().replaceFirstChar { it.titlecase() }
+                text = getString(op.stringRes)
                 tag = op
             }
             binding.operationsGroup.addView(chip)

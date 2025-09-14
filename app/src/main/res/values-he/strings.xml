@@ -94,6 +94,11 @@
     <string name="error_no_operation_selected">יש לבחור לפחות פעולת חשבון אחת.</string>
     <string name="custom_difficulty_desc">מותאם: %1$s עד %2$d</string>
 
+    <string name="operation_addition">חיבור</string>
+    <string name="operation_subtraction">חיסור</string>
+    <string name="operation_multiplication">כפל</string>
+    <string name="operation_division">חילוק</string>
+
     <string name="streak_saved_pro">הרצף שלך בטוח! (הטבת PRO)</string>
     <string name="progress_report">דוח התקדמות</string>
     <string name="upgrade_to_pro">שדרוג ל-PRO</string>
@@ -110,6 +115,9 @@
     <string name="progress_no_accuracy_data">פתור/י כמה בעיות כדי לראות את סטטיסטיקת הדיוק שלך כאן!</string>
     <string name="progress_percentage">%d%%</string>
     <string name="progress_accuracy_details">%1$d נכונות מתוך %2$d</string>
+
+    <string name="hint_large_multiplication">נסה/י לפרק את התרגיל:\n\n%1$d × %2$d = %1$d × (%3$d + %4$d)\n\nתחילה, פתור/י את %1$d × %3$d.\nלאחר מכן, פתור/י את %1$d × %4$d.\nלבסוף, חבר/י את התוצאות!</string>
+    <string name="hint_large_division">נסה/י לחשוב על כפל הפוך.\n\nאיזה מספר כפול %2$d יתקרב ל-%1$d?\n\nנסה/י להכפיל את %2$d במספרים עגולים כמו 10 או 50 כדי לקבל הערכה.</string>
 
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>

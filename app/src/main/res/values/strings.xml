@@ -94,6 +94,11 @@
     <string name="error_no_operation_selected">Please select at least one operation.</string>
     <string name="custom_difficulty_desc">Custom: %1$s up to %2$d</string>
 
+    <string name="operation_addition">Addition</string>
+    <string name="operation_subtraction">Subtraction</string>
+    <string name="operation_multiplication">Multiplication</string>
+    <string name="operation_division">Division</string>
+
     <string name="streak_saved_pro">Your streak is safe! (PRO Perk)</string>
     <string name="progress_report">Progress Report</string>
     <string name="upgrade_to_pro">Upgrade to PRO</string>
@@ -110,6 +115,9 @@
     <string name="progress_no_accuracy_data">Solve some problems to see your accuracy stats here!</string>
     <string name="progress_percentage">%d%%</string>
     <string name="progress_accuracy_details">%1$d correct out of %2$d</string>
+
+    <string name="hint_large_multiplication">Try breaking it down:\n\n%1$d × %2$d = %1$d × (%3$d + %4$d)\n\nFirst, solve %1$d × %3$d.\nThen, solve %1$d × %4$d.\nFinally, add them together!</string>
+    <string name="hint_large_division">Try thinking about multiplication in reverse.\n\nWhat number multiplied by %2$d gets close to %1$d?\n\nTry multiplying %2$d by easy numbers like 10 or 50 to get an estimate.</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>
