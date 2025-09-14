@@ -250,6 +250,7 @@ class MainViewModel(
     private fun handleIncorrectAnswer() {
         SharedPreferencesManager.incrementConsecutiveWrongAnswers()
         val streakBeforeReset = _uiState.value.streakCount
+        val isPro = _uiState.value.isPro
 
         _uiState.update {
             it.copy(
@@ -260,12 +261,19 @@ class MainViewModel(
         }
 
         if (streakBeforeReset > 0) {
-            SharedPreferencesManager.updateStreak(false)
-            _uiState.update { it.copy(streakCount = 0) }
-            viewModelScope.launch {
-                _oneTimeEvent.emit(OneTimeEvent.ShowSaveStreakDialog(streakBeforeReset))
+            if (isPro) {
+                // Pro users save their streak automatically.
+                onStreakSaveCompleted(streakBeforeReset)
+            } else {
+                // Non-pro users get the option to watch an ad.
+                SharedPreferencesManager.updateStreak(false) // Reset streak to 0
+                _uiState.update { it.copy(streakCount = 0) } // Update UI to show streak is gone
+                viewModelScope.launch {
+                    _oneTimeEvent.emit(OneTimeEvent.ShowSaveStreakDialog(streakBeforeReset))
+                }
             }
         } else {
+            // No streak to save, just check for difficulty suggestion.
             checkAndSuggestLowerDifficulty()
         }
     }
