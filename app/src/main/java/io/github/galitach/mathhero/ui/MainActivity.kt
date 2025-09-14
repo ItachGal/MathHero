@@ -8,7 +8,6 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
@@ -17,7 +16,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.AttrRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -248,8 +246,8 @@ class MainActivity : AppCompatActivity() {
         binding.buttonHint.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onHintClicked() }
         binding.buttonConfirmAnswer.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); viewModel.onConfirmAnswerClicked() }
         binding.buttonShare.setOnClickListener { it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP); shareProblem() }
-        binding.nextProblemButton.setOnClickListener {
-            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        binding.nextProblemButton.setOnClickListener { view ->
+            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             viewModel.onNextProblemRequested()
         }
         binding.buttonInfo.setOnClickListener {
@@ -305,6 +303,9 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                         is OneTimeEvent.ShowSaveStreakDialog -> showSaveStreakDialog(event.brokenStreakValue)
+                        is OneTimeEvent.ShowSuggestLowerDifficultyDialog -> showSuggestLowerDifficultyDialog()
+                        is OneTimeEvent.TriggerWinAnimation -> triggerWinEffects()
+                        is OneTimeEvent.TriggerRankUpAnimation -> triggerRankUpEffects()
                     }
                 }.launchIn(this)
 
@@ -314,21 +315,6 @@ class MainActivity : AppCompatActivity() {
                         viewModel.onSoundEventHandled()
                     }
                 }
-                viewModel.uiState.map { it.triggerWinAnimation }.distinctUntilChanged().collect { trigger ->
-                    if (trigger) {
-                        triggerWinEffects()
-                        viewModel.onWinAnimationComplete()
-                    }
-                }
-                viewModel.uiState.map { it.triggerRankUpAnimation }.distinctUntilChanged().collect { trigger ->
-                    if (trigger) {
-                        triggerRankUpEffects()
-                        viewModel.onRankUpAnimationComplete()
-                    }
-                }
-                viewModel.uiState.map { it.showSuggestLowerDifficultyDialog }.distinctUntilChanged().collect { show ->
-                    if (show) showSuggestLowerDifficultyDialog()
-                }
                 viewModel.uiState.map { it.isPro }.distinctUntilChanged().collect { isPro ->
                     handleProStatusChange(isPro)
                 }
@@ -337,6 +323,9 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(this@MainActivity, R.string.streak_saved_pro, Toast.LENGTH_SHORT).show()
                         viewModel.onStreakSaveToastShown()
                     }
+                }
+                viewModel.uiState.map { it.isLoadingNextProblem }.distinctUntilChanged().collect { isLoading ->
+                    binding.clickBlockerView.isVisible = isLoading
                 }
             }
         }
@@ -350,7 +339,7 @@ class MainActivity : AppCompatActivity() {
             binding.adViewContainer.visibility = View.VISIBLE
             initializeMobileAds()
         }
-        updateNextProblemButton()
+        updateNextProblemButton(viewModel.uiState.value)
     }
 
     private fun updateProblemUI(state: UiState) {
@@ -390,7 +379,7 @@ class MainActivity : AppCompatActivity() {
         binding.hintButtonContainer.visibility = if (isAnswerSelected) View.INVISIBLE else View.VISIBLE
         binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
 
-        updateNextProblemButton()
+        updateNextProblemButton(state)
     }
 
     private fun updateAnswerUI(state: UiState) {
@@ -414,16 +403,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateNextProblemButton() {
-        binding.nextProblemButton.setText(R.string.next_problem)
-        binding.nextProblemButton.icon = null
-        binding.nextProblemButton.isEnabled = true
-    }
-
-    private fun getThemeColor(@AttrRes colorAttr: Int): Int {
-        val typedValue = TypedValue()
-        theme.resolveAttribute(colorAttr, typedValue, true)
-        return typedValue.data
+    private fun updateNextProblemButton(state: UiState) {
+        binding.nextProblemButton.isEnabled = state.isAnswerRevealed && !state.isLoadingNextProblem
     }
 
     private fun triggerWinEffects() {
@@ -433,8 +414,8 @@ class MainActivity : AppCompatActivity() {
             maxSpeed = 30f,
             damping = 0.9f,
             spread = 360,
-            colors = listOf(0x765B22, 0xC2A661, 0x496546), // Dark Gold, Bright Gold, Green
-            emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100),
+            colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+            emitter = Emitter(duration = 300, TimeUnit.MILLISECONDS).max(100),
             position = Position.Relative(0.5, 0.3)
         )
         binding.konfettiView.start(party)
@@ -509,18 +490,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateVisibility(view: View, isVisible: Boolean) {
-        val currentVisibility = view.isVisible
-        if (currentVisibility == isVisible) return
-
-        if (isVisible) {
-            view.alpha = 0f
-            view.visibility = View.VISIBLE
-            view.animate().alpha(1f).setDuration(300).start()
-        } else {
-            view.animate().alpha(0f).setDuration(300).withEndAction {
-                view.visibility = View.GONE
-            }.start()
-        }
+        // Prioritize correctness over animations. Instant state changes prevent race conditions.
+        view.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     private fun shareProblem() {
@@ -545,16 +516,19 @@ class MainActivity : AppCompatActivity() {
     private fun loadBannerAd() = binding.adView.loadAd(AdRequest.Builder().build())
 
     private fun loadSaveStreakRewardedAd() {
-        viewModel.setSaveStreakAdLoaded(false)
+        if (viewModel.uiState.value.saveStreakAdState == AdLoadState.LOADED || viewModel.uiState.value.saveStreakAdState == AdLoadState.LOADING) {
+            return
+        }
+        viewModel.setSaveStreakAdState(AdLoadState.LOADING)
         RewardedAd.load(this, "ca-app-pub-9478542207288731/1649009341", AdRequest.Builder().build(),
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
                     saveStreakRewardedAd = ad
-                    viewModel.setSaveStreakAdLoaded(true)
+                    viewModel.setSaveStreakAdState(AdLoadState.LOADED)
                 }
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     saveStreakRewardedAd = null
-                    viewModel.setSaveStreakAdLoaded(false)
+                    viewModel.setSaveStreakAdState(AdLoadState.FAILED)
                 }
             })
     }
@@ -563,6 +537,7 @@ class MainActivity : AppCompatActivity() {
         saveStreakRewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 saveStreakRewardedAd = null
+                viewModel.setSaveStreakAdState(AdLoadState.IDLE)
                 loadSaveStreakRewardedAd()
             }
         }
@@ -597,9 +572,26 @@ class MainActivity : AppCompatActivity() {
         dialog.setOnShowListener {
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             if (!isPro) {
+                if (viewModel.uiState.value.saveStreakAdState == AdLoadState.IDLE) {
+                    loadSaveStreakRewardedAd()
+                }
+
                 adStateObserverJob = lifecycleScope.launch {
-                    viewModel.uiState.map { it.isSaveStreakAdLoaded }.distinctUntilChanged().collect { isLoaded ->
-                        positiveButton.isEnabled = isLoaded
+                    viewModel.uiState.map { it.saveStreakAdState }.distinctUntilChanged().collect { state ->
+                        when (state) {
+                            AdLoadState.LOADED -> {
+                                positiveButton.isEnabled = true
+                                positiveButton.setText(R.string.save_streak_dialog_positive_button)
+                            }
+                            AdLoadState.LOADING, AdLoadState.IDLE -> {
+                                positiveButton.isEnabled = false
+                                positiveButton.setText(R.string.save_streak_dialog_loading_ad)
+                            }
+                            AdLoadState.FAILED -> {
+                                positiveButton.isEnabled = false
+                                positiveButton.setText(R.string.save_streak_dialog_ad_failed)
+                            }
+                        }
                     }
                 }
             }
@@ -615,7 +607,7 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.suggest_lower_difficulty_title)
             .setMessage(R.string.suggest_lower_difficulty_message)
             .setPositiveButton(R.string.change_difficulty) { _, _ ->
-                viewModel.onSuggestLowerDifficultyDismissed()
+                viewModel.onDifficultyChangeFromSuggestion()
                 DifficultySelectionDialogFragment.newInstance()
                     .show(supportFragmentManager, DifficultySelectionDialogFragment.TAG)
             }

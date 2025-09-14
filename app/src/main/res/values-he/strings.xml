@@ -38,7 +38,7 @@
     <string name="bonus_problem_not_available">בעיית הבונוס אינה זמינה כעת. אנא נסה/י שוב מאוחר יותר.</string>
     <string name="share_solved_format">פתרתי את זה! מה איתך?\n\n\"%1$s\"\n\nבחן/י את כישוריך עם %2$s: %3$s</string>
     <string name="share_unsolved_format">האם תצליח/י לפתור את הבעיה הזו מ-%1$s?\n\n\"%2$s\"\n\nהורד/י את האפליקציה לאתגר יומי: %3$s</string>
-    <string name="question_format">%1$s = ?</string>
+    <string name="question_format">\u202A%1$s = ?\u202C</string>
     <string name="default_explanation">התשובה הנכונה היא %1$d.</string>
     <string name="hint">רמז</string>
     <string name="hero_level_description">דרגת גיבור החשבון הנוכחית</string>
@@ -64,6 +64,8 @@
     <string name="save_streak_dialog_positive_button">שמור/י על הרצף (מודעה)</string>
     <string name="save_streak_dialog_positive_button_pro">שמור/י על הרצף (הטבת PRO)</string>
     <string name="save_streak_dialog_negative_button">אפס/י את הרצף</string>
+    <string name="save_streak_dialog_loading_ad">טוען מודעה…</string>
+    <string name="save_streak_dialog_ad_failed">מודעה לא זמינה</string>
     <string name="rank_requirement_unlocked">הושג ברצף של %d</string>
     <string name="rank_requirement_locked">דורש רצף של %d</string>
 
@@ -79,7 +81,7 @@
     <string name="difficulty_expert">אמן</string>
     <string name="difficulty_expert_desc">חיבור, חיסור וכפל עם מספרים עד 20.</string>
     <string name="difficulty_master">מאסטר</string>
-    <string name="difficulty_master_desc">כל הפעולות: חיבור, חיסור, כפל וחילוק עם מספרים עד 100.</string>
+    <string name="difficulty_master_desc">כל הפעולות: חיבור, חיסור, כפל וחילוק עם מספרים עד 200.</string>
     <string name="suggest_lower_difficulty_title">קצת מאתגר?</string>
     <string name="suggest_lower_difficulty_message">נראה שהרמה הנוכחית מעט מאתגרת. האם תרצה/י לנסות רמת קושי נמוכה יותר?</string>
     <string name="change_difficulty">שנה/י רמת קושי</string>

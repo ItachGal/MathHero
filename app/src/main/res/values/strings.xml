@@ -64,6 +64,8 @@
     <string name="save_streak_dialog_positive_button">Save My Streak (Ad)</string>
     <string name="save_streak_dialog_positive_button_pro">Save My Streak (PRO Perk)</string>
     <string name="save_streak_dialog_negative_button">Reset My Streak</string>
+    <string name="save_streak_dialog_loading_ad">Loading Ad…</string>
+    <string name="save_streak_dialog_ad_failed">Ad Unavailable</string>
     <string name="rank_requirement_unlocked">Achieved at %d streak</string>
     <string name="rank_requirement_locked">Requires %d streak</string>
 
@@ -79,7 +81,7 @@
     <string name="difficulty_expert">Expert</string>
     <string name="difficulty_expert_desc">Addition, subtraction, and multiplication with numbers up to 20.</string>
     <string name="difficulty_master">Master</string>
-    <string name="difficulty_master_desc">All operations: addition, subtraction, multiplication, and division with numbers up to 100.</string>
+    <string name="difficulty_master_desc">All operations: addition, subtraction, multiplication, and division with numbers up to 200.</string>
     <string name="suggest_lower_difficulty_title">Finding it Tricky?</string>
     <string name="suggest_lower_difficulty_message">It looks like you\'re finding this level a bit challenging. Would you like to try an easier difficulty?</string>
     <string name="change_difficulty">Change Difficulty</string>
