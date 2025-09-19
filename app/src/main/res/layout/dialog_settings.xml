@@ -41,17 +41,10 @@
         android:text="@string/enable_sound_effects"
         android:textAppearance="?attr/textAppearanceBodyLarge" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/animation_switch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="@string/enable_background_animation"
-        android:textAppearance="?attr/textAppearanceBodyLarge" />
-
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
 

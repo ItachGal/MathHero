@@ -77,11 +77,6 @@ class SettingsDialogFragment : DialogFragment() {
             SharedPreferencesManager.setSoundEnabled(isChecked)
         }
 
-        // Animation Switch
-        binding.animationSwitch.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.onAnimationSettingChanged(isChecked)
-        }
-
         // Upgrade Button
         binding.upgradeButton.setOnClickListener {
             viewModel.initiatePurchaseFlow()
@@ -94,18 +89,6 @@ class SettingsDialogFragment : DialogFragment() {
                 viewModel.uiState.map { it.isPro }.distinctUntilChanged().collect { isPro ->
                     binding.proUserGroup.isVisible = isPro
                     binding.upgradeButton.isVisible = !isPro
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.map { it.isAnimationEnabled }.distinctUntilChanged().collect { isEnabled ->
-                    // Set listener to null before changing state to prevent feedback loop
-                    binding.animationSwitch.setOnCheckedChangeListener(null)
-                    binding.animationSwitch.isChecked = isEnabled
-                    binding.animationSwitch.setOnCheckedChangeListener { _, isChecked ->
-                        viewModel.onAnimationSettingChanged(isChecked)
-                    }
                 }
             }
         }

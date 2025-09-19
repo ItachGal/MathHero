@@ -5,7 +5,7 @@
     <color name="kid_orange">#FF9100</color>
     <color name="kid_green">#00C853</color>
     <color name="kid_yellow">#FFD600</color>
-    <color name="kid_background_light">#FDFBFF</color>
+    <color name="kid_background_light">#F4F8FF</color>
 
     <!-- Light Theme Material 3 Colors -->
     <color name="colorPrimary">@color/kid_blue</color>
@@ -28,15 +28,15 @@
     <color name="colorOnBackground">#1A1C1E</color>
     <color name="colorSurface">@color/kid_background_light</color>
     <color name="colorOnSurface">#1A1C1E</color>
-    <color name="colorSurfaceVariant">#DFE2EB</color>
+    <color name="colorSurfaceVariant">#DDE3F8</color>
     <color name="colorOnSurfaceVariant">#42474E</color>
     <color name="colorOutline">#73777F</color>
     <color name="colorInverseOnSurface">#F0F0F3</color>
     <color name="colorInverseSurface">#2F3133</color>
     <color name="colorInversePrimary">#A1C9FF</color>
-    <color name="colorSurfaceContainerLowest">#FFFFFF</color>
-    <color name="colorSurfaceContainer">#F3F4F7</color>
-    <color name="colorSurface_50alpha">#80FDFBFF</color>
+    <color name="colorSurfaceContainerLowest">@color/kid_background_light</color>
+    <color name="colorSurfaceContainer">#EFF3FF</color>
+    <color name="colorSurface_50alpha">#80F4F8FF</color>
 
     <!-- State Colors -->
     <color name="correct_green">@color/kid_green</color>

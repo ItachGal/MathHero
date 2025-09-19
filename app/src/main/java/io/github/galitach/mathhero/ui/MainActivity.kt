@@ -370,15 +370,6 @@ class MainActivity : AppCompatActivity() {
                 viewModel.uiState.map { it.isLoadingNextProblem }.distinctUntilChanged().collect { isLoading ->
                     binding.clickBlockerView.isVisible = isLoading
                 }
-                viewModel.uiState.map { it.isAnimationEnabled }.distinctUntilChanged().collect { isEnabled ->
-                    if (isEnabled) {
-                        binding.animatedBackgroundView.visibility = View.VISIBLE
-                        binding.animatedBackgroundView.start()
-                    } else {
-                        binding.animatedBackgroundView.visibility = View.GONE
-                        binding.animatedBackgroundView.stop()
-                    }
-                }
             }
         }
     }
@@ -511,31 +502,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun triggerWinEffects() {
         binding.konfettiView.bringToFront()
-        val party = Party(
-            speed = 10f,
-            maxSpeed = 30f,
-            damping = 0.9f,
-            spread = 60,
-            angle = 270,
-            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600),
-            emitter = Emitter(duration = 400, TimeUnit.MILLISECONDS).perSecond(50),
-            position = Position.Relative(0.5, 0.9)
-        )
-        binding.konfettiView.start(party)
+        binding.konfettiView.start(WIN_PARTY)
     }
 
     private fun triggerRankUpEffects() {
         binding.konfettiView.bringToFront()
-        val party = Party(
-            speed = 10f,
-            maxSpeed = 40f,
-            damping = 0.9f,
-            spread = 360,
-            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600, 0xFFFFFF),
-            emitter = Emitter(duration = 2500, TimeUnit.MILLISECONDS).perSecond(200),
-            position = Position.Relative(0.5, -0.1)
-        )
-        binding.konfettiView.start(party)
+        binding.konfettiView.start(RANK_UP_PARTY)
 
         viewModel.uiState.value.currentRank?.let { rank ->
             MaterialAlertDialogBuilder(this)
@@ -760,6 +732,12 @@ class MainActivity : AppCompatActivity() {
                 Log.e("MainActivity", "Failed to check for app update in onResume.", e)
             }
         }
+        binding.animatedBackgroundView.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.animatedBackgroundView.stop()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -817,5 +795,28 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         soundPool.release()
+    }
+
+    companion object {
+        private val WIN_PARTY = Party(
+            speed = 10f,
+            maxSpeed = 30f,
+            damping = 0.9f,
+            spread = 60,
+            angle = 270,
+            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600),
+            emitter = Emitter(duration = 400, TimeUnit.MILLISECONDS).perSecond(50),
+            position = Position.Relative(0.5, 0.9)
+        )
+
+        private val RANK_UP_PARTY = Party(
+            speed = 10f,
+            maxSpeed = 40f,
+            damping = 0.9f,
+            spread = 360,
+            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600, 0xFFFFFF),
+            emitter = Emitter(duration = 2500, TimeUnit.MILLISECONDS).perSecond(200),
+            position = Position.Relative(0.5, -0.1)
+        )
     }
 }

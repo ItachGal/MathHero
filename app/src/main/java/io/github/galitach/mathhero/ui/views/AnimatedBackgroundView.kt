@@ -28,6 +28,7 @@ class AnimatedBackgroundView @JvmOverloads constructor(
     private val path = Path()
     private var animator: ValueAnimator? = null
     private val themeColors: List<Int>
+    private var startPending = false
 
     init {
         val typedArray = context.theme.obtainStyledAttributes(attrs, R.styleable.AnimatedBackgroundView, 0, 0)
@@ -51,7 +52,6 @@ class AnimatedBackgroundView @JvmOverloads constructor(
         var vx: Float,
         var vy: Float,
         val points: List<MorphPoint>,
-        val mass: Float,
         var squeezeFactor: Float = 1f,
         val paint: Paint,
         val matrix: Matrix = Matrix(),
@@ -69,12 +69,19 @@ class AnimatedBackgroundView @JvmOverloads constructor(
     )
 
     fun start() {
-        if (animator?.isStarted != true && particles.isNotEmpty()) {
+        if (particles.isEmpty()) {
+            startPending = true
+            return
+        }
+
+        if (animator?.isStarted != true) {
+            startPending = false
             startAnimation()
         }
     }
 
     fun stop() {
+        startPending = false
         animator?.cancel()
     }
 
@@ -82,7 +89,9 @@ class AnimatedBackgroundView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
         if (w > 50 && h > 50 && particles.isEmpty()) {
             createParticles(w, h)
-            startAnimation()
+            if (startPending) {
+                start()
+            }
         }
     }
 
@@ -135,7 +144,6 @@ class AnimatedBackgroundView @JvmOverloads constructor(
                     vx = (random.nextFloat() - 0.5f) * 0.8f,
                     vy = (random.nextFloat() - 0.5f) * 0.8f,
                     points = morphPoints,
-                    mass = baseRadius * baseRadius,
                     paint = paint,
                     anchorPointsX = FloatArray(pointsPerParticle),
                     anchorPointsY = FloatArray(pointsPerParticle),
@@ -229,13 +237,6 @@ class AnimatedBackgroundView @JvmOverloads constructor(
         }
         path.close()
         canvas.drawPath(path, particle.paint)
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        if (particles.isNotEmpty()) {
-            startAnimation()
-        }
     }
 
     override fun onDetachedFromWindow() {

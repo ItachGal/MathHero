@@ -87,7 +87,6 @@
     <string name="change_difficulty">Change Difficulty</string>
     <string name="keep_going">Keep Going</string>
     <string name="enable_sound_effects">Enable sound effects</string>
-    <string name="enable_background_animation">Enable background animation</string>
     <string name="next_problem">Next Problem</string>
     <string name="difficulty_presets">Presets</string>
     <string name="difficulty_customize">Or Create Your Own</string>

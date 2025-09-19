@@ -61,8 +61,7 @@ data class UiState(
     val isPro: Boolean = false,
     val showStreakSavedToast: Boolean = false,
     val proProductDetails: ProductDetails? = null,
-    val isLoadingNextProblem: Boolean = false,
-    val isAnimationEnabled: Boolean = SharedPreferencesManager.isAnimationEnabled()
+    val isLoadingNextProblem: Boolean = false
 )
 
 class MainViewModel(
@@ -352,11 +351,6 @@ class MainViewModel(
 
     fun onSoundEventHandled() {
         _uiState.update { it.copy(playSoundEvent = null) }
-    }
-
-    fun onAnimationSettingChanged(isEnabled: Boolean) {
-        SharedPreferencesManager.setAnimationEnabled(isEnabled)
-        _uiState.update { it.copy(isAnimationEnabled = isEnabled) }
     }
 
     fun setSaveStreakAdState(newState: AdLoadState) {
