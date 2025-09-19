@@ -1,22 +1,22 @@
 <resources>
     <string name="app_name">גיבור חשבון</string>
     <string name="share_problem_title">שיתוף בעיה</string>
-    <string name="archive">ארכיון</string>
+    <string name="archive">היסטוריית בעיות</string>
     <string name="no_problem_available">אין בעיות חשבון זמינות. אנא חזור/י מחר.</string>
-    <string name="disclaimer_title">ברוכים הבאים לגיבור חשבון</string>
-    <string name="disclaimer_message">המטרה שלנו היא להפוך את לימוד המתמטיקה לחוויה מהנה. תהנו מהאתגר היומי!</string>
+    <string name="disclaimer_title">ברוך הבא, גיבור חשבון!</string>
+    <string name="disclaimer_message">התכונן/י להרפתקה מהנה עם מספרים! פתור/י בעיה חדשה כל יום.</string>
     <string name="notification_channel_name">בעיות חשבון יומיות</string>
     <string name="notification_channel_description">קבלת התראה יומית עם בעיית החשבון של היום.</string>
     <string name="notification_title">אתגר החשבון היומי שלך מחכה!</string>
     <string name="notification_text">לחץ/י כדי לפתור את בעיית החשבון של היום.</string>
     <string name="notifications_disabled_toast">ההתראות כבויות. ניתן להפעיל אותן בהגדרות האפליקציה.</string>
-    <string name="archive_title">בעיות קודמות</string>
+    <string name="archive_title">היסטוריית בעיות</string>
     <string name="close">סגירה</string>
     <string name="archive_empty">הארכיון ריק. בעיות שפתרת יופיעו כאן!</string>
     <string name="rate_app">דרג/י את האפליקציה</string>
     <string name="privacy_policy">מדיניות פרטיות</string>
     <string name="privacy_policy_title">מדיניות פרטיות</string>
-    <string name="privacy_policy_text">אפליקציה זו, גיבור חשבון, היא אפליקציה עצמאית שאינה אוספת, מאחסנת או משתפת נתוני משתמש אישיים. כל הבעיות כלולות בתוך האפליקציה.\n\nשירותי צד שלישי:\n- Google AdMob: כדי לתמוך באפליקציה, אנו משתמשים ב-Google AdMob לפרסום. AdMob עשוי לאסוף נתונים כדי לספק מודעות מותאמות אישית. למידע נוסף, עיין/י במדיניות הפרטיות של גוגל.\n- Google Play Services: האפליקציה עשויה להשתמש בשירותי Google Play לפונקציות ליבה.\n\nעל ידי שימוש באפליקציה זו, את/ה מסכים/ה למדיניות זו.</string>
+    <string name="privacy_policy_text">אפליקציה זו, גיבור חשבון, היא אפליקציה עצמאית שאינה אוספת, מאחסנת או משתפת נתוני משתמש אישיים. כל הבעיות כלולות בתוך האפליקציה.\n\nשירותי צד שלישי:\n- Google AdMob: כדי לתמוך באפליקציה, אנו משתמשים ב-Google AdMob לפרסום. AdMob עשוי לאסוף נתונים כדי לספק מודעות מותאמות אישית. למידע נוסף, עיין/י במדיניות הפרטיות של גוגל.\n- Google Play Services: האפליקקציה עשויה להשתמש בשירותי Google Play לפונקציות ליבה.\n\nעל ידי שימוש באפליקציה זו, את/ה מסכים/ה למדיניות זו.</string>
     <string name="streak_counter_description">מונה רצף יומי</string>
     <string name="confirm_answer">אישור תשובה</string>
     <string name="notification_action_reveal">גלה/י את התשובה</string>
@@ -40,13 +40,13 @@
     <string name="share_unsolved_format">האם תצליח/י לפתור את הבעיה הזו מ-%1$s?\n\n\"%2$s\"\n\nהורד/י את האפליקציה לאתגר יומי: %3$s</string>
     <string name="question_format">\u202A%1$s = ?\u202C</string>
     <string name="default_explanation">התשובה הנכונה היא %1$d.</string>
-    <string name="hint">רמז</string>
+    <string name="hint">קבל/י רמז</string>
     <string name="hero_level_description">דרגת גיבור החשבון הנוכחית</string>
 
     <string name="ranks_title">דרגות הגיבור</string>
-    <string name="rank_locked">נעול</string>
+    <string name="rank_locked">o???o</string>
     <string name="rank_up_title">עלית דרגה!</string>
-    <string name="rank_up_message">כל הכבוד! עלית לדרגת %1$s!</string>
+    <string name="rank_up_message">מעולה! עלית לדרגת %1$s!</string>
 
     <string name="rank_novice">טירון</string>
     <string name="rank_apprentice">שוליה</string>
@@ -60,7 +60,7 @@
     <string name="rank_titan">טיטאן</string>
 
     <string name="save_streak_dialog_title">אוי לא!</string>
-    <string name="save_streak_dialog_message">הרצף שלך נשבר! האם תרצה/י לשמור על ההתקדמות שלך?</string>
+    <string name="save_streak_dialog_message">הרצף שלך נשבר! צפה/י בסרטון קצר כדי לשמור על ההתקדמות ולהמשיך!</string>
     <string name="save_streak_dialog_positive_button">שמור/י על הרצף (מודעה)</string>
     <string name="save_streak_dialog_positive_button_pro">שמור/י על הרצף (הטבת PRO)</string>
     <string name="save_streak_dialog_negative_button">אפס/י את הרצף</string>
@@ -83,10 +83,11 @@
     <string name="difficulty_master">מאסטר</string>
     <string name="difficulty_master_desc">כל הפעולות: חיבור, חיסור, כפל וחילוק עם מספרים עד 200.</string>
     <string name="suggest_lower_difficulty_title">קצת מאתגר?</string>
-    <string name="suggest_lower_difficulty_message">נראה שהרמה הנוכחית מעט מאתגרת. האם תרצה/י לנסות רמת קושי נמוכה יותר?</string>
+    <string name="suggest_lower_difficulty_message">נראה שהרמה הנוכחית מעט קשה. מה דעתך לנסות רמה קלה יותר כדי להתחמם?</string>
     <string name="change_difficulty">שנה/י רמת קושי</string>
     <string name="keep_going">להמשיך</string>
     <string name="enable_sound_effects">הפעל אפקטים קוליים</string>
+    <string name="enable_background_animation">הפעל אנימציית רקע</string>
     <string name="next_problem">הבעיה הבאה</string>
     <string name="difficulty_presets">רמות מוכנות</string>
     <string name="difficulty_customize">או בהתאמה אישית</string>

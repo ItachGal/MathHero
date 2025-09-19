@@ -13,7 +13,6 @@ import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.data.MathProblemRepository
 import io.github.galitach.mathhero.data.Rank
 import io.github.galitach.mathhero.data.SharedPreferencesManager
-import java.util.Calendar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,7 +61,8 @@ data class UiState(
     val isPro: Boolean = false,
     val showStreakSavedToast: Boolean = false,
     val proProductDetails: ProductDetails? = null,
-    val isLoadingNextProblem: Boolean = false
+    val isLoadingNextProblem: Boolean = false,
+    val isAnimationEnabled: Boolean = SharedPreferencesManager.isAnimationEnabled()
 )
 
 class MainViewModel(
@@ -72,7 +72,6 @@ class MainViewModel(
 ) : AndroidViewModel(application) {
 
     private val repository: MathProblemRepository
-    private var dailyProblemId: Int = -1
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -82,7 +81,6 @@ class MainViewModel(
 
     init {
         repository = MathProblemRepository(application, SharedPreferencesManager)
-        dailyProblemId = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
 
         val needsSelection = !SharedPreferencesManager.isDifficultySet()
         _uiState.update { it.copy(needsDifficultySelection = needsSelection) }
@@ -113,7 +111,7 @@ class MainViewModel(
 
     private fun initializeProblem() {
         val dailyProblem = repository.getCurrentProblem()
-        val isDailyProblemAlreadySolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblemId }
+        val isDailyProblemAlreadySolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblem.id }
 
         val problemToLoad = if (isDailyProblemAlreadySolved) {
             repository.getBonusProblem()
@@ -209,14 +207,17 @@ class MainViewModel(
 
         savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
 
+        val dailyProblemId = repository.getCurrentProblem().id
+        val wasDailyProblem = problem.id == dailyProblemId
+
         if (isCorrect) {
-            handleCorrectAnswer()
+            handleCorrectAnswer(wasDailyProblem)
         } else {
-            handleIncorrectAnswer()
+            handleIncorrectAnswer(wasDailyProblem)
         }
     }
 
-    private fun handleCorrectAnswer() {
+    private fun handleCorrectAnswer(isDailyProblem: Boolean) {
         SharedPreferencesManager.resetConsecutiveWrongAnswers()
         val oldHighestStreak = SharedPreferencesManager.getHighestStreakCount()
         val oldRank = Rank.getRankForStreak(oldHighestStreak)
@@ -238,6 +239,7 @@ class MainViewModel(
         _uiState.update {
             it.copy(
                 isAnswerRevealed = true,
+                isDailyProblemSolved = it.isDailyProblemSolved || isDailyProblem,
                 archivedProblems = repository.getArchivedProblems(),
                 streakCount = SharedPreferencesManager.getStreakCount(),
                 highestStreakCount = newHighestStreak,
@@ -247,7 +249,7 @@ class MainViewModel(
         }
     }
 
-    private fun handleIncorrectAnswer() {
+    private fun handleIncorrectAnswer(isDailyProblem: Boolean) {
         SharedPreferencesManager.incrementConsecutiveWrongAnswers()
         val streakBeforeReset = _uiState.value.streakCount
         val isPro = _uiState.value.isPro
@@ -255,6 +257,7 @@ class MainViewModel(
         _uiState.update {
             it.copy(
                 isAnswerRevealed = true,
+                isDailyProblemSolved = it.isDailyProblemSolved || isDailyProblem,
                 archivedProblems = repository.getArchivedProblems(),
                 playSoundEvent = SoundEvent.Incorrect
             )
@@ -349,6 +352,11 @@ class MainViewModel(
 
     fun onSoundEventHandled() {
         _uiState.update { it.copy(playSoundEvent = null) }
+    }
+
+    fun onAnimationSettingChanged(isEnabled: Boolean) {
+        SharedPreferencesManager.setAnimationEnabled(isEnabled)
+        _uiState.update { it.copy(isAnimationEnabled = isEnabled) }
     }
 
     fun setSaveStreakAdState(newState: AdLoadState) {

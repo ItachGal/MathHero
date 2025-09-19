@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AnimatedBackgroundView">
+        <attr name="pastelColor1" format="color" />
+        <attr name="pastelColor2" format="color" />
+        <attr name="pastelColor3" format="color" />
+        <attr name="pastelColor4" format="color" />
+    </declare-styleable>
+</resources>

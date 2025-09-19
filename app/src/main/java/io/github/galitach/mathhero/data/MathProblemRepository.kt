@@ -12,9 +12,12 @@ class MathProblemRepository(
     fun getCurrentProblem(): MathProblem {
         val settings = prefsManager.getDifficultySettings()
         val streak = prefsManager.getStreakCount()
-        // Use day of year as a seed for a deterministic daily problem
-        val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-        return MathProblemGenerator.generateProblem(context, settings, streak, dayOfYear.toLong())
+        // Use day of year and year as a seed for a deterministic daily problem
+        val calendar = Calendar.getInstance()
+        val dayOfYear = calendar.get(Calendar.DAY_OF_YEAR)
+        val year = calendar.get(Calendar.YEAR)
+        val seed = (year * 1000L) + dayOfYear
+        return MathProblemGenerator.generateProblem(context, settings, streak, seed)
     }
 
     fun getBonusProblem(): MathProblem {

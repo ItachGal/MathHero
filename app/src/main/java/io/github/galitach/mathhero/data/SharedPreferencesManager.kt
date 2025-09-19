@@ -16,6 +16,7 @@ object SharedPreferencesManager {
     private const val KEY_CONSECUTIVE_WRONG_ANSWERS = "consecutive_wrong_answers"
     private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
+    private const val KEY_ANIMATION_ENABLED = "animation_enabled"
     private const val KEY_IS_PRO_USER = "is_pro_user"
     private const val KEY_PROGRESS_DATA = "progress_data"
     private const val MAX_ARCHIVE_SIZE = 7
@@ -33,6 +34,14 @@ object SharedPreferencesManager {
 
     fun setSoundEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_SOUND_ENABLED, enabled) }
+    }
+
+    fun isAnimationEnabled(): Boolean {
+        return prefs.getBoolean(KEY_ANIMATION_ENABLED, true)
+    }
+
+    fun setAnimationEnabled(enabled: Boolean) {
+        prefs.edit { putBoolean(KEY_ANIMATION_ENABLED, enabled) }
     }
 
     fun isOnboardingCompleted(): Boolean {

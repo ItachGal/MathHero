@@ -1,16 +1,16 @@
 <resources>
     <string name="app_name">Math Hero</string>
     <string name="share_problem_title">Share Problem</string>
-    <string name="archive">Archive</string>
+    <string name="archive">Problem History</string>
     <string name="no_problem_available">No math problem available. Please check back tomorrow.</string>
-    <string name="disclaimer_title">Welcome to Math Hero</string>
-    <string name="disclaimer_message">Welcome to Math Hero! Our goal is to make learning math fun. Enjoy your daily challenge!</string>
+    <string name="disclaimer_title">Welcome, Math Hero!</string>
+    <string name="disclaimer_message">Get ready for a fun adventure with numbers! Solve a new problem every day.</string>
     <string name="notification_channel_name">Daily Math Problems</string>
     <string name="notification_channel_description">Receive a notification for your math problem of the day.</string>
     <string name="notification_title">Your daily math challenge awaits!</string>
     <string name="notification_text">Tap to solve today\'s math problem.</string>
     <string name="notifications_disabled_toast">Notifications disabled. You can enable them in app settings.</string>
-    <string name="archive_title">Past Problems</string>
+    <string name="archive_title">Problem History</string>
     <string name="close">Close</string>
     <string name="archive_empty">The archive is empty. Solved problems will appear here!</string>
     <string name="rate_app">Rate App</string>
@@ -40,13 +40,13 @@
     <string name="share_unsolved_format">Can you solve this problem from %1$s?\n\n\"%2$s\"\n\nGet your daily challenge: %3$s</string>
     <string name="question_format">%1$s = ?</string>
     <string name="default_explanation">The correct answer is %1$d.</string>
-    <string name="hint">Hint</string>
+    <string name="hint">Get a Hint</string>
     <string name="hero_level_description">Current Math Hero Level</string>
 
     <string name="ranks_title">Hero Ranks</string>
-    <string name="rank_locked">x???x</string>
+    <string name="rank_locked">o???o</string>
     <string name="rank_up_title">Rank Up!</string>
-    <string name="rank_up_message">Congratulations! You have achieved the rank of %1$s!</string>
+    <string name="rank_up_message">Awesome! You\'ve reached the rank of %1$s!</string>
 
     <string name="rank_novice">Novice</string>
     <string name="rank_apprentice">Apprentice</string>
@@ -60,7 +60,7 @@
     <string name="rank_titan">Titan</string>
 
     <string name="save_streak_dialog_title">Oh no!</string>
-    <string name="save_streak_dialog_message">You broke your streak! Would you like to save your progress?</string>
+    <string name="save_streak_dialog_message">You broke your streak! Watch a short video to save your progress and keep going!</string>
     <string name="save_streak_dialog_positive_button">Save My Streak (Ad)</string>
     <string name="save_streak_dialog_positive_button_pro">Save My Streak (PRO Perk)</string>
     <string name="save_streak_dialog_negative_button">Reset My Streak</string>
@@ -82,11 +82,12 @@
     <string name="difficulty_expert_desc">Addition, subtraction, and multiplication with numbers up to 20.</string>
     <string name="difficulty_master">Master</string>
     <string name="difficulty_master_desc">All operations: addition, subtraction, multiplication, and division with numbers up to 200.</string>
-    <string name="suggest_lower_difficulty_title">Finding it Tricky?</string>
-    <string name="suggest_lower_difficulty_message">It looks like you\'re finding this level a bit challenging. Would you like to try an easier difficulty?</string>
+    <string name="suggest_lower_difficulty_title">A Little Tricky?</string>
+    <string name="suggest_lower_difficulty_message">This level seems a bit tough. How about trying an easier one to warm up?</string>
     <string name="change_difficulty">Change Difficulty</string>
     <string name="keep_going">Keep Going</string>
     <string name="enable_sound_effects">Enable sound effects</string>
+    <string name="enable_background_animation">Enable background animation</string>
     <string name="next_problem">Next Problem</string>
     <string name="difficulty_presets">Presets</string>
     <string name="difficulty_customize">Or Create Your Own</string>

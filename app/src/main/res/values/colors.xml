@@ -1,48 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Brand Palette -->
-    <color name="math_gold">#C2A661</color>
-    <color name="parchment">#FDF8EC</color>
-    <color name="dark_slate">#141218</color>
-    <color name="off_white">#E8E2D5</color>
-    <color name="soft_gold">#E1C28C</color>
+    <color name="kid_blue">#0091EA</color>
+    <color name="kid_orange">#FF9100</color>
+    <color name="kid_green">#00C853</color>
+    <color name="kid_yellow">#FFD600</color>
+    <color name="kid_background_light">#FDFBFF</color>
 
     <!-- Light Theme Material 3 Colors -->
-    <color name="colorPrimary">#765B22</color>
+    <color name="colorPrimary">@color/kid_blue</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorPrimaryContainer">#FFDEAD</color>
-    <color name="colorOnPrimaryContainer">#291800</color>
-    <color name="colorSecondary">#6A5D3F</color>
+    <color name="colorPrimaryContainer">#D2E4FF</color>
+    <color name="colorOnPrimaryContainer">#001C38</color>
+    <color name="colorSecondary">@color/kid_orange</color>
     <color name="colorOnSecondary">#FFFFFF</color>
-    <color name="colorSecondaryContainer">#F3E1BB</color>
-    <color name="colorOnSecondaryContainer">#241A04</color>
-    <color name="colorTertiary">#496546</color>
+    <color name="colorSecondaryContainer">#FFDDB7</color>
+    <color name="colorOnSecondaryContainer">#2A1700</color>
+    <color name="colorTertiary">@color/kid_green</color>
     <color name="colorOnTertiary">#FFFFFF</color>
-    <color name="colorTertiaryContainer">#CBEBC3</color>
-    <color name="colorOnTertiaryContainer">#062108</color>
+    <color name="colorTertiaryContainer">#99F793</color>
+    <color name="colorOnTertiaryContainer">#002206</color>
     <color name="colorError">#BA1A1A</color>
     <color name="colorOnError">#FFFFFF</color>
     <color name="colorErrorContainer">#FFDAD6</color>
     <color name="colorOnErrorContainer">#410002</color>
-    <color name="colorBackground">@color/parchment</color>
-    <color name="colorOnBackground">#1E1B13</color>
-    <color name="colorSurface">@color/parchment</color>
-    <color name="colorOnSurface">#1E1B13</color>
-    <color name="colorSurfaceVariant">#EDE1CF</color>
-    <color name="colorOnSurfaceVariant">#4D4639</color>
-    <color name="colorOutline">#7F7667</color>
-    <color name="colorInverseOnSurface">#F8EFE2</color>
-    <color name="colorInverseSurface">#343027</color>
-    <color name="colorInversePrimary">@color/soft_gold</color>
+    <color name="colorBackground">@color/kid_background_light</color>
+    <color name="colorOnBackground">#1A1C1E</color>
+    <color name="colorSurface">@color/kid_background_light</color>
+    <color name="colorOnSurface">#1A1C1E</color>
+    <color name="colorSurfaceVariant">#DFE2EB</color>
+    <color name="colorOnSurfaceVariant">#42474E</color>
+    <color name="colorOutline">#73777F</color>
+    <color name="colorInverseOnSurface">#F0F0F3</color>
+    <color name="colorInverseSurface">#2F3133</color>
+    <color name="colorInversePrimary">#A1C9FF</color>
+    <color name="colorSurfaceContainerLowest">#FFFFFF</color>
+    <color name="colorSurfaceContainer">#F3F4F7</color>
+    <color name="colorSurface_50alpha">#80FDFBFF</color>
 
     <!-- State Colors -->
-    <color name="correct_green">#4CAF50</color>
+    <color name="correct_green">@color/kid_green</color>
     <color name="incorrect_red">#F44336</color>
 
     <!-- Hint Colors -->
     <color name="hint_add_primary">#1E88E5</color> <!-- Blue -->
     <color name="hint_add_secondary">#FB8C00</color> <!-- Orange -->
-
     <color name="hint_color_1">#E53935</color> <!-- Red -->
     <color name="hint_color_2">#1E88E5</color> <!-- Blue -->
     <color name="hint_color_3">#43A047</color> <!-- Green -->
@@ -53,4 +55,10 @@
     <color name="hint_color_8">#D81B60</color> <!-- Pink -->
     <color name="hint_color_9">#7CB342</color> <!-- Lime -->
     <color name="hint_color_10">#546E7A</color> <!-- Blue Grey -->
+
+    <!-- Pastel Background Colors -->
+    <color name="pastel_1">#A1C9FF</color> <!-- blue -->
+    <color name="pastel_2">#C5EABC</color> <!-- green -->
+    <color name="pastel_3">#FFE082</color> <!-- yellow -->
+    <color name="pastel_4">#F4C2C2</color> <!-- pink -->
 </resources>

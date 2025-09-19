@@ -1,10 +1,12 @@
 package io.github.galitach.mathhero.ui
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.media.MediaPlayer
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.CycleInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -52,7 +55,7 @@ import io.github.galitach.mathhero.databinding.ActivityMainBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
-import io.github.galitach.mathhero.ui.hint.HintDialogFragment
+import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
 import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
@@ -79,8 +82,10 @@ class MainActivity : AppCompatActivity() {
 
     private var saveStreakRewardedAd: RewardedAd? = null
 
-    private var correctSoundPlayer: MediaPlayer? = null
-    private var incorrectSoundPlayer: MediaPlayer? = null
+    private lateinit var soundPool: SoundPool
+    private var correctSoundId: Int = 0
+    private val incorrectSoundIds = mutableListOf<Int>()
+    private var soundsLoaded = false
 
     private lateinit var appUpdateManager: AppUpdateManager
     private val appUpdateResultLauncher = registerForActivityResult(
@@ -112,18 +117,47 @@ class MainActivity : AppCompatActivity() {
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
         checkForAppUpdates()
 
-        setupSoundPlayers()
+        setupSoundPool()
         setupClickListeners()
-        setupConsentAndAds() // This needs to be called on every launch.
+        setupConsentAndAds()
 
         handleOnboardingIfNeeded()
         observeUiState()
         animateContentIn()
     }
 
-    private fun setupSoundPlayers() {
-        correctSoundPlayer = MediaPlayer.create(this, R.raw.riddle_complete)
-        incorrectSoundPlayer = MediaPlayer.create(this, R.raw.incorrect_answer)
+    private fun setupSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(3)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        var soundsToLoad = 11
+        soundPool.setOnLoadCompleteListener { _, _, status ->
+            if (status == 0) {
+                soundsToLoad--
+                if (soundsToLoad == 0) {
+                    soundsLoaded = true
+                }
+            }
+        }
+
+        correctSoundId = soundPool.load(this, R.raw.riddle_complete, 1)
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_1, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_2, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_3, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_4, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_5, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_6, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_7, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_8, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_9, 1))
+        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_10, 1))
     }
 
     private fun animateContentIn() {
@@ -284,7 +318,6 @@ class MainActivity : AppCompatActivity() {
                     updateButtonStates(state)
                     updateAnswerUI(state)
 
-                    // This observer handles cases where difficulty is not set on a subsequent app launch (e.g., cleared data)
                     if (state.needsDifficultySelection && SharedPreferencesManager.isOnboardingCompleted()) {
                         showDifficultySelectionDialog()
                     }
@@ -297,15 +330,25 @@ class MainActivity : AppCompatActivity() {
                     when (event) {
                         is OneTimeEvent.LaunchPurchaseFlow -> billingManager.launchPurchaseFlow(this@MainActivity)
                         is OneTimeEvent.ShowHintDialog -> {
-                            if (supportFragmentManager.findFragmentByTag(HintDialogFragment.TAG) == null) {
-                                HintDialogFragment.newInstance(event.problem)
-                                    .show(supportFragmentManager, HintDialogFragment.TAG)
+                            if (supportFragmentManager.findFragmentByTag(HintBottomSheetFragment.TAG) == null) {
+                                HintBottomSheetFragment.newInstance(event.problem)
+                                    .show(supportFragmentManager, HintBottomSheetFragment.TAG)
                             }
                         }
                         is OneTimeEvent.ShowSaveStreakDialog -> showSaveStreakDialog(event.brokenStreakValue)
                         is OneTimeEvent.ShowSuggestLowerDifficultyDialog -> showSuggestLowerDifficultyDialog()
-                        is OneTimeEvent.TriggerWinAnimation -> triggerWinEffects()
-                        is OneTimeEvent.TriggerRankUpAnimation -> triggerRankUpEffects()
+                        is OneTimeEvent.TriggerWinAnimation -> {
+                            triggerWinEffects()
+                            val oldStreak = viewModel.uiState.value.streakCount - 1
+                            animateStreakCounter(oldStreak.coerceAtLeast(0), viewModel.uiState.value.streakCount)
+                            animateHeroImage()
+                        }
+                        is OneTimeEvent.TriggerRankUpAnimation -> {
+                            triggerRankUpEffects()
+                            val oldStreak = viewModel.uiState.value.streakCount - 1
+                            animateStreakCounter(oldStreak.coerceAtLeast(0), viewModel.uiState.value.streakCount)
+                            animateHeroImage()
+                        }
                     }
                 }.launchIn(this)
 
@@ -326,6 +369,15 @@ class MainActivity : AppCompatActivity() {
                 }
                 viewModel.uiState.map { it.isLoadingNextProblem }.distinctUntilChanged().collect { isLoading ->
                     binding.clickBlockerView.isVisible = isLoading
+                }
+                viewModel.uiState.map { it.isAnimationEnabled }.distinctUntilChanged().collect { isEnabled ->
+                    if (isEnabled) {
+                        binding.animatedBackgroundView.visibility = View.VISIBLE
+                        binding.animatedBackgroundView.start()
+                    } else {
+                        binding.animatedBackgroundView.visibility = View.GONE
+                        binding.animatedBackgroundView.stop()
+                    }
                 }
             }
         }
@@ -361,22 +413,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (state.streakCount > 0) {
-            binding.streakCounter.text = state.streakCount.toString()
             binding.streakCounter.visibility = View.VISIBLE
             binding.streakIcon.visibility = View.VISIBLE
         } else {
             binding.streakCounter.visibility = View.GONE
             binding.streakIcon.visibility = View.GONE
         }
+        if (binding.streakCounter.text.toString() != state.streakCount.toString()) {
+            binding.streakCounter.text = state.streakCount.toString()
+        }
     }
 
     private fun updateButtonStates(state: UiState) {
-        updateVisibility(binding.preAnswerActionsContainer, !state.isAnswerRevealed)
-        updateVisibility(binding.postAnswerActionsContainer, state.isAnswerRevealed)
-        updateVisibility(binding.buttonInfo, state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty())
+        binding.preAnswerActionsContainer.isVisible = !state.isAnswerRevealed
+        binding.postAnswerActionsContainer.isVisible = state.isAnswerRevealed
+        binding.buttonInfo.isVisible = state.isAnswerRevealed && !state.problem?.explanation.isNullOrEmpty()
 
         val isAnswerSelected = state.selectedAnswer != null
-        binding.hintButtonContainer.visibility = if (isAnswerSelected) View.INVISIBLE else View.VISIBLE
+        binding.buttonHint.visibility = if (isAnswerSelected) View.GONE else View.VISIBLE
         binding.buttonConfirmAnswer.visibility = if (isAnswerSelected) View.VISIBLE else View.GONE
 
         updateNextProblemButton(state)
@@ -396,10 +450,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun playSound(event: SoundEvent) {
-        if (!SharedPreferencesManager.isSoundEnabled()) return
+        if (!SharedPreferencesManager.isSoundEnabled() || !soundsLoaded) return
+        val volume = 1.0f
         when (event) {
-            is SoundEvent.Correct -> correctSoundPlayer?.start()
-            is SoundEvent.Incorrect -> incorrectSoundPlayer?.start()
+            is SoundEvent.Correct -> soundPool.play(correctSoundId, volume, volume, 1, 0, 1.0f)
+            is SoundEvent.Incorrect -> {
+                if (incorrectSoundIds.isNotEmpty()) {
+                    soundPool.play(incorrectSoundIds.random(), volume, volume, 1, 0, 1.0f)
+                }
+            }
         }
     }
 
@@ -407,16 +466,60 @@ class MainActivity : AppCompatActivity() {
         binding.nextProblemButton.isEnabled = state.isAnswerRevealed && !state.isLoadingNextProblem
     }
 
+    private fun animateStreakCounter(oldStreak: Int, newStreak: Int) {
+        val animator = ValueAnimator.ofInt(oldStreak, newStreak)
+        animator.duration = 400
+        animator.addUpdateListener { animation ->
+            binding.streakCounter.text = animation.animatedValue.toString()
+        }
+        animator.start()
+
+        val popViews = listOf(binding.streakCounter, binding.streakIcon)
+        popViews.forEach { view ->
+            view.animate()
+                .scaleX(1.3f)
+                .scaleY(1.3f)
+                .setDuration(200)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .withEndAction {
+                    view.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(200)
+                        .setInterpolator(AccelerateDecelerateInterpolator())
+                        .start()
+                }.start()
+        }
+    }
+
+    private fun animateHeroImage() {
+        binding.heroImage.animate()
+            .rotation(10f)
+            .scaleX(1.1f)
+            .scaleY(1.1f)
+            .setInterpolator(CycleInterpolator(1f))
+            .setDuration(400)
+            .withEndAction {
+                binding.heroImage.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
+    }
+
     private fun triggerWinEffects() {
         binding.konfettiView.bringToFront()
         val party = Party(
-            speed = 0f,
+            speed = 10f,
             maxSpeed = 30f,
             damping = 0.9f,
-            spread = 360,
-            colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
-            emitter = Emitter(duration = 300, TimeUnit.MILLISECONDS).max(100),
-            position = Position.Relative(0.5, 0.3)
+            spread = 60,
+            angle = 270,
+            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600),
+            emitter = Emitter(duration = 400, TimeUnit.MILLISECONDS).perSecond(50),
+            position = Position.Relative(0.5, 0.9)
         )
         binding.konfettiView.start(party)
     }
@@ -425,11 +528,11 @@ class MainActivity : AppCompatActivity() {
         binding.konfettiView.bringToFront()
         val party = Party(
             speed = 10f,
-            maxSpeed = 50f,
+            maxSpeed = 40f,
             damping = 0.9f,
             spread = 360,
-            colors = listOf(0x765B22, 0xC2A661, 0x496546, 0xBA1A1A), // Dark Gold, Bright Gold, Green, Red
-            emitter = Emitter(duration = 2, TimeUnit.SECONDS).perSecond(300),
+            colors = listOf(0x0091EA, 0xFF9100, 0x00C853, 0xFFD600, 0xFFFFFF),
+            emitter = Emitter(duration = 2500, TimeUnit.MILLISECONDS).perSecond(200),
             position = Position.Relative(0.5, -0.1)
         )
         binding.konfettiView.start(party)
@@ -487,11 +590,6 @@ class MainActivity : AppCompatActivity() {
             button.setStrokeColorResource(R.color.colorOutline)
             button.alpha = 1.0f
         }
-    }
-
-    private fun updateVisibility(view: View, isVisible: Boolean) {
-        // Prioritize correctness over animations. Instant state changes prevent race conditions.
-        view.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     private fun shareProblem() {
@@ -718,9 +816,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        correctSoundPlayer?.release()
-        incorrectSoundPlayer?.release()
-        correctSoundPlayer = null
-        incorrectSoundPlayer = null
+        soundPool.release()
     }
 }

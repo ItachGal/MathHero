@@ -62,7 +62,7 @@ class NotificationReceiver : BroadcastReceiver() {
         val builder = NotificationCompat.Builder(context, MathHeroApplication.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_icon)
             .setStyle(messagingStyle)
-            .setColor(ContextCompat.getColor(context, R.color.math_gold))
+            .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
             .setContentIntent(openAppPendingIntent)
             .setAutoCancel(true)
             .addAction(
