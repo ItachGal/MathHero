@@ -15,8 +15,8 @@ android {
         applicationId = "io.github.galitach.mathhero"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "3.0"
+        versionCode = 8
+        versionName = "3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
