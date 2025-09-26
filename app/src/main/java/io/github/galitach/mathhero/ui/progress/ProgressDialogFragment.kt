@@ -1,25 +1,28 @@
 package io.github.galitach.mathhero.ui.progress
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.progressindicator.LinearProgressIndicator
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import io.github.galitach.mathhero.R
 import io.github.galitach.mathhero.data.Operation
 import io.github.galitach.mathhero.data.ProgressCalculator
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.DialogProgressBinding
 import io.github.galitach.mathhero.databinding.ItemProgressAccuracyBinding
-import io.github.galitach.mathhero.databinding.ItemRecommendationBinding
 import io.github.galitach.mathhero.ui.MainViewModel
 import io.github.galitach.mathhero.ui.MainViewModelFactory
 import io.github.galitach.mathhero.ui.upgrade.UpgradeDialogFragment
@@ -33,6 +36,7 @@ class ProgressDialogFragment : DialogFragment() {
     private var _binding: DialogProgressBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MainViewModel by activityViewModels { MainViewModelFactory }
+    private lateinit var recommendationAdapter: RecommendationAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,8 +52,39 @@ class ProgressDialogFragment : DialogFragment() {
         binding.upgradeButton.setOnClickListener {
             UpgradeDialogFragment.newInstance().show(parentFragmentManager, UpgradeDialogFragment.TAG)
         }
+        setupRecyclerView()
         observeViewModel()
     }
+
+    private fun setupRecyclerView() {
+        recommendationAdapter = RecommendationAdapter { recommendation ->
+            RecommendationDetailDialogFragment.newInstance(recommendation)
+                .show(parentFragmentManager, RecommendationDetailDialogFragment.TAG)
+        }
+        binding.recommendationsRecyclerView.apply {
+            adapter = recommendationAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
+        attachSwipeToDismiss()
+    }
+
+    private fun attachSwipeToDismiss() {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val recommendation = recommendationAdapter.currentList[position]
+                viewModel.onRecommendationDismissed(recommendation.id)
+                // The list will be re-submitted by the observer, so we don't need to manually remove.
+                Snackbar.make(binding.root, R.string.recommendation_dismissed, Snackbar.LENGTH_SHORT).show()
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.recommendationsRecyclerView)
+    }
+
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -114,19 +149,8 @@ class ProgressDialogFragment : DialogFragment() {
             }
 
             // Populate Recommendations
-            binding.recommendationsContainer.removeAllViews()
-            if (report.recommendations.isNotEmpty()) {
-                binding.recommendationsSection.isVisible = true
-                report.recommendations.forEach { recommendation ->
-                    val recommendationBinding = ItemRecommendationBinding.inflate(layoutInflater, binding.recommendationsContainer, false)
-                    recommendationBinding.recommendationIcon.setImageResource(recommendation.iconRes)
-                    recommendationBinding.recommendationTitle.setText(recommendation.titleRes)
-                    recommendationBinding.recommendationDescription.text = recommendation.description
-                    binding.recommendationsContainer.addView(recommendationBinding.root)
-                }
-            } else {
-                binding.recommendationsSection.isVisible = false
-            }
+            binding.recommendationsSection.isVisible = report.recommendations.isNotEmpty()
+            recommendationAdapter.submitList(report.recommendations)
         }
     }
 

@@ -2,6 +2,7 @@ package io.github.galitach.mathhero.ui
 
 import android.Manifest
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.media.AudioAttributes
@@ -56,6 +57,7 @@ import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
 import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
+import io.github.galitach.mathhero.ui.kidmode.KidModeSetupDialogFragment
 import io.github.galitach.mathhero.ui.onboarding.OnboardingActivity
 import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
@@ -134,6 +136,23 @@ class MainActivity : AppCompatActivity() {
         handleOnboardingIfNeeded()
         observeUiState()
         animateContentIn()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // If Kid Mode was active before the app was stopped, re-enter lock task mode.
+        if (viewModel.uiState.value.isKidModeActive) {
+            startLockTask()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // When the app is stopped (e.g., by the home button), the user has manually exited pinning.
+        // We check if the mode is still active in the ViewModel to confirm it wasn't a programmatic exit.
+        if (viewModel.uiState.value.isKidModeActive) {
+            viewModel.onKidModeExited()
+        }
     }
 
     private fun setupSoundPool() {
@@ -262,6 +281,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.heroCard.setOnClickListener { view ->
+            if (viewModel.uiState.value.isKidModeActive) return@setOnClickListener
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             val dialog = RanksDialogFragment.newInstance(viewModel.uiState.value.highestStreakCount)
             dialog.show(supportFragmentManager, RanksDialogFragment.TAG)
@@ -307,8 +327,9 @@ class MainActivity : AppCompatActivity() {
                     updateGamificationUI(state)
                     updateButtonStates(state)
                     updateAnswerUI(state)
+                    updateKidModeUI(state)
 
-                    if (state.needsDifficultySelection && SharedPreferencesManager.isOnboardingCompleted()) {
+                    if (state.needsDifficultySelection && SharedPreferencesManager.isOnboardingCompleted() && !state.isKidModeActive) {
                         showDifficultySelectionDialog()
                     }
                 }
@@ -337,6 +358,10 @@ class MainActivity : AppCompatActivity() {
                             animateStreakCounter()
                             animateHeroImage()
                         }
+                        is OneTimeEvent.KidModeSessionFinished -> {
+                            stopLockTask()
+                            Toast.makeText(this@MainActivity, R.string.kid_mode_session_finished, Toast.LENGTH_LONG).show()
+                        }
                     }
                 }.launchIn(this)
 
@@ -358,6 +383,11 @@ class MainActivity : AppCompatActivity() {
                 viewModel.uiState.map { it.isLoadingNextProblem }.distinctUntilChanged().collect { isLoading ->
                     binding.clickBlockerView.isVisible = isLoading
                 }
+                viewModel.uiState.map { it.isKidModeActive }.distinctUntilChanged().collect { isActive ->
+                    if (isActive) {
+                        startLockTask()
+                    }
+                }
             }
         }
     }
@@ -371,6 +401,7 @@ class MainActivity : AppCompatActivity() {
             initializeMobileAds()
         }
         updateNextProblemButton(viewModel.uiState.value)
+        invalidateOptionsMenu()
     }
 
     private fun updateProblemUI(state: UiState) {
@@ -398,7 +429,6 @@ class MainActivity : AppCompatActivity() {
             binding.streakCounter.visibility = View.GONE
             binding.streakIcon.visibility = View.GONE
         }
-        // The text is now set here. The animation will only "pop" the view.
         binding.streakCounter.text = state.streakCount.toString()
     }
 
@@ -424,6 +454,19 @@ class MainActivity : AppCompatActivity() {
                     button.text = state.shuffledAnswers.getOrNull(index) ?: ""
                 }
             updateMultipleChoiceSelection(state)
+        }
+    }
+
+    private fun updateKidModeUI(state: UiState) {
+        binding.kidModeProgressContainer.isVisible = state.isKidModeActive
+        if (state.isKidModeActive) {
+            binding.kidModeProgressText.text = getString(
+                R.string.kid_mode_progress_text,
+                state.kidModeSessionCorrectAnswers,
+                state.kidModeTargetCorrectAnswers
+            )
+            binding.kidModeProgressBar.max = state.kidModeTargetCorrectAnswers
+            binding.kidModeProgressBar.progress = state.kidModeSessionCorrectAnswers
         }
     }
 
@@ -725,17 +768,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
-        lifecycleScope.launch {
-            viewModel.uiState.map { it.isPro }.distinctUntilChanged().collect {
-                invalidateOptionsMenu()
-            }
-        }
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val upgradeItem = menu.findItem(R.id.action_upgrade_pro)
-        upgradeItem?.isVisible = !viewModel.uiState.value.isPro
+        val isPro = viewModel.uiState.value.isPro
+        val isKidMode = viewModel.uiState.value.isKidModeActive
+
+        menu.findItem(R.id.action_upgrade_pro)?.isVisible = !isPro && !isKidMode
+        menu.findItem(R.id.action_kid_mode)?.isVisible = isPro && !isKidMode
+
+        // Hide all other menu items during kid mode
+        menu.findItem(R.id.action_archive)?.isVisible = !isKidMode
+        menu.findItem(R.id.action_progress)?.isVisible = !isKidMode
+        menu.findItem(R.id.action_difficulty)?.isVisible = !isKidMode
+        menu.findItem(R.id.action_settings)?.isVisible = !isKidMode
+        menu.findItem(R.id.action_rate_app)?.isVisible = !isKidMode
+        menu.findItem(R.id.action_licenses)?.isVisible = !isKidMode
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -769,6 +819,10 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_upgrade_pro -> {
                 UpgradeDialogFragment.newInstance().show(supportFragmentManager, UpgradeDialogFragment.TAG)
+                true
+            }
+            R.id.action_kid_mode -> {
+                KidModeSetupDialogFragment.newInstance().show(supportFragmentManager, KidModeSetupDialogFragment.TAG)
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -12,6 +12,10 @@
         android:title="@string/progress_report"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_kid_mode"
+        android:title="@string/kid_mode_title"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_difficulty"
         android:title="@string/difficulty"
         app:showAsAction="never" />

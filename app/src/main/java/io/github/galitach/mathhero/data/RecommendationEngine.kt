@@ -10,32 +10,41 @@ object RecommendationEngine {
     private const val SIGNIFICANT_DROP_THRESHOLD = 0.25 // 25% drop in accuracy
 
     fun generate(results: List<ProblemResult>, context: Context): List<Recommendation> {
+        val dismissedIds = SharedPreferencesManager.getDismissedRecommendationIds()
+
         if (results.size < MIN_ATTEMPTS_FOR_INSIGHT) {
-            return listOf(
+            return if ("more_data" in dismissedIds) emptyList() else listOf(
                 Recommendation(
-                    R.drawable.ic_insight,
-                    R.string.recommendation_more_data_title,
-                    context.getString(R.string.recommendation_more_data_desc)
+                    id = "more_data",
+                    iconRes = R.drawable.ic_insight,
+                    titleRes = R.string.recommendation_more_data_title,
+                    description = context.getString(R.string.recommendation_more_data_desc),
+                    detailTitleRes = R.string.recommendation_more_data_title,
+                    detailDescription = context.getString(R.string.recommendation_more_data_detail_desc)
                 )
             )
         }
 
         val recommendations = mutableListOf<Recommendation>()
-
         recommendations.addAll(findWeakestOperation(results, context))
         recommendations.addAll(findNumberRangeStruggles(results, context))
 
-        if (recommendations.isEmpty()) {
-            recommendations.add(
+        val filteredRecommendations = recommendations.filterNot { it.id in dismissedIds }
+
+        if (filteredRecommendations.isEmpty() && "all_good" !in dismissedIds) {
+            return listOf(
                 Recommendation(
-                    R.drawable.ic_check_circle,
-                    R.string.recommendation_all_good_title,
-                    context.getString(R.string.recommendation_all_good_desc)
+                    id = "all_good",
+                    iconRes = R.drawable.ic_check_circle,
+                    titleRes = R.string.recommendation_all_good_title,
+                    description = context.getString(R.string.recommendation_all_good_desc),
+                    detailTitleRes = R.string.recommendation_all_good_title,
+                    detailDescription = context.getString(R.string.recommendation_all_good_detail_desc)
                 )
             )
         }
 
-        return recommendations
+        return filteredRecommendations
     }
 
     private fun findWeakestOperation(results: List<ProblemResult>, context: Context): List<Recommendation> {
@@ -55,9 +64,12 @@ object RecommendationEngine {
             val opName = context.getString(weakest.first.stringRes)
             return listOf(
                 Recommendation(
-                    R.drawable.ic_insight,
-                    R.string.recommendation_weakest_op_title,
-                    context.getString(R.string.recommendation_weakest_op_desc, opName)
+                    id = "weakest_op_${weakest.first.name}",
+                    iconRes = R.drawable.ic_insight,
+                    titleRes = R.string.recommendation_weakest_op_title,
+                    description = context.getString(R.string.recommendation_weakest_op_desc, opName),
+                    detailTitleRes = R.string.recommendation_weakest_op_detail_title,
+                    detailDescription = context.getString(R.string.recommendation_weakest_op_detail_desc, opName)
                 )
             )
         }
@@ -90,16 +102,27 @@ object RecommendationEngine {
                     val opName = context.getString(op.stringRes)
                     recommendations.add(
                         Recommendation(
-                            R.drawable.ic_insight,
-                            R.string.recommendation_range_struggle_title,
-                            context.getString(R.string.recommendation_range_struggle_desc, opName, range1.last, range2.first)
+                            id = "range_struggle_${op.name}_${range1.last}_${range2.first}",
+                            iconRes = R.drawable.ic_insight,
+                            titleRes = R.string.recommendation_range_struggle_title,
+                            description = context.getString(R.string.recommendation_range_struggle_desc, opName, range1.last, range2.first),
+                            detailTitleRes = R.string.recommendation_range_struggle_detail_title,
+                            detailDescription = getDetailForRangeStruggle(op, context)
                         )
                     )
-                    // Only add one range recommendation per operation to avoid spam
                     break
                 }
             }
         }
         return recommendations
+    }
+
+    private fun getDetailForRangeStruggle(op: Operation, context: Context): String {
+        return when (op) {
+            Operation.ADDITION -> context.getString(R.string.recommendation_detail_addition_large)
+            Operation.SUBTRACTION -> context.getString(R.string.recommendation_detail_subtraction_large)
+            Operation.MULTIPLICATION -> context.getString(R.string.recommendation_detail_multiplication_large)
+            Operation.DIVISION -> context.getString(R.string.recommendation_detail_division_large)
+        }
     }
 }

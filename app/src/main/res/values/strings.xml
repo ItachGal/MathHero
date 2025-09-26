@@ -144,14 +144,36 @@
     <string name="pro_upgrade">PRO Upgrade</string>
 
     <!-- Recommendations -->
+    <string name="recommendation_dismissed">Recommendation hidden.</string>
     <string name="recommendation_more_data_title">Keep Practicing!</string>
     <string name="recommendation_more_data_desc">Solve a few more problems to start seeing personalized insights and recommendations here.</string>
+    <string name="recommendation_more_data_detail_desc">The recommendation engine needs a bit more data to find patterns. After about 10 solved problems, the first insights will start to appear.</string>
     <string name="recommendation_all_good_title">Excellent Work!</string>
     <string name="recommendation_all_good_desc">You\'re doing great across the board. Consider trying a higher difficulty level to challenge yourself further!</string>
+    <string name="recommendation_all_good_detail_desc">No specific weak spots were found in the recent history. This is a great sign of strong, all-around skills. To keep growing, try increasing the maximum number in the custom difficulty settings or move up to the next preset level.</string>
     <string name="recommendation_weakest_op_title">Area for Improvement</string>
     <string name="recommendation_weakest_op_desc">It looks like %1$s problems are the most challenging right now. Focusing on this area could be a great way to improve!</string>
+    <string name="recommendation_weakest_op_detail_title">Improving with %1$s</string>
+    <string name="recommendation_weakest_op_detail_desc">The best way to get better at %1$s is through focused practice. Try setting up a custom difficulty that only includes this operation. Start with smaller numbers to build confidence and gradually increase them as you improve.</string>
     <string name="recommendation_range_struggle_title">Stepping Up the Challenge</string>
     <string name="recommendation_range_struggle_desc">You\'re doing well with %1$s problems with numbers up to %2$d, but it gets trickier with numbers above %3$d. Practice in this higher range will build confidence!</string>
+    <string name="recommendation_range_struggle_detail_title">Mastering Larger Numbers</string>
+    <string name="recommendation_detail_addition_large">When adding large numbers like 126 + 95, a great strategy is to break them down into easier parts.\n\n1. First, break each number into its hundreds, tens and ones: 126 becomes 100 + 20 + 6, and 95 becomes 90 + 5.\n\n2. Next, add the bigger parts together: 100 + 90 + 20 = 210.\n\n3. Then, add the smaller parts: 6 + 5 = 11.\n\n4. Finally, combine the two results: 210 + 11 = 221.\n\nThis method, called decomposition, makes big problems much simpler to solve in your head!</string>
+    <string name="recommendation_detail_subtraction_large">For subtracting large numbers, like 142 – 87, try the "counting up" method.\n\n1. Start at the smaller number, 87.\n\n2. How many do you need to get to the next friendly number, 90? That\'s 3.\n\n3. How many from 90 to 100? That\'s 10.\n\n4. How many from 100 to 142? That\'s 42.\n\n5. Now, add up the jumps: 3 + 10 + 42 = 55. So, 142 – 87 = 55.</string>
+    <string name="recommendation_detail_multiplication_large">Multiplying larger numbers, like 15 x 8, can be simplified by splitting.\n\n1. Break the larger number into parts: 15 becomes 10 + 5.\n\n2. Multiply each part by the other number: (10 x 8) and (5 x 8).\n\n3. Solve each smaller problem: 10 x 8 = 80, and 5 x 8 = 40.\n\n4. Add the results together: 80 + 40 = 120. This is much easier than trying to solve 15 x 8 all at once!</string>
+    <string name="recommendation_detail_division_large">For division, like 125 ÷ 5, think about it in reverse: "What number times 5 gets me close to 125?"\n\n1. Use easy multiples you know. For example, you know 10 x 5 = 50. That\'s a good start.\n\n2. You also know 20 x 5 = 100. We\'re getting closer!\n\n3. How much is left? 125 – 100 = 25.\n\n4. Now, how many 5s are in 25? That\'s 5! (since 5 x 5 = 25).\n\n5. Add your multiples together: 20 + 5 = 25. So, 125 ÷ 5 = 25.</string>
+
+    <!-- Kid Mode -->
+    <string name="kid_mode_title">Kid Mode (PRO)</string>
+    <string name="kid_mode_desc">Start a focused practice session. The app will be locked until the goal is reached. The parent can exit at any time using the device\'s unlock gesture (e.g., swipe up and hold).</string>
+    <string name="kid_mode_target_title">Set Goal (Correct Answers)</string>
+    <string name="kid_mode_start_session">Start Session</string>
+    <string name="kid_mode_exit_instructions">To exit manually, use the standard gesture for unpinning an app (usually swiping up from the bottom of the screen and holding) and enter your device passcode.</string>
+    <string name="kid_mode_pinning_disabled_title">Screen Pinning Disabled</string>
+    <string name="kid_mode_pinning_disabled_desc">To use Kid Mode, you must first enable Screen Pinning in your device\'s security settings. This allows Math Hero to stay in the foreground.</string>
+    <string name="kid_mode_error_selection">Please select a goal and a difficulty level.</string>
+    <string name="kid_mode_progress_text">Progress: %1$d / %2$d</string>
+    <string name="kid_mode_session_finished">Great job! Session complete.</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

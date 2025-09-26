@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_close"
+            tools:title="How to Improve" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/recommendation_detail_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingMultiplier="1.2"
+            android:padding="24dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            tools:text="Here is a detailed explanation on how to improve a specific skill. For example, when adding large numbers like 126 + 95, a great strategy is to break them down into easier parts.\n\n1. First, break each number into its tens and ones: 126 becomes 100 + 20 + 6, and 95 becomes 90 + 5.\n\n2. Next, add the bigger parts together: 100 + 90 + 20 = 210.\n\n3. Then, add the smaller parts: 6 + 5 = 11.\n\n4. Finally, combine the two results: 210 + 11 = 221.\n\nThis method, called decomposition, makes big problems much simpler to solve in your head!" />
+
+    </ScrollView>
+
+</LinearLayout>

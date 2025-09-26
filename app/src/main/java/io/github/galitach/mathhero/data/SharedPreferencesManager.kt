@@ -18,6 +18,7 @@ object SharedPreferencesManager {
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_IS_PRO_USER = "is_pro_user"
     private const val KEY_PROGRESS_DATA_MIGRATED = "progress_data_migrated"
+    private const val KEY_DISMISSED_RECOMMENDATIONS = "dismissed_recommendations"
     private const val MAX_ARCHIVE_SIZE = 7
 
     // Legacy key, for migration only
@@ -171,6 +172,18 @@ object SharedPreferencesManager {
 
     fun setProUser(isPro: Boolean) {
         prefs.edit { putBoolean(KEY_IS_PRO_USER, isPro) }
+    }
+
+    fun getDismissedRecommendationIds(): Set<String> {
+        return prefs.getStringSet(KEY_DISMISSED_RECOMMENDATIONS, emptySet()) ?: emptySet()
+    }
+
+    fun dismissRecommendation(id: String) {
+        val currentDismissed = getDismissedRecommendationIds().toMutableSet()
+        currentDismissed.add(id)
+        prefs.edit {
+            putStringSet(KEY_DISMISSED_RECOMMENDATIONS, currentDismissed)
+        }
     }
 
     // --- MIGRATION LOGIC ---

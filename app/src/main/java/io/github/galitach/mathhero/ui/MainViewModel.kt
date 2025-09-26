@@ -39,6 +39,7 @@ sealed class OneTimeEvent {
     object ShowSuggestLowerDifficultyDialog : OneTimeEvent()
     object TriggerWinAnimation : OneTimeEvent()
     object TriggerRankUpAnimation : OneTimeEvent()
+    object KidModeSessionFinished : OneTimeEvent()
 }
 
 enum class AdLoadState {
@@ -63,7 +64,11 @@ data class UiState(
     val isPro: Boolean = false,
     val showStreakSavedToast: Boolean = false,
     val proProductDetails: ProductDetails? = null,
-    val isLoadingNextProblem: Boolean = false
+    val isLoadingNextProblem: Boolean = false,
+    // Kid Mode State
+    val isKidModeActive: Boolean = false,
+    val kidModeTargetCorrectAnswers: Int = 0,
+    val kidModeSessionCorrectAnswers: Int = 0
 )
 
 class MainViewModel(
@@ -75,7 +80,13 @@ class MainViewModel(
 
     private val repository: MathProblemRepository
 
-    private val _uiState = MutableStateFlow(UiState())
+    private val _uiState = MutableStateFlow(
+        UiState(
+            isKidModeActive = savedStateHandle.get<Boolean>(KEY_KID_MODE_ACTIVE) ?: false,
+            kidModeTargetCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_TARGET) ?: 0,
+            kidModeSessionCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_PROGRESS) ?: 0
+        )
+    )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val _oneTimeEvent = MutableSharedFlow<OneTimeEvent>()
@@ -89,8 +100,17 @@ class MainViewModel(
 
         observeBillingChanges()
 
-        if (!needsSelection) {
+        if (!needsSelection && !uiState.value.isKidModeActive) {
             initializeProblem()
+        } else if (uiState.value.isKidModeActive) {
+            // If Kid Mode was active before process death, restore the problem
+            val restoredProblem = savedStateHandle.get<MathProblem>(KEY_PROBLEM)
+            if (restoredProblem != null) {
+                loadInitialState(restoredProblem, isDailySolved = false, clearSavedState = false)
+            } else {
+                // This case is unlikely but as a fallback, start a new problem for the session
+                onKidModeSetup(uiState.value.kidModeTargetCorrectAnswers, SharedPreferencesManager.getDifficultySettings())
+            }
         }
     }
 
@@ -217,8 +237,12 @@ class MainViewModel(
         if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return@launch
 
         val isCorrect = state.selectedAnswer == problem.answer
-        SharedPreferencesManager.addProblemToArchive(problem)
+        if (!state.isKidModeActive) {
+            SharedPreferencesManager.addProblemToArchive(problem)
+        }
+        // Always log progress, even in Kid Mode
         progressRepository.logProblemResult(problem, isCorrect)
+
 
         savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
 
@@ -226,7 +250,11 @@ class MainViewModel(
         val wasDailyProblem = problem.id == dailyProblemId
 
         if (isCorrect) {
-            handleCorrectAnswer(wasDailyProblem)
+            if (state.isKidModeActive) {
+                incrementKidModeProgress()
+            } else {
+                handleCorrectAnswer(wasDailyProblem)
+            }
         } else {
             handleIncorrectAnswer(wasDailyProblem)
         }
@@ -265,7 +293,9 @@ class MainViewModel(
     }
 
     private fun handleIncorrectAnswer(isDailyProblem: Boolean) {
-        SharedPreferencesManager.incrementConsecutiveWrongAnswers()
+        if (!uiState.value.isKidModeActive) {
+            SharedPreferencesManager.incrementConsecutiveWrongAnswers()
+        }
         val streakBeforeReset = _uiState.value.streakCount
         val isPro = _uiState.value.isPro
 
@@ -278,19 +308,15 @@ class MainViewModel(
             )
         }
 
-        if (streakBeforeReset > 0) {
+        if (streakBeforeReset > 0 && !uiState.value.isKidModeActive) {
             if (isPro) {
-                // Pro users save their streak automatically.
                 onStreakSaveCompleted(streakBeforeReset)
             } else {
-                // Non-pro users get the option to watch an ad.
-                // We DON'T reset the streak here. We wait for the user's choice.
                 viewModelScope.launch {
                     _oneTimeEvent.emit(OneTimeEvent.ShowSaveStreakDialog(streakBeforeReset))
                 }
             }
-        } else {
-            // No streak to save, just check for difficulty suggestion.
+        } else if (!uiState.value.isKidModeActive) {
             checkAndSuggestLowerDifficulty()
         }
     }
@@ -305,7 +331,6 @@ class MainViewModel(
     }
 
     fun onStreakResetConfirmed() {
-        // This is now the official point where a streak is reset after user confirmation.
         SharedPreferencesManager.updateStreak(false)
         _uiState.update { it.copy(streakCount = 0) }
         checkAndSuggestLowerDifficulty()
@@ -316,9 +341,7 @@ class MainViewModel(
         SharedPreferencesManager.resetConsecutiveWrongAnswers()
     }
 
-    fun onSuggestLowerDifficultyDismissed() {
-        // The counter for wrong answers is intentionally not reset here.
-    }
+    fun onSuggestLowerDifficultyDismissed() {}
 
     fun onStreakSaveCompleted(restoredStreak: Int) {
         SharedPreferencesManager.setStreakCount(restoredStreak)
@@ -336,7 +359,14 @@ class MainViewModel(
         if (_uiState.value.isLoadingNextProblem) return
         _uiState.update { it.copy(isLoadingNextProblem = true) }
         viewModelScope.launch {
-            loadBonusProblem()
+            if (uiState.value.isKidModeActive) {
+                val problem = withContext(Dispatchers.Default) {
+                    repository.getBonusProblem()
+                }
+                loadNewProblem(problem)
+            } else {
+                loadBonusProblem()
+            }
         }
     }
 
@@ -359,7 +389,6 @@ class MainViewModel(
                     isLoadingNextProblem = false
                 )
             }
-            savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
             savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
             savedStateHandle[KEY_PROBLEM] = problem
         }
@@ -389,10 +418,68 @@ class MainViewModel(
         return progressRepository.getProgressHistory()
     }
 
+    fun onRecommendationDismissed(id: String) {
+        SharedPreferencesManager.dismissRecommendation(id)
+    }
+
+    // --- KID MODE ---
+    fun onKidModeSetup(target: Int, difficulty: DifficultySettings) {
+        SharedPreferencesManager.saveDifficultySettings(difficulty) // Save for this session
+        savedStateHandle[KEY_KID_MODE_ACTIVE] = true
+        savedStateHandle[KEY_KID_MODE_TARGET] = target
+        savedStateHandle[KEY_KID_MODE_PROGRESS] = 0
+        _uiState.update {
+            it.copy(
+                isKidModeActive = true,
+                kidModeTargetCorrectAnswers = target,
+                kidModeSessionCorrectAnswers = 0,
+                difficultyDescription = generateDifficultyDescription(difficulty)
+            )
+        }
+        onNextProblemRequested() // Start with a fresh problem for the session
+    }
+
+    private fun incrementKidModeProgress() {
+        val newProgress = uiState.value.kidModeSessionCorrectAnswers + 1
+        savedStateHandle[KEY_KID_MODE_PROGRESS] = newProgress
+        _uiState.update {
+            it.copy(
+                isAnswerRevealed = true,
+                kidModeSessionCorrectAnswers = newProgress,
+                playSoundEvent = SoundEvent.Correct
+            )
+        }
+
+        if (newProgress >= uiState.value.kidModeTargetCorrectAnswers) {
+            viewModelScope.launch {
+                _oneTimeEvent.emit(OneTimeEvent.KidModeSessionFinished)
+                onKidModeExited()
+            }
+        }
+    }
+
+    fun onKidModeExited() {
+        savedStateHandle[KEY_KID_MODE_ACTIVE] = false
+        savedStateHandle[KEY_KID_MODE_TARGET] = 0
+        savedStateHandle[KEY_KID_MODE_PROGRESS] = 0
+        _uiState.update {
+            it.copy(
+                isKidModeActive = false,
+                kidModeTargetCorrectAnswers = 0,
+                kidModeSessionCorrectAnswers = 0
+            )
+        }
+        // Reload the original daily problem
+        initializeProblem()
+    }
+
     companion object {
         private const val KEY_PROBLEM = "problem"
         private const val KEY_SHUFFLED_ANSWERS = "shuffled_answers"
         private const val KEY_SELECTED_ANSWER = "selected_answer"
         private const val KEY_IS_ANSWER_REVEALED = "is_answer_revealed"
+        private const val KEY_KID_MODE_ACTIVE = "kid_mode_active"
+        private const val KEY_KID_MODE_TARGET = "kid_mode_target"
+        private const val KEY_KID_MODE_PROGRESS = "kid_mode_progress"
     }
 }
