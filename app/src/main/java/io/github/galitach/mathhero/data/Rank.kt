@@ -15,7 +15,7 @@ data class Rank(
     companion object {
         val allRanks by lazy {
             listOf(
-                Rank(1, R.string.rank_novice, -1, R.raw.mathhero_1),
+                Rank(1, R.string.rank_novice, 0, R.raw.mathhero_1),
                 Rank(2, R.string.rank_apprentice, 10, R.raw.mathhero_2),
                 Rank(3, R.string.rank_adept, 25, R.raw.mathhero_3),
                 Rank(4, R.string.rank_specialist, 50, R.raw.mathhero_4),

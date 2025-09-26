@@ -2,13 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    alias(libs.plugins.google.ksp)
 }
 
 android {
     namespace = "io.github.galitach.mathhero"
     compileSdk = 36
     kotlin {
-        jvmToolchain(8)
+        jvmToolchain(21)
     }
     defaultConfig {
         applicationId = "io.github.galitach.mathhero"
@@ -20,8 +21,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildTypes {
         release {
@@ -58,4 +59,9 @@ dependencies {
     implementation(libs.konfetti.view)
     implementation(libs.androidx.splashscreen)
     implementation(libs.google.play.services.oss.licenses)
+
+    // db
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

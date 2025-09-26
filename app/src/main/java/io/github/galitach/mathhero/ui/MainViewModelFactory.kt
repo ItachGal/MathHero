@@ -18,7 +18,8 @@ object MainViewModelFactory : ViewModelProvider.Factory {
             val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MathHeroApplication
             val savedStateHandle = extras.createSavedStateHandle()
             val billingManager = application.billingManager
-            return MainViewModel(application, savedStateHandle, billingManager) as T
+            val progressRepository = application.progressRepository
+            return MainViewModel(application, savedStateHandle, billingManager, progressRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

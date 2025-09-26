@@ -65,169 +65,177 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/main_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/bottom_actions_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/hero_card"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:minWidth="200dp"
-            app:cardBackgroundColor="@color/colorSurface_50alpha"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/problem_card"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:strokeWidth="1dp">
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="16dp">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hero_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <ImageView
-                    android:id="@+id/hero_image"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:contentDescription="@string/hero_level_description"
-                    tools:src="@raw/mathhero_1" />
+                android:clickable="true"
+                android:focusable="true"
+                android:minWidth="200dp"
+                app:cardBackgroundColor="@color/colorSurface_50alpha"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/problem_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:id="@+id/status_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/hero_image"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:contentDescription="@string/hero_level_description"
+                        tools:src="@raw/mathhero_1" />
+
+                    <LinearLayout
+                        android:id="@+id/status_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/rank_name_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/fredoka_one"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorPrimary"
+                            tools:text="Novice" />
+
+                        <TextView
+                            android:id="@+id/difficulty_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            tools:text="Apprentice" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/problem_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/colorSurface_50alpha"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/multipleChoiceGroup"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/hero_card"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/rank_name_text"
+                        android:id="@+id/problemText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/fredoka_one"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="?attr/colorPrimary"
-                        tools:text="Novice" />
+                        android:includeFontPadding="false"
+                        android:textAlignment="center"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        tools:text="15 + 8 = ?" />
 
-                    <TextView
-                        android:id="@+id/difficulty_text"
+                    <RatingBar
+                        android:id="@+id/difficulty_rating"
+                        style="?android:attr/ratingBarStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:textAppearance="?attr/textAppearanceLabelLarge"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        tools:text="Apprentice" />
+                        android:layout_marginTop="12dp"
+                        android:isIndicator="true"
+                        android:numStars="10"
+                        android:stepSize="1"
+                        android:theme="@style/RatingBar"
+                        tools:rating="3" />
                 </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/problem_card"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/colorSurface_50alpha"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/multipleChoiceGroup"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/hero_card"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/multipleChoiceGroup"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
                 android:orientation="vertical"
-                android:padding="16dp">
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/problem_card"
+                app:singleSelection="true">
 
-                <TextView
-                    android:id="@+id/problemText"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_1"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/fredoka_one"
-                    android:includeFontPadding="false"
-                    android:textAlignment="center"
-                    android:textAppearance="?attr/textAppearanceHeadline5"
-                    tools:text="15 + 8 = ?" />
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    tools:text="21" />
 
-                <RatingBar
-                    android:id="@+id/difficulty_rating"
-                    style="?android:attr/ratingBarStyleSmall"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_2"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:isIndicator="true"
-                    android:numStars="10"
-                    android:stepSize="1"
-                    android:theme="@style/RatingBar"
-                    tools:rating="3" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    tools:text="23" />
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/multipleChoiceGroup"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/problem_card"
-            app:singleSelection="true">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/multiple_choice_3"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    tools:text="25" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/multiple_choice_1"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                tools:text="21" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/multiple_choice_2"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                tools:text="23" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/multiple_choice_3"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                tools:text="25" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <FrameLayout
         android:id="@+id/bottom_actions_container"

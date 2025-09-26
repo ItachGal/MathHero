@@ -72,7 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -130,6 +130,29 @@
                             tools:text="Longest Streak: 50" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:id="@+id/recommendations_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        style="@style/TextAppearance.Material3.TitleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="@string/progress_insights" />
+
+                    <LinearLayout
+                        android:id="@+id/recommendations_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
 
                 <TextView
                     style="@style/TextAppearance.Material3.TitleLarge"

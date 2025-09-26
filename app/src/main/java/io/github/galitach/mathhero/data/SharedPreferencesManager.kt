@@ -17,9 +17,12 @@ object SharedPreferencesManager {
     private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_IS_PRO_USER = "is_pro_user"
-    private const val KEY_PROGRESS_DATA = "progress_data"
+    private const val KEY_PROGRESS_DATA_MIGRATED = "progress_data_migrated"
     private const val MAX_ARCHIVE_SIZE = 7
-    private const val MAX_PROGRESS_ENTRIES = 200
+
+    // Legacy key, for migration only
+    private const val KEY_PROGRESS_DATA_LEGACY = "progress_data"
+
 
     private lateinit var prefs: SharedPreferences
 
@@ -170,42 +173,40 @@ object SharedPreferencesManager {
         prefs.edit { putBoolean(KEY_IS_PRO_USER, isPro) }
     }
 
-    fun getProgressData(): List<ProblemResult> {
-        val dataStrings = prefs.getStringSet(KEY_PROGRESS_DATA, emptySet()) ?: emptySet()
-        return dataStrings.mapNotNull { deserializeProgress(it) }.sortedByDescending { it.timestamp }
-    }
-
-    fun logProblemResult(problem: MathProblem, wasCorrect: Boolean) {
-        val operation = try {
-            Operation.entries.first { it.symbol == problem.operator }
-        } catch (_: NoSuchElementException) {
+    // --- MIGRATION LOGIC ---
+    suspend fun migrateProgressDataIfNeeded(repository: ProgressRepository) {
+        if (prefs.getBoolean(KEY_PROGRESS_DATA_MIGRATED, false)) {
             return
         }
 
-        val result = ProblemResult(
-            timestamp = System.currentTimeMillis(),
-            operation = operation,
-            wasCorrect = wasCorrect
-        )
+        val dataStrings = prefs.getStringSet(KEY_PROGRESS_DATA_LEGACY, null) ?: return
+        val legacyProblems = dataStrings.mapNotNull { deserializeProgressLegacy(it) }
 
-        val currentData = getProgressData().toMutableList()
-        currentData.add(0, result)
-        val updatedData = currentData.take(MAX_PROGRESS_ENTRIES)
-        val dataStrings = updatedData.map { serializeProgress(it) }.toSet()
-        prefs.edit { putStringSet(KEY_PROGRESS_DATA, dataStrings) }
+        legacyProblems.forEach { result ->
+            val problem = MathProblem(
+                id = 0, question = "", answer = result.answer.toString(), distractor1 = "", distractor2 = "",
+                difficulty = 0, explanation = null, num1 = result.num1, num2 = result.num2,
+                operator = result.operation.symbol
+            )
+            repository.logProblemResult(problem, result.wasCorrect)
+        }
+
+        prefs.edit {
+            remove(KEY_PROGRESS_DATA_LEGACY)
+            putBoolean(KEY_PROGRESS_DATA_MIGRATED, true)
+        }
     }
 
-    private fun serializeProgress(result: ProblemResult): String {
-        return "${result.timestamp}|${result.operation.name}|${result.wasCorrect}"
-    }
-
-    private fun deserializeProgress(dataString: String): ProblemResult? {
+    private fun deserializeProgressLegacy(dataString: String): ProblemResult? {
         return try {
             val parts = dataString.split('|')
             ProblemResult(
                 timestamp = parts[0].toLong(),
                 operation = Operation.valueOf(parts[1]),
-                wasCorrect = parts[2].toBoolean()
+                wasCorrect = parts[2].toBoolean(),
+                num1 = parts.getOrNull(3)?.toInt() ?: 0,
+                num2 = parts.getOrNull(4)?.toInt() ?: 0,
+                answer = parts.getOrNull(5)?.toInt() ?: 0
             )
         } catch (_: Exception) {
             null

@@ -37,6 +37,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.mathhero" />
+
         <receiver
             android:name=".notifications.NotificationReceiver"
             android:enabled="true" />

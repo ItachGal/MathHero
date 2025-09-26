@@ -117,9 +117,41 @@
     <string name="progress_no_accuracy_data">פתור/י כמה בעיות כדי לראות את סטטיסטיקת הדיוק שלך כאן!</string>
     <string name="progress_percentage">%d%%</string>
     <string name="progress_accuracy_details">%1$d נכונות מתוך %2$d</string>
+    <string name="progress_insights">תובנות והמלצות</string>
 
     <string name="hint_large_multiplication">נסה/י לפרק את התרגיל:\n\n%1$d × %2$d = %1$d × (%3$d + %4$d)\n\nתחילה, פתור/י את %1$d × %3$d.\nלאחר מכן, פתור/י את %1$d × %4$d.\nלבסוף, חבר/י את התוצאות!</string>
     <string name="hint_large_division">נסה/י לחשוב על כפל הפוך.\n\nאיזה מספר כפול %2$d יתקרב ל-%1$d?\n\nנסה/י להכפיל את %2$d במספרים עגולים כמו 10 או 50 כדי לקבל הערכה.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">הבא</string>
+    <string name="onboarding_get_started">בואו נתחיל</string>
+    <string name="onboarding_skip">דלג</string>
+    <string name="onboarding_welcome_title">ברוכים הבאים לגיבור חשבון!</string>
+    <string name="onboarding_welcome_desc">התכוננו לבעיית חשבון חדשה ומהנה בכל יום. חדדו את המוח והפכו לגיבורים!</string>
+    <string name="onboarding_streak_title">צברו רצף ניצחונות</string>
+    <string name="onboarding_streak_desc">פתרו נכון את הבעיה היומית כדי להגדיל את הרצף שלכם. ככל שהרצף ארוך יותר, כך הדרגה שלכם גבוהה יותר!</string>
+    <string name="onboarding_difficulty_title">בחרו את האתגר שלכם</string>
+    <string name="onboarding_difficulty_desc">תוכלו לבחור רמת קושי מוכנה מראש או ליצור אתגר מותאם אישית. מצאו את הרמה המושלמת עבורכם!</string>
+
+    <!-- Upgrade Screen -->
+    <string name="upgrade_title">הפכו לגיבורי חשבון PRO!</string>
+    <string name="upgrade_benefit_1_title">חוויה ללא פרסומות</string>
+    <string name="upgrade_benefit_1_desc">תהנו מחוויה רציפה ונטולת הפרעות, ללא פרסומות כלל.</string>
+    <string name="upgrade_benefit_2_title">שמירת רצף אוטומטית</string>
+    <string name="upgrade_benefit_2_desc">אל תאבדו את ההתקדמות שלכם. אם תטעו בתשובה, הרצף שלכם יישמר באופן אוטומטי!</string>
+    <string name="upgrade_benefit_3_title">דוחות התקדמות מלאים</string>
+    <string name="upgrade_benefit_3_desc">עקבו אחר רמת הדיוק שלכם וראו כיצד אתם משתפרים עם הזמן בעזרת סטטיסטיקות מפורטות.</string>
+    <string name="pro_upgrade">שדרוג PRO</string>
+
+    <!-- Recommendations -->
+    <string name="recommendation_more_data_title">המשיכו להתאמן!</string>
+    <string name="recommendation_more_data_desc">פתרו עוד כמה בעיות כדי להתחיל לראות תובנות והמלצות מותאמות אישית כאן.</string>
+    <string name="recommendation_all_good_title">עבודה מצוינת!</string>
+    <string name="recommendation_all_good_desc">הביצועים שלכם מעולים בכל התחומים. שקלו לנסות רמת קושי גבוהה יותר כדי לאתגר את עצמכם!</string>
+    <string name="recommendation_weakest_op_title">נקודה לשיפור</string>
+    <string name="recommendation_weakest_op_desc">נראה שתרגילי %1$s הם המאתגרים ביותר כרגע. התמקדות בתחום זה יכולה להיות דרך מצוינת להשתפר!</string>
+    <string name="recommendation_range_struggle_title">מעלים את הרמה</string>
+    <string name="recommendation_range_struggle_desc">אתם מצליחים בתרגילי %1$s עם מספרים עד %2$d, אך זה נהיה מאתגר יותר עם מספרים מעל %3$d. תרגול בטווח הגבוה יותר יבנה ביטחון!</string>
 
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>

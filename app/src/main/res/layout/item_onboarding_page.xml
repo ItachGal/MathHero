@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <ImageView
+        android:id="@+id/onboarding_image"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:contentDescription="@null"
+        tools:src="@drawable/ic_onboarding_welcome" />
+
+    <TextView
+        android:id="@+id/onboarding_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/fredoka_one"
+        android:textAlignment="center"
+        android:textAppearance="?attr/textAppearanceHeadline5"
+        tools:text="Welcome to Math Hero!" />
+
+    <TextView
+        android:id="@+id/onboarding_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAlignment="center"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        tools:text="Get ready for a fun new math problem every single day. Sharpen your mind and become a hero!" />
+
+</LinearLayout>

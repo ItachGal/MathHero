@@ -1,11 +1,12 @@
 package io.github.galitach.mathhero.data
 
+import android.content.Context
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 object ProgressCalculator {
 
-    fun generateReport(results: List<ProblemResult>, highestStreak: Int): ProgressReport {
+    fun generateReport(context: Context, results: List<ProblemResult>, highestStreak: Int): ProgressReport {
         val accuracyMap = mutableMapOf<Operation, Pair<Int, Int>>()
         Operation.entries.forEach { op ->
             val relevantResults = results.filter { it.operation == op }
@@ -30,12 +31,15 @@ object ProgressCalculator {
             0.0
         }
 
+        val recommendations = RecommendationEngine.generate(results, context)
+
         return ProgressReport(
             accuracyByOperation = accuracyMap,
             problemsSolvedLast7Days = solvedLast7Days,
             totalProblemsSolved = totalSolved,
             longestStreak = highestStreak,
-            averageProblemsPerDay = averagePerDay
+            averageProblemsPerDay = averagePerDay,
+            recommendations = recommendations
         )
     }
 }

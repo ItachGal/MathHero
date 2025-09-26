@@ -117,9 +117,41 @@
     <string name="progress_no_accuracy_data">Solve some problems to see your accuracy stats here!</string>
     <string name="progress_percentage">%d%%</string>
     <string name="progress_accuracy_details">%1$d correct out of %2$d</string>
+    <string name="progress_insights">Insights &amp; Recommendations</string>
 
     <string name="hint_large_multiplication">Try breaking it down:\n\n%1$d × %2$d = %1$d × (%3$d + %4$d)\n\nFirst, solve %1$d × %3$d.\nThen, solve %1$d × %4$d.\nFinally, add them together!</string>
     <string name="hint_large_division">Try thinking about multiplication in reverse.\n\nWhat number multiplied by %2$d gets close to %1$d?\n\nTry multiplying %2$d by easy numbers like 10 or 50 to get an estimate.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_welcome_title">Welcome to Math Hero!</string>
+    <string name="onboarding_welcome_desc">Get ready for a fun new math problem every single day. Sharpen your mind and become a hero!</string>
+    <string name="onboarding_streak_title">Build Your Streak</string>
+    <string name="onboarding_streak_desc">Solve the daily problem correctly to increase your streak. The longer your streak, the higher your rank!</string>
+    <string name="onboarding_difficulty_title">Choose Your Challenge</string>
+    <string name="onboarding_difficulty_desc">You can select a preset difficulty or create your own custom challenge. Find the level that\'s right for you!</string>
+
+    <!-- Upgrade Screen -->
+    <string name="upgrade_title">Become a Math Hero PRO!</string>
+    <string name="upgrade_benefit_1_title">Go Ad-Free</string>
+    <string name="upgrade_benefit_1_desc">Enjoy a completely uninterrupted experience with no ads.</string>
+    <string name="upgrade_benefit_2_title">Automatic Streak Save</string>
+    <string name="upgrade_benefit_2_desc">Never lose your progress. If you answer incorrectly, your streak is automatically saved!</string>
+    <string name="upgrade_benefit_3_title">Unlock Progress Reports</string>
+    <string name="upgrade_benefit_3_desc">Track your accuracy and see how you improve over time with detailed stats.</string>
+    <string name="pro_upgrade">PRO Upgrade</string>
+
+    <!-- Recommendations -->
+    <string name="recommendation_more_data_title">Keep Practicing!</string>
+    <string name="recommendation_more_data_desc">Solve a few more problems to start seeing personalized insights and recommendations here.</string>
+    <string name="recommendation_all_good_title">Excellent Work!</string>
+    <string name="recommendation_all_good_desc">You\'re doing great across the board. Consider trying a higher difficulty level to challenge yourself further!</string>
+    <string name="recommendation_weakest_op_title">Area for Improvement</string>
+    <string name="recommendation_weakest_op_desc">It looks like %1$s problems are the most challenging right now. Focusing on this area could be a great way to improve!</string>
+    <string name="recommendation_range_struggle_title">Stepping Up the Challenge</string>
+    <string name="recommendation_range_struggle_desc">You\'re doing well with %1$s problems with numbers up to %2$d, but it gets trickier with numbers above %3$d. Practice in this higher range will build confidence!</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

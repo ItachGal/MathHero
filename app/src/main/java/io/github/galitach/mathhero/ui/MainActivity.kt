@@ -1,7 +1,6 @@
 package io.github.galitach.mathhero.ui
 
 import android.Manifest
-import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -21,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.children
@@ -56,9 +56,11 @@ import io.github.galitach.mathhero.notifications.NotificationScheduler
 import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
 import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
+import io.github.galitach.mathhero.ui.onboarding.OnboardingActivity
 import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
 import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
+import io.github.galitach.mathhero.ui.upgrade.UpgradeDialogFragment
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Job
@@ -93,6 +95,14 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         if (result.resultCode != Activity.RESULT_OK) {
             Log.w("MainActivity", "Update flow failed! Result code: " + result.resultCode)
+        }
+    }
+
+    private val onboardingLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            showNotificationPrimerDialog()
         }
     }
 
@@ -137,7 +147,7 @@ class MainActivity : AppCompatActivity() {
             .setAudioAttributes(audioAttributes)
             .build()
 
-        var soundsToLoad = 11
+        var soundsToLoad = 4 // 1 correct, 3 incorrect
         soundPool.setOnLoadCompleteListener { _, _, status ->
             if (status == 0) {
                 soundsToLoad--
@@ -151,13 +161,6 @@ class MainActivity : AppCompatActivity() {
         incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_1, 1))
         incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_2, 1))
         incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_3, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_4, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_5, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_6, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_7, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_8, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_9, 1))
-        incorrectSoundIds.add(soundPool.load(this, R.raw.incorrect_answer_10, 1))
     }
 
     private fun animateContentIn() {
@@ -205,25 +208,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleOnboardingIfNeeded() {
         if (!SharedPreferencesManager.isOnboardingCompleted()) {
-            showDisclaimerDialog()
+            onboardingLauncher.launch(Intent(this, OnboardingActivity::class.java))
         }
-    }
-
-    private fun showDisclaimerDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.disclaimer_title)
-            .setMessage(R.string.disclaimer_message)
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-                showNotificationPrimerDialog()
-            }
-            .setCancelable(false)
-            .show()
     }
 
     private fun showNotificationPrimerDialog() {
         val onFinishOnboarding = {
-            SharedPreferencesManager.setOnboardingCompleted()
             if (viewModel.uiState.value.needsDifficultySelection) {
                 showDifficultySelectionDialog()
             }
@@ -339,14 +329,12 @@ class MainActivity : AppCompatActivity() {
                         is OneTimeEvent.ShowSuggestLowerDifficultyDialog -> showSuggestLowerDifficultyDialog()
                         is OneTimeEvent.TriggerWinAnimation -> {
                             triggerWinEffects()
-                            val oldStreak = viewModel.uiState.value.streakCount - 1
-                            animateStreakCounter(oldStreak.coerceAtLeast(0), viewModel.uiState.value.streakCount)
+                            animateStreakCounter()
                             animateHeroImage()
                         }
                         is OneTimeEvent.TriggerRankUpAnimation -> {
                             triggerRankUpEffects()
-                            val oldStreak = viewModel.uiState.value.streakCount - 1
-                            animateStreakCounter(oldStreak.coerceAtLeast(0), viewModel.uiState.value.streakCount)
+                            animateStreakCounter()
                             animateHeroImage()
                         }
                     }
@@ -410,9 +398,8 @@ class MainActivity : AppCompatActivity() {
             binding.streakCounter.visibility = View.GONE
             binding.streakIcon.visibility = View.GONE
         }
-        if (binding.streakCounter.text.toString() != state.streakCount.toString()) {
-            binding.streakCounter.text = state.streakCount.toString()
-        }
+        // The text is now set here. The animation will only "pop" the view.
+        binding.streakCounter.text = state.streakCount.toString()
     }
 
     private fun updateButtonStates(state: UiState) {
@@ -457,14 +444,7 @@ class MainActivity : AppCompatActivity() {
         binding.nextProblemButton.isEnabled = state.isAnswerRevealed && !state.isLoadingNextProblem
     }
 
-    private fun animateStreakCounter(oldStreak: Int, newStreak: Int) {
-        val animator = ValueAnimator.ofInt(oldStreak, newStreak)
-        animator.duration = 400
-        animator.addUpdateListener { animation ->
-            binding.streakCounter.text = animation.animatedValue.toString()
-        }
-        animator.start()
-
+    private fun animateStreakCounter() {
         val popViews = listOf(binding.streakCounter, binding.streakIcon)
         popViews.forEach { view ->
             view.animate()
@@ -527,10 +507,12 @@ class MainActivity : AppCompatActivity() {
                 button.text == correctAnswer -> {
                     button.setStrokeColorResource(R.color.correct_green)
                     button.strokeWidth = 4
+                    button.icon = ContextCompat.getDrawable(this, R.drawable.ic_check_feedback)
                 }
                 button.text == state.selectedAnswer && state.selectedAnswer != correctAnswer -> {
                     button.setStrokeColorResource(R.color.incorrect_red)
                     button.strokeWidth = 4
+                    button.icon = ContextCompat.getDrawable(this, R.drawable.ic_close_feedback)
                 }
                 else -> {
                     button.strokeWidth = 2
@@ -561,6 +543,7 @@ class MainActivity : AppCompatActivity() {
             button.strokeWidth = 2
             button.setStrokeColorResource(R.color.colorOutline)
             button.alpha = 1.0f
+            button.icon = null
         }
     }
 
@@ -785,7 +768,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_upgrade_pro -> {
-                viewModel.initiatePurchaseFlow()
+                UpgradeDialogFragment.newInstance().show(supportFragmentManager, UpgradeDialogFragment.TAG)
                 true
             }
             else -> super.onOptionsItemSelected(item)

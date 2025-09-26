@@ -25,7 +25,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_upgrade_pro"
-        android:title="@string/upgrade_to_pro"
+        android:title="@string/pro_upgrade"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_licenses"

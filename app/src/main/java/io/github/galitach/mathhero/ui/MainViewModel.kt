@@ -11,6 +11,8 @@ import io.github.galitach.mathhero.data.DifficultyLevel
 import io.github.galitach.mathhero.data.DifficultySettings
 import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.data.MathProblemRepository
+import io.github.galitach.mathhero.data.ProblemResult
+import io.github.galitach.mathhero.data.ProgressRepository
 import io.github.galitach.mathhero.data.Rank
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +69,8 @@ data class UiState(
 class MainViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle,
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
+    private val progressRepository: ProgressRepository
 ) : AndroidViewModel(application) {
 
     private val repository: MathProblemRepository
@@ -108,12 +111,20 @@ class MainViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun initializeProblem() {
-        val dailyProblem = repository.getCurrentProblem()
+    private fun initializeProblem() = viewModelScope.launch {
+        // Restore problem from saved state if available (process death)
+        val restoredProblem = savedStateHandle.get<MathProblem>(KEY_PROBLEM)
+        if (restoredProblem != null) {
+            loadInitialState(restoredProblem, isDailySolved = false, clearSavedState = false)
+            return@launch
+        }
+
+        // Otherwise, generate a new problem
+        val dailyProblem = withContext(Dispatchers.Default) { repository.getCurrentProblem() }
         val isDailyProblemAlreadySolved = SharedPreferencesManager.getArchivedProblems().any { it.id == dailyProblem.id }
 
         val problemToLoad = if (isDailyProblemAlreadySolved) {
-            repository.getBonusProblem()
+            withContext(Dispatchers.Default) { repository.getBonusProblem() }
         } else {
             dailyProblem
         }
@@ -132,6 +143,9 @@ class MainViewModel(
 
         if (!savedStateHandle.contains(KEY_SHUFFLED_ANSWERS)) {
             savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
+        }
+        if (problem != null) {
+            savedStateHandle[KEY_PROBLEM] = problem
         }
 
         val highestStreak = SharedPreferencesManager.getHighestStreakCount()
@@ -161,8 +175,10 @@ class MainViewModel(
                 difficultyDescription = generateDifficultyDescription(settings)
             )
         }
-        val newProblem = repository.getCurrentProblem()
-        loadNewProblem(newProblem)
+        viewModelScope.launch {
+            val newProblem = withContext(Dispatchers.Default) { repository.getCurrentProblem() }
+            loadNewProblem(newProblem)
+        }
     }
 
     private fun generateDifficultyDescription(settings: DifficultySettings): String {
@@ -195,18 +211,18 @@ class MainViewModel(
         savedStateHandle[KEY_SELECTED_ANSWER] = null
     }
 
-    fun onConfirmAnswerClicked() {
+    fun onConfirmAnswerClicked() = viewModelScope.launch {
         val state = _uiState.value
         val problem = state.problem
-        if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return
+        if (state.isAnswerRevealed || state.selectedAnswer == null || problem == null) return@launch
 
         val isCorrect = state.selectedAnswer == problem.answer
         SharedPreferencesManager.addProblemToArchive(problem)
-        SharedPreferencesManager.logProblemResult(problem, isCorrect)
+        progressRepository.logProblemResult(problem, isCorrect)
 
         savedStateHandle[KEY_IS_ANSWER_REVEALED] = true
 
-        val dailyProblemId = repository.getCurrentProblem().id
+        val dailyProblemId = withContext(Dispatchers.Default) { repository.getCurrentProblem().id }
         val wasDailyProblem = problem.id == dailyProblemId
 
         if (isCorrect) {
@@ -268,8 +284,7 @@ class MainViewModel(
                 onStreakSaveCompleted(streakBeforeReset)
             } else {
                 // Non-pro users get the option to watch an ad.
-                SharedPreferencesManager.updateStreak(false) // Reset streak to 0
-                _uiState.update { it.copy(streakCount = 0) } // Update UI to show streak is gone
+                // We DON'T reset the streak here. We wait for the user's choice.
                 viewModelScope.launch {
                     _oneTimeEvent.emit(OneTimeEvent.ShowSaveStreakDialog(streakBeforeReset))
                 }
@@ -290,6 +305,9 @@ class MainViewModel(
     }
 
     fun onStreakResetConfirmed() {
+        // This is now the official point where a streak is reset after user confirmation.
+        SharedPreferencesManager.updateStreak(false)
+        _uiState.update { it.copy(streakCount = 0) }
         checkAndSuggestLowerDifficulty()
         _uiState.update { it.copy(saveStreakAdState = AdLoadState.IDLE) }
     }
@@ -299,10 +317,7 @@ class MainViewModel(
     }
 
     fun onSuggestLowerDifficultyDismissed() {
-        // This method is called when the user dismisses the suggestion dialog.
-        // The counter for wrong answers is intentionally not reset here,
-        // as the user has not yet demonstrated proficiency.
-        // It will be reset on the next correct answer.
+        // The counter for wrong answers is intentionally not reset here.
     }
 
     fun onStreakSaveCompleted(restoredStreak: Int) {
@@ -346,6 +361,7 @@ class MainViewModel(
             }
             savedStateHandle.keys().forEach { key -> savedStateHandle.remove<Any>(key) }
             savedStateHandle[KEY_SHUFFLED_ANSWERS] = shuffledAnswers
+            savedStateHandle[KEY_PROBLEM] = problem
         }
     }
 
@@ -369,7 +385,12 @@ class MainViewModel(
         }
     }
 
+    suspend fun getProgressResults(): List<ProblemResult> {
+        return progressRepository.getProgressHistory()
+    }
+
     companion object {
+        private const val KEY_PROBLEM = "problem"
         private const val KEY_SHUFFLED_ANSWERS = "shuffled_answers"
         private const val KEY_SELECTED_ANSWER = "selected_answer"
         private const val KEY_IS_ANSWER_REVEALED = "is_answer_revealed"

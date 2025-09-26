@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -19,8 +18,11 @@ import io.github.galitach.mathhero.data.Operation
 import io.github.galitach.mathhero.data.ProgressCalculator
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.DialogProgressBinding
+import io.github.galitach.mathhero.databinding.ItemProgressAccuracyBinding
+import io.github.galitach.mathhero.databinding.ItemRecommendationBinding
 import io.github.galitach.mathhero.ui.MainViewModel
 import io.github.galitach.mathhero.ui.MainViewModelFactory
+import io.github.galitach.mathhero.ui.upgrade.UpgradeDialogFragment
 import java.text.DecimalFormat
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -44,7 +46,7 @@ class ProgressDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { dismiss() }
         binding.upgradeButton.setOnClickListener {
-            viewModel.initiatePurchaseFlow()
+            UpgradeDialogFragment.newInstance().show(parentFragmentManager, UpgradeDialogFragment.TAG)
         }
         observeViewModel()
     }
@@ -78,42 +80,52 @@ class ProgressDialogFragment : DialogFragment() {
     }
 
     private fun loadProgressData() {
-        val results = SharedPreferencesManager.getProgressData()
-        val highestStreak = SharedPreferencesManager.getHighestStreakCount()
-        val report = ProgressCalculator.generateReport(results, highestStreak)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val results = viewModel.getProgressResults()
+            val highestStreak = SharedPreferencesManager.getHighestStreakCount()
+            val report = ProgressCalculator.generateReport(requireContext(), results, highestStreak)
 
-        binding.totalSolvedText.text = getString(R.string.progress_total_solved, report.totalProblemsSolved)
-        binding.last7DaysText.text = getString(R.string.progress_last_7_days, report.problemsSolvedLast7Days)
-        val df = DecimalFormat("#.##")
-        binding.averagePerDayText.text = getString(R.string.progress_average_per_day, df.format(report.averageProblemsPerDay))
-        binding.longestStreakText.text = getString(R.string.progress_longest_streak, report.longestStreak)
+            binding.totalSolvedText.text = getString(R.string.progress_total_solved, report.totalProblemsSolved)
+            binding.last7DaysText.text = getString(R.string.progress_last_7_days, report.problemsSolvedLast7Days)
+            val df = DecimalFormat("#.##")
+            binding.averagePerDayText.text = getString(R.string.progress_average_per_day, df.format(report.averageProblemsPerDay))
+            binding.longestStreakText.text = getString(R.string.progress_longest_streak, report.longestStreak)
 
-        binding.accuracyContainer.removeAllViews()
-        if (report.accuracyByOperation.isEmpty()) {
-            val emptyView = TextView(requireContext()).apply {
-                text = getString(R.string.progress_no_accuracy_data)
-                setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
+            // Populate Accuracy
+            binding.accuracyContainer.removeAllViews()
+            if (report.accuracyByOperation.isEmpty()) {
+                val emptyView = TextView(requireContext()).apply {
+                    text = getString(R.string.progress_no_accuracy_data)
+                    setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
+                }
+                binding.accuracyContainer.addView(emptyView)
+            } else {
+                report.accuracyByOperation.entries.sortedBy { it.key.ordinal }.forEach { (op, pair) ->
+                    val (correct, total) = pair
+                    val accuracyBinding = ItemProgressAccuracyBinding.inflate(layoutInflater, binding.accuracyContainer, false)
+                    accuracyBinding.operationIcon.setImageResource(getIconForOperation(op))
+                    accuracyBinding.operationName.text = op.name.lowercase().replaceFirstChar { it.titlecase() }
+                    val percentage = if (total > 0) (correct.toFloat() / total * 100).toInt() else 0
+                    accuracyBinding.accuracyPercentage.text = getString(R.string.progress_percentage, percentage)
+                    accuracyBinding.accuracyProgress.progress = percentage
+                    accuracyBinding.accuracyDetails.text = getString(R.string.progress_accuracy_details, correct, total)
+                    binding.accuracyContainer.addView(accuracyBinding.root)
+                }
             }
-            binding.accuracyContainer.addView(emptyView)
-        } else {
-            report.accuracyByOperation.entries.sortedBy { it.key.ordinal }.forEach { (op, pair) ->
-                val (correct, total) = pair
-                val accuracyView = layoutInflater.inflate(R.layout.item_progress_accuracy, binding.accuracyContainer, false)
 
-                val iconView = accuracyView.findViewById<ImageView>(R.id.operation_icon)
-                val nameView = accuracyView.findViewById<TextView>(R.id.operation_name)
-                val percentageView = accuracyView.findViewById<TextView>(R.id.accuracy_percentage)
-                val progressView = accuracyView.findViewById<LinearProgressIndicator>(R.id.accuracy_progress)
-                val detailsView = accuracyView.findViewById<TextView>(R.id.accuracy_details)
-
-                iconView.setImageResource(getIconForOperation(op))
-                nameView.text = op.name.lowercase().replaceFirstChar { it.titlecase() }
-                val percentage = if (total > 0) (correct.toFloat() / total * 100).toInt() else 0
-                percentageView.text = getString(R.string.progress_percentage, percentage)
-                progressView.progress = percentage
-                detailsView.text = getString(R.string.progress_accuracy_details, correct, total)
-
-                binding.accuracyContainer.addView(accuracyView)
+            // Populate Recommendations
+            binding.recommendationsContainer.removeAllViews()
+            if (report.recommendations.isNotEmpty()) {
+                binding.recommendationsSection.isVisible = true
+                report.recommendations.forEach { recommendation ->
+                    val recommendationBinding = ItemRecommendationBinding.inflate(layoutInflater, binding.recommendationsContainer, false)
+                    recommendationBinding.recommendationIcon.setImageResource(recommendation.iconRes)
+                    recommendationBinding.recommendationTitle.setText(recommendation.titleRes)
+                    recommendationBinding.recommendationDescription.text = recommendation.description
+                    binding.recommendationsContainer.addView(recommendationBinding.root)
+                }
+            } else {
+                binding.recommendationsSection.isVisible = false
             }
         }
     }

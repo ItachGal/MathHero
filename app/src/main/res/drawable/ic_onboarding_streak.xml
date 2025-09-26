@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Outer flame (pale yellow) -->
+    <path
+        android:fillColor="#FFF3E0"
+        android:pathData="
+            M12,1
+            C10.5,5 8,8 8,14
+            C8,17 10,19 12,19
+            C14,19 16,17 16,14
+            C16,8 13.5,5 12,1
+            Z"/>
+
+    <!-- Middle flame (warm orange) -->
+    <path
+        android:fillColor="#FFB74D"
+        android:pathData="
+            M12,5
+            C11,8 9.5,10 9.5,13
+            C9.5,15 11,16.5 12,16.5
+            C13,16.5 14.5,15 14.5,13
+            C14.5,10 13,8 12,5
+            Z"/>
+
+    <!-- Inner flame (deep red-orange) -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="
+            M12,8
+            C11.5,10 10.5,11.5 10.5,13.5
+            C10.5,14.8 11.5,15.8 12,15.8
+            C12.5,15.8 13.5,14.8 13.5,13.5
+            C13.5,11.5 12.5,10 12,8
+            Z"/>
+
+</vector>

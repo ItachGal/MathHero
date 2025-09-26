@@ -5,5 +5,6 @@ data class ProgressReport(
     val problemsSolvedLast7Days: Int,
     val totalProblemsSolved: Int,
     val longestStreak: Int,
-    val averageProblemsPerDay: Double
+    val averageProblemsPerDay: Double,
+    val recommendations: List<Recommendation>
 )
