@@ -11,6 +11,6 @@ data class Recommendation(
     @param:DrawableRes val iconRes: Int,
     @param:StringRes val titleRes: Int,
     val description: String,
-    @param:StringRes val detailTitleRes: Int,
+    val detailTitle: String,
     val detailDescription: String
 ) : Parcelable

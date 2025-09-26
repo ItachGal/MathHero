@@ -175,15 +175,31 @@ object SharedPreferencesManager {
         prefs.edit { putBoolean(KEY_IS_PRO_USER, isPro) }
     }
 
-    fun getDismissedRecommendationIds(): Set<String> {
-        return prefs.getStringSet(KEY_DISMISSED_RECOMMENDATIONS, emptySet()) ?: emptySet()
+    fun getDismissedRecommendations(): Map<String, Long> {
+        val dismissedStrings = prefs.getStringSet(KEY_DISMISSED_RECOMMENDATIONS, emptySet()) ?: emptySet()
+        return dismissedStrings.mapNotNull {
+            try {
+                val parts = it.split('|')
+                if (parts.size == 2) {
+                    parts[0] to parts[1].toLong()
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
+        }.toMap()
     }
 
     fun dismissRecommendation(id: String) {
-        val currentDismissed = getDismissedRecommendationIds().toMutableSet()
-        currentDismissed.add(id)
+        val timestamp = System.currentTimeMillis()
+        val newEntry = "$id|$timestamp"
+        val currentDismissedMap = getDismissedRecommendations().toMutableMap()
+        currentDismissedMap[id] = timestamp // Overwrite previous dismissal for the same ID
+
+        val newDismissedSet = currentDismissedMap.map { "${it.key}|${it.value}" }.toSet()
         prefs.edit {
-            putStringSet(KEY_DISMISSED_RECOMMENDATIONS, currentDismissed)
+            putStringSet(KEY_DISMISSED_RECOMMENDATIONS, newDismissedSet)
         }
     }
 

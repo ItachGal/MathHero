@@ -10,46 +10,55 @@ object RecommendationEngine {
     private const val SIGNIFICANT_DROP_THRESHOLD = 0.25 // 25% drop in accuracy
 
     fun generate(results: List<ProblemResult>, context: Context): List<Recommendation> {
-        val dismissedIds = SharedPreferencesManager.getDismissedRecommendationIds()
+        val dismissedMap = SharedPreferencesManager.getDismissedRecommendations()
 
         if (results.size < MIN_ATTEMPTS_FOR_INSIGHT) {
-            return if ("more_data" in dismissedIds) emptyList() else listOf(
+            return if ("more_data" in dismissedMap) emptyList() else listOf(
                 Recommendation(
                     id = "more_data",
                     iconRes = R.drawable.ic_insight,
                     titleRes = R.string.recommendation_more_data_title,
                     description = context.getString(R.string.recommendation_more_data_desc),
-                    detailTitleRes = R.string.recommendation_more_data_title,
+                    detailTitle = context.getString(R.string.recommendation_more_data_title),
                     detailDescription = context.getString(R.string.recommendation_more_data_detail_desc)
                 )
             )
         }
 
         val recommendations = mutableListOf<Recommendation>()
-        recommendations.addAll(findWeakestOperation(results, context))
-        recommendations.addAll(findNumberRangeStruggles(results, context))
+        recommendations.addAll(findWeakestOperation(results, context, dismissedMap))
+        recommendations.addAll(findNumberRangeStruggles(results, context, dismissedMap))
 
-        val filteredRecommendations = recommendations.filterNot { it.id in dismissedIds }
-
-        if (filteredRecommendations.isEmpty() && "all_good" !in dismissedIds) {
+        if (recommendations.isEmpty() && "all_good" !in dismissedMap) {
             return listOf(
                 Recommendation(
                     id = "all_good",
                     iconRes = R.drawable.ic_check_circle,
                     titleRes = R.string.recommendation_all_good_title,
                     description = context.getString(R.string.recommendation_all_good_desc),
-                    detailTitleRes = R.string.recommendation_all_good_title,
+                    detailTitle = context.getString(R.string.recommendation_all_good_title),
                     detailDescription = context.getString(R.string.recommendation_all_good_detail_desc)
                 )
             )
         }
 
-        return filteredRecommendations
+        return recommendations
     }
 
-    private fun findWeakestOperation(results: List<ProblemResult>, context: Context): List<Recommendation> {
-        val accuracyByOp = Operation.entries.map { op ->
-            val opResults = results.filter { it.operation == op }
+    private fun findWeakestOperation(
+        results: List<ProblemResult>,
+        context: Context,
+        dismissedMap: Map<String, Long>
+    ): List<Recommendation> {
+        val lastDismissalTime = dismissedMap.filter { it.key.startsWith("weakest_op_") }
+            .maxOfOrNull { it.value } ?: 0L
+
+        val recentResults = results.filter { it.timestamp > lastDismissalTime }
+
+        if (recentResults.size < MIN_ATTEMPTS_FOR_INSIGHT) return emptyList()
+
+        val accuracyByOp = Operation.entries.mapNotNull { op ->
+            val opResults = recentResults.filter { it.operation == op }
             if (opResults.size >= MIN_ATTEMPTS_FOR_INSIGHT) {
                 val correct = opResults.count { it.wasCorrect }
                 val accuracy = correct.toDouble() / opResults.size
@@ -57,7 +66,7 @@ object RecommendationEngine {
             } else {
                 null
             }
-        }.filterNotNull().sortedBy { it.second }
+        }.sortedBy { it.second }
 
         val weakest = accuracyByOp.firstOrNull()
         if (weakest != null && weakest.second < 0.7) { // If accuracy is below 70%
@@ -68,21 +77,43 @@ object RecommendationEngine {
                     iconRes = R.drawable.ic_insight,
                     titleRes = R.string.recommendation_weakest_op_title,
                     description = context.getString(R.string.recommendation_weakest_op_desc, opName),
-                    detailTitleRes = R.string.recommendation_weakest_op_detail_title,
-                    detailDescription = context.getString(R.string.recommendation_weakest_op_detail_desc, opName)
+                    detailTitle = context.getString(R.string.recommendation_weakest_op_detail_title, opName),
+                    detailDescription = getDetailForWeakestOperation(weakest.first, context)
                 )
             )
         }
         return emptyList()
     }
 
-    private fun findNumberRangeStruggles(results: List<ProblemResult>, context: Context): List<Recommendation> {
+    private fun getDetailForWeakestOperation(op: Operation, context: Context): String {
+        val opName = context.getString(op.stringRes)
+        val baseString = context.getString(R.string.recommendation_weakest_op_detail_desc, opName)
+        val detailStringRes = when (op) {
+            Operation.ADDITION -> R.string.recommendation_detail_weakest_addition
+            Operation.SUBTRACTION -> R.string.recommendation_detail_weakest_subtraction
+            Operation.MULTIPLICATION -> R.string.recommendation_detail_weakest_multiplication
+            Operation.DIVISION -> R.string.recommendation_detail_weakest_division
+        }
+        return baseString + "\n\n" + context.getString(detailStringRes)
+    }
+
+    private fun findNumberRangeStruggles(
+        results: List<ProblemResult>,
+        context: Context,
+        dismissedMap: Map<String, Long>
+    ): List<Recommendation> {
+        val lastDismissalTime = dismissedMap.filter { it.key.startsWith("range_struggle_") }
+            .maxOfOrNull { it.value } ?: 0L
+
+        val recentResults = results.filter { it.timestamp > lastDismissalTime }
+        if (recentResults.size < MIN_ATTEMPTS_FOR_INSIGHT) return emptyList()
+
         val recommendations = mutableListOf<Recommendation>()
         val ranges = listOf(0..20, 21..100, 101..Int.MAX_VALUE)
 
         Operation.entries.forEach { op ->
-            val resultsByRange = ranges.map { range ->
-                val rangeResults = results.filter {
+            val resultsByRange = ranges.mapNotNull { range ->
+                val rangeResults = recentResults.filter {
                     val problemMaxNum = max(it.num1, it.num2)
                     it.operation == op && problemMaxNum in range
                 }
@@ -92,7 +123,7 @@ object RecommendationEngine {
                 } else {
                     null
                 }
-            }.filterNotNull()
+            }
 
             for (i in 0 until resultsByRange.size - 1) {
                 val (range1, accuracy1) = resultsByRange[i]
@@ -106,7 +137,7 @@ object RecommendationEngine {
                             iconRes = R.drawable.ic_insight,
                             titleRes = R.string.recommendation_range_struggle_title,
                             description = context.getString(R.string.recommendation_range_struggle_desc, opName, range1.last, range2.first),
-                            detailTitleRes = R.string.recommendation_range_struggle_detail_title,
+                            detailTitle = context.getString(R.string.recommendation_range_struggle_detail_title),
                             detailDescription = getDetailForRangeStruggle(op, context)
                         )
                     )

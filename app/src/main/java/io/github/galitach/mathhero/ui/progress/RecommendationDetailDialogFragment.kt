@@ -37,7 +37,7 @@ class RecommendationDetailDialogFragment : DialogFragment() {
         binding.toolbar.setNavigationOnClickListener { dismiss() }
 
         recommendation?.let {
-            binding.toolbar.setTitle(it.detailTitleRes)
+            binding.toolbar.title = it.detailTitle
             binding.recommendationDetailDescription.text = it.detailDescription
         }
     }
