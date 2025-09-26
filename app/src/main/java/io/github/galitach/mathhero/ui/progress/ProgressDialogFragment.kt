@@ -1,12 +1,10 @@
 package io.github.galitach.mathhero.ui.progress
 
-import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -75,11 +73,13 @@ class ProgressDialogFragment : DialogFragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val recommendation = recommendationAdapter.currentList[position]
-                viewModel.onRecommendationDismissed(recommendation.id)
-                // The list will be re-submitted by the observer, so we don't need to manually remove.
-                Snackbar.make(binding.root, R.string.recommendation_dismissed, Snackbar.LENGTH_SHORT).show()
+                val position = viewHolder.bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val recommendation = recommendationAdapter.currentList[position]
+                    viewModel.onRecommendationDismissed(recommendation.id)
+                    Snackbar.make(binding.root, R.string.recommendation_dismissed, Snackbar.LENGTH_SHORT).show()
+                    loadProgressData()
+                }
             }
         })
         itemTouchHelper.attachToRecyclerView(binding.recommendationsRecyclerView)
@@ -149,8 +149,16 @@ class ProgressDialogFragment : DialogFragment() {
             }
 
             // Populate Recommendations
-            binding.recommendationsSection.isVisible = report.recommendations.isNotEmpty()
-            recommendationAdapter.submitList(report.recommendations)
+            val recommendations = report.recommendations
+            binding.recommendationsSection.isVisible = true
+            if (recommendations.isNotEmpty()) {
+                binding.recommendationsRecyclerView.isVisible = true
+                binding.recommendationsEmptyText.isVisible = false
+                recommendationAdapter.submitList(recommendations)
+            } else {
+                binding.recommendationsRecyclerView.isVisible = false
+                binding.recommendationsEmptyText.isVisible = true
+            }
         }
     }
 

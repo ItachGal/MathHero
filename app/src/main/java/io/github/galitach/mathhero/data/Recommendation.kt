@@ -8,9 +8,9 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Recommendation(
     val id: String,
-    @DrawableRes val iconRes: Int,
-    @StringRes val titleRes: Int,
+    @param:DrawableRes val iconRes: Int,
+    @param:StringRes val titleRes: Int,
     val description: String,
-    @StringRes val detailTitleRes: Int,
+    @param:StringRes val detailTitleRes: Int,
     val detailDescription: String
 ) : Parcelable

@@ -195,7 +195,10 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingTop="24dp"
+                    android:paddingBottom="24dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp">
 
                     <TextView
                         android:id="@+id/problemText"
@@ -207,17 +210,6 @@
                         android:textAppearance="?attr/textAppearanceHeadline5"
                         tools:text="15 + 8 = ?" />
 
-                    <RatingBar
-                        android:id="@+id/difficulty_rating"
-                        style="?android:attr/ratingBarStyleSmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:isIndicator="true"
-                        android:numStars="10"
-                        android:stepSize="1"
-                        android:theme="@style/RatingBar"
-                        tools:rating="3" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

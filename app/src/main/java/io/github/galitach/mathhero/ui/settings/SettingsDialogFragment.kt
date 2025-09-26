@@ -77,6 +77,12 @@ class SettingsDialogFragment : DialogFragment() {
             SharedPreferencesManager.setSoundEnabled(isChecked)
         }
 
+        // Suggest Difficulty Switch
+        binding.suggestDifficultySwitch.isChecked = SharedPreferencesManager.isSuggestDifficultyEnabled()
+        binding.suggestDifficultySwitch.setOnCheckedChangeListener { _, isChecked ->
+            SharedPreferencesManager.setSuggestDifficultyEnabled(isChecked)
+        }
+
         // Upgrade Button
         binding.upgradeButton.setOnClickListener {
             viewModel.initiatePurchaseFlow()

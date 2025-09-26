@@ -398,7 +398,6 @@ class MainActivity : AppCompatActivity() {
     private fun updateProblemUI(state: UiState) {
         binding.mainContent.isVisible = state.problem != null
         binding.problemText.text = state.problem?.question ?: getString(R.string.no_problem_available)
-        binding.difficultyRating.rating = state.problem?.difficulty?.toFloat() ?: 0f
     }
 
     private fun updateGamificationUI(state: UiState) {
@@ -730,6 +729,9 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton(R.string.keep_going) { _, _ ->
                 viewModel.onSuggestLowerDifficultyDismissed()
+            }
+            .setNeutralButton(R.string.suggest_lower_difficulty_dont_ask) { _, _ ->
+                viewModel.onSuggestLowerDifficultyPermanentlyDismissed()
             }
             .setCancelable(false)
             .show()

@@ -322,6 +322,10 @@ class MainViewModel(
     }
 
     private fun checkAndSuggestLowerDifficulty() {
+        if (!SharedPreferencesManager.isSuggestDifficultyEnabled()) return
+        val currentSettings = SharedPreferencesManager.getDifficultySettings()
+        if (currentSettings == DifficultyLevel.NOVICE.settings) return
+
         val consecutiveWrong = SharedPreferencesManager.getConsecutiveWrongAnswers()
         if (consecutiveWrong >= 3) {
             viewModelScope.launch {
@@ -342,6 +346,10 @@ class MainViewModel(
     }
 
     fun onSuggestLowerDifficultyDismissed() {}
+
+    fun onSuggestLowerDifficultyPermanentlyDismissed() {
+        SharedPreferencesManager.setSuggestDifficultyEnabled(false)
+    }
 
     fun onStreakSaveCompleted(restoredStreak: Int) {
         SharedPreferencesManager.setStreakCount(restoredStreak)

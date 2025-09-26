@@ -86,7 +86,9 @@
     <string name="suggest_lower_difficulty_message">This level seems a bit tough. How about trying an easier one to warm up?</string>
     <string name="change_difficulty">Change Difficulty</string>
     <string name="keep_going">Keep Going</string>
+    <string name="suggest_lower_difficulty_dont_ask">Don\'t ask again</string>
     <string name="enable_sound_effects">Enable sound effects</string>
+    <string name="setting_enable_difficulty_suggestions">Suggest easier difficulty</string>
     <string name="next_problem">Next Problem</string>
     <string name="difficulty_presets">Presets</string>
     <string name="difficulty_customize">Or Create Your Own</string>
@@ -144,6 +146,7 @@
     <string name="pro_upgrade">PRO Upgrade</string>
 
     <!-- Recommendations -->
+    <string name="recommendations_empty">No specific recommendations for now. Keep up the great work!</string>
     <string name="recommendation_dismissed">Recommendation hidden.</string>
     <string name="recommendation_more_data_title">Keep Practicing!</string>
     <string name="recommendation_more_data_desc">Solve a few more problems to start seeing personalized insights and recommendations here.</string>
@@ -236,27 +239,27 @@
 
     <string-array name="multiplication_explanations">
         <item>Multiplying %1$d by %2$d is like adding %1$d to itself %2$d times. That gives you a total of %3$d.</item>
-        <item>Imagine you have %2$d bags, and each bag has %1$d marbles. In total, you have %3$d marbles!</item>
-        <item>This is asking for %2$d groups of %1$d. If you count all the items in all the groups, you get %3$d.</item>
-        <item>Multiplication is a fast way to add. %1$d times %2$d is the same as %1$d + %1$d… (%2$d times), which equals %3$d.</item>
+        <item>Imagine you have %1$d boxes, and each box contains %2$d items. In total, you have %3$d items!</item>
+        <item>This is asking for %1$d groups of %2$d. If you count all the items in all the groups, you get %3$d.</item>
+        <item>Multiplication is a fast way to add. %1$d times %2$d equals %3$d.</item>
         <item>When you see %1$d × %2$d, it means you have %1$d repeated %2$d times. The result is a big %3$d!</item>
-        <item>If a superhero can lift %1$d cars, and there are %2$d superheroes, together they can lift %3$d cars! Wow!</item>
-        <item>In a garden, there are %2$d rows of flowers, with %1$d flowers in each row. That makes a beautiful garden of %3$d flowers.</item>
+        <item>If a superhero can build %1$d gadgets in an hour, in %2$d hours they can build %3$d gadgets!</item>
+        <item>In a garden, there are %1$d rows of flowers, with %2$d flowers in each row. That makes a beautiful garden of %3$d flowers.</item>
         <item>If you get %1$d stickers on a page, and you have %2$d pages, you have a giant collection of %3$d stickers.</item>
         <item>A box of crayons has %1$d colors. If you have %2$d boxes, you have %3$d crayons to draw with.</item>
-        <item>An octopus has 8 arms. If there were %1$d octopuses (and each had %2$d arms), they would have %3$d arms all together!</item>
-        <item>If a car has %1$d wheels, then %2$d cars would have a total of %3$d wheels rolling down the street.</item>
-        <item>You are building with blocks. You make %2$d towers, and each tower is %1$d blocks high. You used %3$d blocks in total.</item>
+        <item>If a recipe calls for %1$d cups of flour per cake, and you want to bake %2$d cakes, you will need %3$d cups of flour.</item>
+        <item>If a toy car travels %1$d inches in a second, in %2$d seconds it will travel %3$d inches.</item>
+        <item>You are building with blocks. You make %1$d towers, and each tower is %2$d blocks high. You used %3$d blocks in total.</item>
         <item>A cookie recipe makes %1$d cookies per batch. If you make %2$d batches, you will have %3$d cookies to share.</item>
         <item>If a video game level gives you %1$d points, and you beat %2$d levels, you will earn %3$d points.</item>
         <item>Think of a grid. A grid with %1$d rows and %2$d columns has a total of %3$d squares inside it.</item>
         <item>If a book costs %1$d dollars, and you want to buy %2$d of them for your friends, you will need %3$d dollars.</item>
-        <item>A spider has 8 legs. If you saw %1$d spiders (and each had %2$d legs), you would see %3$d legs crawling around!</item>
+        <item>If a magic tree grows %1$d apples every day, after %2$d days it will have grown %3$d apples.</item>
         <item>Each pack of juice has %1$d cartons. If you buy %2$d packs, you will have %3$d juice cartons.</item>
         <item>If you save %1$d dollars every week for %2$d weeks, you will have saved up %3$d dollars.</item>
-        <item>Multiplication helps you count big groups quickly. %2$d groups of %1$d is always %3$d.</item>
+        <item>Multiplication helps you count big groups quickly. %1$d groups of %2$d is always %3$d.</item>
         <item>If one magical spell requires %1$d star sparkles, and a wizard casts the spell %2$d times, they will use a total of %3$d sparkles!</item>
-        <item>A super-fast cheetah has %1$d spots on one leg. If you could count the spots on all %2$d legs, you\'d find %3$d spots!</item>
+        <item>A super-fast rocket travels %1$d miles per minute. In %2$d minutes, it will travel %3$d miles!</item>
         <item>Each flower in the enchanted garden has %1$d petals. If you pick a bouquet of %2$d flowers, you\'ll have %3$d beautiful petals.</item>
         <item>A baker makes special cupcakes in batches of %1$d. If they bake %2$d batches, they will have %3$d yummy cupcakes to sell!</item>
         <item>In a video game, each treasure chest gives you %1$d gold coins. If you find %2$d chests, you\'ll be rich with %3$d coins!</item>
