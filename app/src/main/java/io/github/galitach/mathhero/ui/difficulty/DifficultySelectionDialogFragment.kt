@@ -1,8 +1,10 @@
 package io.github.galitach.mathhero.ui.difficulty
 
+import android.annotation.SuppressLint
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
@@ -13,6 +15,7 @@ import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
+import com.google.android.material.slider.Slider
 import io.github.galitach.mathhero.R
 import io.github.galitach.mathhero.data.DifficultyLevel
 import io.github.galitach.mathhero.data.DifficultySettings
@@ -28,7 +31,7 @@ class DifficultySelectionDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private val viewModel: MainViewModel by activityViewModels { MainViewModelFactory }
-    private var isInteracting = false // To prevent listener feedback loops
+    private var isInteracting = true // To prevent listener feedback loops
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,37 +87,46 @@ class DifficultySelectionDialogFragment : DialogFragment() {
         isInteracting = true // Re-enable listeners
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupListeners() {
         binding.presetsGroup.setOnCheckedChangeListener { group, checkedId ->
-            // Only react to user interaction and actual selections (not clearCheck)
-            if (!isInteracting || checkedId == View.NO_ID) return@setOnCheckedChangeListener
+            if (!isInteracting || checkedId == View.NO_ID) {
+                return@setOnCheckedChangeListener
+            }
 
             val selectedButton = group.findViewById<RadioButton>(checkedId)
             val selectedPreset = selectedButton?.tag as? DifficultyLevel
-
             selectedPreset?.let {
-                // A preset was clicked. Temporarily disable listeners to prevent feedback loops,
-                // update the custom controls to match the preset, then re-enable listeners.
                 isInteracting = false
                 updateCustomControls(it.settings)
                 isInteracting = true
             }
         }
 
-        // When a custom control is changed by the user, clear any selected preset.
-        binding.operationsGroup.children.filterIsInstance<Chip>().forEach { chip ->
-            chip.setOnCheckedChangeListener { _, _ ->
-                if (isInteracting) {
-                    binding.presetsGroup.clearCheck()
-                }
-            }
-        }
-
-        binding.maxNumberSlider.addOnChangeListener { _, _, fromUser ->
-            if (fromUser) {
+        val onCustomControlInteracted = {
+            if (isInteracting && binding.presetsGroup.checkedRadioButtonId != View.NO_ID) {
                 binding.presetsGroup.clearCheck()
             }
         }
+
+        // Use OnTouchListener for chips to clear presets on touch down,
+        // without interfering with the chip's own click handling for toggling state.
+        binding.operationsGroup.children.filterIsInstance<Chip>().forEach { chip ->
+            chip.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    onCustomControlInteracted()
+                }
+                false // Return false to not consume the event, allowing default click handling to proceed.
+            }
+        }
+
+        binding.maxNumberSlider.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
+                onCustomControlInteracted()
+            }
+            override fun onStopTrackingTouch(slider: Slider) {}
+        })
+
 
         binding.maxNumberSlider.setLabelFormatter { value -> value.toInt().toString() }
 

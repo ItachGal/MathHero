@@ -27,6 +27,12 @@ class MathProblemRepository(
         return MathProblemGenerator.generateProblem(context, settings, streak, Random.nextLong())
     }
 
+    fun getKidModeProblem(settings: DifficultySettings, sessionStreak: Int): MathProblem {
+        // Use a random seed for a new, non-deterministic problem
+        // Use session streak for progressive difficulty within the session
+        return MathProblemGenerator.generateProblem(context, settings, sessionStreak, Random.nextLong())
+    }
+
     fun getArchivedProblems(): List<MathProblem> {
         return prefsManager.getArchivedProblems()
     }

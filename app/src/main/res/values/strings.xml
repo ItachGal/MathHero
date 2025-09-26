@@ -176,7 +176,7 @@
     <string name="kid_mode_target_title">Set Goal (Correct Answers)</string>
     <string name="kid_mode_start_session">Start Session</string>
     <string name="kid_mode_exit_instructions">To exit, tap the lock icon and solve the simple problem.</string>
-    <string name="kid_mode_error_selection">Please select a goal and a difficulty level.</string>
+    <string name="kid_mode_error_selection_target">Please select a goal.</string>
     <string name="kid_mode_progress_text">Progress: %1$d / %2$d</string>
     <string name="kid_mode_session_finished">Great job! Session complete.</string>
     <string name="kid_mode_exit_session">Exit Kid Mode</string>

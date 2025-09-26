@@ -177,7 +177,7 @@
     <string name="kid_mode_target_title">הגדירו מטרה (תשובות נכונות)</string>
     <string name="kid_mode_start_session">התחל סבב</string>
     <string name="kid_mode_exit_instructions">כדי לצאת, גע/י בסמל המנעול ופתור/י את התרגיל הפשוט.</string>
-    <string name="kid_mode_error_selection">אנא בחרו מטרה ורמת קושי.</string>
+    <string name="kid_mode_error_selection_target">אנא בחרו מטרה.</string>
     <string name="kid_mode_progress_text">התקדמות: %1$d / %2$d</string>
     <string name="kid_mode_session_finished">כל הכבוד! הסבב הושלם.</string>
     <string name="kid_mode_exit_session">יציאה ממצב ילדים</string>
@@ -191,6 +191,8 @@
     <string name="kid_mode_summary_insights_title">דגשים מהסבב</string>
     <string name="kid_mode_insight_perfect">ציון מושלם! ענית נכון על הכל!</string>
     <string name="kid_mode_insight_best_op">היית אלוף/ה בתרגילי %s!</string>
+    <string name="kid_mode_insight_weakest_op">תרגילי %s היו קצת מאתגרים הפעם. זו הזדמנות מצוינת להתאמן ולהשתפר עוד יותר!</string>
+    <string name="kid_mode_insight_great_effort">מאמץ אדיר! עבדת קשה ולמדת המון!</string>
     <string name="done">סיום</string>
     <string name="kid_mode_summary_oops">אופס!</string>
     <string name="kid_mode_summary_no_results">לא הושלמו תרגילים בסבב זה.</string>

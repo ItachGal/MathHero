@@ -9,7 +9,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.chip.Chip
 import io.github.galitach.mathhero.R
-import io.github.galitach.mathhero.data.DifficultyLevel
+import io.github.galitach.mathhero.data.DifficultySettings
+import io.github.galitach.mathhero.data.Operation
 import io.github.galitach.mathhero.databinding.DialogKidModeSetupBinding
 import io.github.galitach.mathhero.ui.MainViewModel
 import io.github.galitach.mathhero.ui.MainViewModelFactory
@@ -32,29 +33,52 @@ class KidModeSetupDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { dismiss() }
 
+        setupDifficultyControls()
+
         binding.startButton.setOnClickListener {
             startSession()
         }
     }
 
+    private fun setupDifficultyControls() {
+        // Populate operation chips
+        Operation.entries.forEach { op ->
+            val chip = (layoutInflater.inflate(R.layout.chip_operation, binding.operationsGroup, false) as Chip).apply {
+                id = View.generateViewId()
+                text = getString(op.stringRes)
+                tag = op
+            }
+            binding.operationsGroup.addView(chip)
+        }
+
+        // Set default selection (Addition)
+        (binding.operationsGroup.findViewWithTag(Operation.ADDITION) as? Chip)?.isChecked = true
+
+        binding.maxNumberSlider.setLabelFormatter { value -> value.toInt().toString() }
+    }
+
     private fun startSession() {
         val targetChipId = binding.targetGroup.checkedChipId
-        val difficultyChipId = binding.difficultyGroup.checkedChipId
 
-        if (targetChipId == View.NO_ID || difficultyChipId == View.NO_ID) {
-            Toast.makeText(requireContext(), R.string.kid_mode_error_selection, Toast.LENGTH_SHORT).show()
+        if (targetChipId == View.NO_ID) {
+            Toast.makeText(requireContext(), R.string.kid_mode_error_selection_target, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val selectedOps = binding.operationsGroup.checkedChipIds.mapNotNull { id ->
+            binding.operationsGroup.findViewById<Chip>(id)?.tag as? Operation
+        }.toSet()
+
+        if (selectedOps.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.error_no_operation_selected, Toast.LENGTH_SHORT).show()
             return
         }
 
         val target = binding.root.findViewById<Chip>(targetChipId).text.toString().toInt()
-        val difficulty = when (difficultyChipId) {
-            R.id.difficulty_novice_chip -> DifficultyLevel.NOVICE
-            R.id.difficulty_apprentice_chip -> DifficultyLevel.APPRENTICE
-            R.id.difficulty_adept_chip -> DifficultyLevel.ADEPT
-            else -> DifficultyLevel.NOVICE
-        }
+        val maxNumber = binding.maxNumberSlider.value.toInt()
+        val difficultySettings = DifficultySettings(selectedOps, maxNumber)
 
-        viewModel.onKidModeSetup(target, difficulty.settings)
+        viewModel.onKidModeSetup(target, difficultySettings)
         dismiss()
     }
 

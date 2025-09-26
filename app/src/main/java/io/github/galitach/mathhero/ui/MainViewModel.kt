@@ -69,7 +69,8 @@ data class UiState(
     val isKidModeActive: Boolean = false,
     val kidModeTargetCorrectAnswers: Int = 0,
     val kidModeSessionCorrectAnswers: Int = 0,
-    val kidModeSessionStartTime: Long = 0L
+    val kidModeSessionStartTime: Long = 0L,
+    val kidModeDifficultySettings: DifficultySettings? = null
 )
 
 class MainViewModel(
@@ -79,14 +80,16 @@ class MainViewModel(
     private val progressRepository: ProgressRepository
 ) : AndroidViewModel(application) {
 
-    private val repository: MathProblemRepository
+    private val repository: MathProblemRepository =
+        MathProblemRepository(application, SharedPreferencesManager)
 
     private val _uiState = MutableStateFlow(
         UiState(
             isKidModeActive = savedStateHandle.get<Boolean>(KEY_KID_MODE_ACTIVE) ?: false,
             kidModeTargetCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_TARGET) ?: 0,
             kidModeSessionCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_PROGRESS) ?: 0,
-            kidModeSessionStartTime = savedStateHandle.get<Long>(KEY_KID_MODE_START_TIME) ?: 0L
+            kidModeSessionStartTime = savedStateHandle.get<Long>(KEY_KID_MODE_START_TIME) ?: 0L,
+            kidModeDifficultySettings = savedStateHandle.get<DifficultySettings>(KEY_KID_MODE_DIFFICULTY)
         )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -95,7 +98,6 @@ class MainViewModel(
     val oneTimeEvent = _oneTimeEvent.asSharedFlow()
 
     init {
-        repository = MathProblemRepository(application, SharedPreferencesManager)
 
         val needsSelection = !SharedPreferencesManager.isDifficultySet()
         _uiState.update { it.copy(needsDifficultySelection = needsSelection) }
@@ -111,7 +113,9 @@ class MainViewModel(
                 loadInitialState(restoredProblem, isDailySolved = false, clearSavedState = false)
             } else {
                 // This case is unlikely but as a fallback, start a new problem for the session
-                onKidModeSetup(uiState.value.kidModeTargetCorrectAnswers, SharedPreferencesManager.getDifficultySettings())
+                uiState.value.kidModeDifficultySettings?.let { settings ->
+                    onKidModeSetup(uiState.value.kidModeTargetCorrectAnswers, settings)
+                }
             }
         }
     }
@@ -370,8 +374,17 @@ class MainViewModel(
         _uiState.update { it.copy(isLoadingNextProblem = true) }
         viewModelScope.launch {
             if (uiState.value.isKidModeActive) {
+                val settings = uiState.value.kidModeDifficultySettings
+                if (settings == null) {
+                    // This is a fallback. Should not happen in normal flow.
+                    // Exit kid mode to prevent being stuck.
+                    onKidModeExited()
+                    _uiState.update { it.copy(isLoadingNextProblem = false) }
+                    return@launch
+                }
+                val sessionStreak = uiState.value.kidModeSessionCorrectAnswers
                 val problem = withContext(Dispatchers.Default) {
-                    repository.getBonusProblem()
+                    repository.getKidModeProblem(settings, sessionStreak)
                 }
                 loadNewProblem(problem)
             } else {
@@ -439,15 +452,16 @@ class MainViewModel(
         savedStateHandle[KEY_KID_MODE_TARGET] = target
         savedStateHandle[KEY_KID_MODE_PROGRESS] = 0
         savedStateHandle[KEY_KID_MODE_START_TIME] = startTime
+        savedStateHandle[KEY_KID_MODE_DIFFICULTY] = difficulty
 
-        SharedPreferencesManager.saveDifficultySettings(difficulty) // Save for this session
         _uiState.update {
             it.copy(
                 isKidModeActive = true,
                 kidModeTargetCorrectAnswers = target,
                 kidModeSessionCorrectAnswers = 0,
                 kidModeSessionStartTime = startTime,
-                difficultyDescription = generateDifficultyDescription(difficulty)
+                difficultyDescription = generateDifficultyDescription(difficulty),
+                kidModeDifficultySettings = difficulty
             )
         }
         onNextProblemRequested() // Start with a fresh problem for the session
@@ -480,12 +494,14 @@ class MainViewModel(
         savedStateHandle.remove<Any>(KEY_KID_MODE_TARGET)
         savedStateHandle.remove<Any>(KEY_KID_MODE_PROGRESS)
         savedStateHandle.remove<Any>(KEY_KID_MODE_START_TIME)
+        savedStateHandle.remove<Any>(KEY_KID_MODE_DIFFICULTY)
         _uiState.update {
             it.copy(
                 isKidModeActive = false,
                 kidModeTargetCorrectAnswers = 0,
                 kidModeSessionCorrectAnswers = 0,
-                kidModeSessionStartTime = 0L
+                kidModeSessionStartTime = 0L,
+                kidModeDifficultySettings = null
             )
         }
         // Reload the original daily problem
@@ -501,5 +517,6 @@ class MainViewModel(
         private const val KEY_KID_MODE_TARGET = "kid_mode_target"
         private const val KEY_KID_MODE_PROGRESS = "kid_mode_progress"
         private const val KEY_KID_MODE_START_TIME = "kid_mode_start_time"
+        private const val KEY_KID_MODE_DIFFICULTY = "kid_mode_difficulty"
     }
 }
