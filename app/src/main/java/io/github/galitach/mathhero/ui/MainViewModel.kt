@@ -39,7 +39,7 @@ sealed class OneTimeEvent {
     object ShowSuggestLowerDifficultyDialog : OneTimeEvent()
     object TriggerWinAnimation : OneTimeEvent()
     object TriggerRankUpAnimation : OneTimeEvent()
-    object KidModeSessionFinished : OneTimeEvent()
+    data class ShowKidModeSummary(val results: List<ProblemResult>, val rankName: String) : OneTimeEvent()
 }
 
 enum class AdLoadState {
@@ -68,7 +68,8 @@ data class UiState(
     // Kid Mode State
     val isKidModeActive: Boolean = false,
     val kidModeTargetCorrectAnswers: Int = 0,
-    val kidModeSessionCorrectAnswers: Int = 0
+    val kidModeSessionCorrectAnswers: Int = 0,
+    val kidModeSessionStartTime: Long = 0L
 )
 
 class MainViewModel(
@@ -84,7 +85,8 @@ class MainViewModel(
         UiState(
             isKidModeActive = savedStateHandle.get<Boolean>(KEY_KID_MODE_ACTIVE) ?: false,
             kidModeTargetCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_TARGET) ?: 0,
-            kidModeSessionCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_PROGRESS) ?: 0
+            kidModeSessionCorrectAnswers = savedStateHandle.get<Int>(KEY_KID_MODE_PROGRESS) ?: 0,
+            kidModeSessionStartTime = savedStateHandle.get<Long>(KEY_KID_MODE_START_TIME) ?: 0L
         )
     )
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -432,15 +434,19 @@ class MainViewModel(
 
     // --- KID MODE ---
     fun onKidModeSetup(target: Int, difficulty: DifficultySettings) {
-        SharedPreferencesManager.saveDifficultySettings(difficulty) // Save for this session
+        val startTime = System.currentTimeMillis()
         savedStateHandle[KEY_KID_MODE_ACTIVE] = true
         savedStateHandle[KEY_KID_MODE_TARGET] = target
         savedStateHandle[KEY_KID_MODE_PROGRESS] = 0
+        savedStateHandle[KEY_KID_MODE_START_TIME] = startTime
+
+        SharedPreferencesManager.saveDifficultySettings(difficulty) // Save for this session
         _uiState.update {
             it.copy(
                 isKidModeActive = true,
                 kidModeTargetCorrectAnswers = target,
                 kidModeSessionCorrectAnswers = 0,
+                kidModeSessionStartTime = startTime,
                 difficultyDescription = generateDifficultyDescription(difficulty)
             )
         }
@@ -459,22 +465,27 @@ class MainViewModel(
         }
 
         if (newProgress >= uiState.value.kidModeTargetCorrectAnswers) {
-            viewModelScope.launch {
-                _oneTimeEvent.emit(OneTimeEvent.KidModeSessionFinished)
-                onKidModeExited()
-            }
+            finishKidModeSession()
         }
     }
 
+    private fun finishKidModeSession() = viewModelScope.launch {
+        val results = progressRepository.getSessionResults(uiState.value.kidModeSessionStartTime)
+        val rankName = getApplication<Application>().getString(uiState.value.currentRank?.nameRes ?: R.string.rank_novice)
+        _oneTimeEvent.emit(OneTimeEvent.ShowKidModeSummary(results, rankName))
+    }
+
     fun onKidModeExited() {
-        savedStateHandle[KEY_KID_MODE_ACTIVE] = false
-        savedStateHandle[KEY_KID_MODE_TARGET] = 0
-        savedStateHandle[KEY_KID_MODE_PROGRESS] = 0
+        savedStateHandle.remove<Any>(KEY_KID_MODE_ACTIVE)
+        savedStateHandle.remove<Any>(KEY_KID_MODE_TARGET)
+        savedStateHandle.remove<Any>(KEY_KID_MODE_PROGRESS)
+        savedStateHandle.remove<Any>(KEY_KID_MODE_START_TIME)
         _uiState.update {
             it.copy(
                 isKidModeActive = false,
                 kidModeTargetCorrectAnswers = 0,
-                kidModeSessionCorrectAnswers = 0
+                kidModeSessionCorrectAnswers = 0,
+                kidModeSessionStartTime = 0L
             )
         }
         // Reload the original daily problem
@@ -489,5 +500,6 @@ class MainViewModel(
         private const val KEY_KID_MODE_ACTIVE = "kid_mode_active"
         private const val KEY_KID_MODE_TARGET = "kid_mode_target"
         private const val KEY_KID_MODE_PROGRESS = "kid_mode_progress"
+        private const val KEY_KID_MODE_START_TIME = "kid_mode_start_time"
     }
 }

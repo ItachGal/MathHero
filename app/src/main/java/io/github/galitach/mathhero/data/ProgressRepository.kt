@@ -13,6 +13,10 @@ class ProgressRepository(private val dao: ProblemResultDao) {
         return dao.getAllOnce().map { it.toDomainModel() }
     }
 
+    suspend fun getSessionResults(startTime: Long): List<ProblemResult> {
+        return dao.getResultsSince(startTime).map { it.toDomainModel() }
+    }
+
     suspend fun logProblemResult(problem: MathProblem, wasCorrect: Boolean) {
         val operation = try {
             Operation.entries.first { it.symbol == problem.operator }

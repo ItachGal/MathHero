@@ -176,7 +176,7 @@
     <string name="kid_mode_desc">התחילו סבב תרגול ממוקד. האפליקציה תהיה נעולה עד להשלמת המטרה. ההורה יכול לצאת בכל עת באמצעות מחוות ביטול הנעילה של המכשיר (למשל, החלקה למעלה והחזקה).</string>
     <string name="kid_mode_target_title">הגדירו מטרה (תשובות נכונות)</string>
     <string name="kid_mode_start_session">התחל סבב</string>
-    <string name="kid_mode_exit_instructions">כדי לצאת באופן ידני, השתמשו במחווה הרגילה לביטול נעילת מסך (בדרך כלל החלקה מתחתית המסך למעלה והחזקה) והזינו את קוד הגישה של המכשיר.</string>
+    <string name="kid_mode_exit_instructions">כדי לצאת, גע/י בסמל המנעול ופתור/י את התרגיל הפשוט.</string>
     <string name="kid_mode_error_selection">אנא בחרו מטרה ורמת קושי.</string>
     <string name="kid_mode_progress_text">התקדמות: %1$d / %2$d</string>
     <string name="kid_mode_session_finished">כל הכבוד! הסבב הושלם.</string>
@@ -185,6 +185,16 @@
     <string name="parental_gate_prompt">כדי לצאת, אנא פתרו: %1$d + %2$d = ?</string>
     <string name="parental_gate_confirm">יציאה מהסבב</string>
     <string name="parental_gate_incorrect">תשובה שגויה. אנא נסו שוב.</string>
+    <string name="kid_mode_summary_title">הסבב הושלם!</string>
+    <string name="kid_mode_summary_congrats">כל הכבוד, %s!</string>
+    <string name="kid_mode_summary_score">פתרת %1$d מתוך %2$d תרגילים!</string>
+    <string name="kid_mode_summary_insights_title">דגשים מהסבב</string>
+    <string name="kid_mode_insight_perfect">ציון מושלם! ענית נכון על הכל!</string>
+    <string name="kid_mode_insight_best_op">היית אלוף/ה בתרגילי %s!</string>
+    <string name="done">סיום</string>
+    <string name="kid_mode_summary_oops">אופס!</string>
+    <string name="kid_mode_summary_no_results">לא הושלמו תרגילים בסבב זה.</string>
+
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>
         <item>דמיין/י שיש לך %1$d קוביות. אם תוסיף/י עוד %2$d קוביות, יהיו לך בסך הכל %3$d קוביות. כל הכבוד!</item>

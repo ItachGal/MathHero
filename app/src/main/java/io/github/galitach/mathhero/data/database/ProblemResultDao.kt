@@ -21,4 +21,7 @@ interface ProblemResultDao {
 
     @Query("SELECT COUNT(*) FROM progress_history")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM progress_history WHERE timestamp >= :timestamp ORDER BY timestamp ASC")
+    suspend fun getResultsSince(timestamp: Long): List<ProblemResultEntity>
 }

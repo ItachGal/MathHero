@@ -60,6 +60,7 @@ import io.github.galitach.mathhero.ui.archive.ArchiveDialogFragment
 import io.github.galitach.mathhero.ui.difficulty.DifficultySelectionDialogFragment
 import io.github.galitach.mathhero.ui.hint.HintBottomSheetFragment
 import io.github.galitach.mathhero.ui.kidmode.KidModeSetupDialogFragment
+import io.github.galitach.mathhero.ui.kidmode.KidModeSummaryDialogFragment
 import io.github.galitach.mathhero.ui.onboarding.OnboardingActivity
 import io.github.galitach.mathhero.ui.progress.ProgressDialogFragment
 import io.github.galitach.mathhero.ui.ranks.RanksDialogFragment
@@ -78,7 +79,7 @@ import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), KidModeSummaryDialogFragment.OnKidModeSummaryDismissedListener {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels { MainViewModelFactory }
@@ -147,6 +148,10 @@ class MainActivity : AppCompatActivity() {
         handleOnboardingIfNeeded()
         observeUiState()
         animateContentIn()
+    }
+
+    override fun onKidModeSummaryDismissed() {
+        viewModel.onKidModeExited()
     }
 
     private fun setupSoundPool() {
@@ -355,8 +360,9 @@ class MainActivity : AppCompatActivity() {
                             animateStreakCounter()
                             animateHeroImage()
                         }
-                        is OneTimeEvent.KidModeSessionFinished -> {
-                            Toast.makeText(this@MainActivity, R.string.kid_mode_session_finished, Toast.LENGTH_LONG).show()
+                        is OneTimeEvent.ShowKidModeSummary -> {
+                            KidModeSummaryDialogFragment.newInstance(ArrayList(event.results), event.rankName)
+                                .show(supportFragmentManager, KidModeSummaryDialogFragment.TAG)
                         }
                     }
                 }.launchIn(this)
