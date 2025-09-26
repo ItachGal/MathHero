@@ -2,7 +2,6 @@ package io.github.galitach.mathhero.ui
 
 import android.Manifest
 import android.app.Activity
-import android.app.admin.DevicePolicyManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.media.AudioAttributes
@@ -11,12 +10,15 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.HapticFeedbackConstants
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
+import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -65,6 +67,7 @@ import io.github.galitach.mathhero.ui.settings.SettingsDialogFragment
 import io.github.galitach.mathhero.ui.upgrade.UpgradeDialogFragment
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.random.Random
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
@@ -118,12 +121,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private val backPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            // Do nothing. This disables the back button during Kid Mode.
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
 
         billingManager = (application as MathHeroApplication).billingManager
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
@@ -136,23 +147,6 @@ class MainActivity : AppCompatActivity() {
         handleOnboardingIfNeeded()
         observeUiState()
         animateContentIn()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // If Kid Mode was active before the app was stopped, re-enter lock task mode.
-        if (viewModel.uiState.value.isKidModeActive) {
-            startLockTask()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        // When the app is stopped (e.g., by the home button), the user has manually exited pinning.
-        // We check if the mode is still active in the ViewModel to confirm it wasn't a programmatic exit.
-        if (viewModel.uiState.value.isKidModeActive) {
-            viewModel.onKidModeExited()
-        }
     }
 
     private fun setupSoundPool() {
@@ -309,6 +303,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.kidModeExitButton.setOnClickListener {
+            showParentalGateDialog()
+        }
     }
     private fun showExplanation() {
         viewModel.uiState.value.problem?.explanation?.let { explanation ->
@@ -359,7 +356,6 @@ class MainActivity : AppCompatActivity() {
                             animateHeroImage()
                         }
                         is OneTimeEvent.KidModeSessionFinished -> {
-                            stopLockTask()
                             Toast.makeText(this@MainActivity, R.string.kid_mode_session_finished, Toast.LENGTH_LONG).show()
                         }
                     }
@@ -382,11 +378,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 viewModel.uiState.map { it.isLoadingNextProblem }.distinctUntilChanged().collect { isLoading ->
                     binding.clickBlockerView.isVisible = isLoading
-                }
-                viewModel.uiState.map { it.isKidModeActive }.distinctUntilChanged().collect { isActive ->
-                    if (isActive) {
-                        startLockTask()
-                    }
                 }
             }
         }
@@ -459,6 +450,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateKidModeUI(state: UiState) {
         binding.kidModeProgressContainer.isVisible = state.isKidModeActive
+        binding.kidModeExitButton.isVisible = state.isKidModeActive
+        binding.appBarLayout.isVisible = !state.isKidModeActive
+        backPressedCallback.isEnabled = state.isKidModeActive
+        invalidateOptionsMenu()
+
         if (state.isKidModeActive) {
             binding.kidModeProgressText.text = getString(
                 R.string.kid_mode_progress_text,
@@ -468,6 +464,31 @@ class MainActivity : AppCompatActivity() {
             binding.kidModeProgressBar.max = state.kidModeTargetCorrectAnswers
             binding.kidModeProgressBar.progress = state.kidModeSessionCorrectAnswers
         }
+    }
+
+    private fun showParentalGateDialog() {
+        val num1 = Random.nextInt(10, 20)
+        val num2 = Random.nextInt(10, 20)
+        val answer = num1 + num2
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_parental_gate, null)
+        val editText = dialogView.findViewById<EditText>(R.id.parental_gate_input)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.parental_gate_title)
+            .setMessage(getString(R.string.parental_gate_prompt, num1, num2))
+            .setView(dialogView)
+            .setPositiveButton(R.string.parental_gate_confirm) { dialog, _ ->
+                val input = editText.text.toString().toIntOrNull()
+                if (input == answer) {
+                    viewModel.onKidModeExited()
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(this, R.string.parental_gate_incorrect, Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun playSound(event: SoundEvent) {

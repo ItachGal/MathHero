@@ -165,15 +165,18 @@
 
     <!-- Kid Mode -->
     <string name="kid_mode_title">Kid Mode (PRO)</string>
-    <string name="kid_mode_desc">Start a focused practice session. The app will be locked until the goal is reached. The parent can exit at any time using the device\'s unlock gesture (e.g., swipe up and hold).</string>
+    <string name="kid_mode_desc">Start a focused practice session. The app will be locked to the game screen until the goal is reached. This helps maintain focus without distractions.</string>
     <string name="kid_mode_target_title">Set Goal (Correct Answers)</string>
     <string name="kid_mode_start_session">Start Session</string>
-    <string name="kid_mode_exit_instructions">To exit manually, use the standard gesture for unpinning an app (usually swiping up from the bottom of the screen and holding) and enter your device passcode.</string>
-    <string name="kid_mode_pinning_disabled_title">Screen Pinning Disabled</string>
-    <string name="kid_mode_pinning_disabled_desc">To use Kid Mode, you must first enable Screen Pinning in your device\'s security settings. This allows Math Hero to stay in the foreground.</string>
+    <string name="kid_mode_exit_instructions">To exit, tap the lock icon and solve the simple problem.</string>
     <string name="kid_mode_error_selection">Please select a goal and a difficulty level.</string>
     <string name="kid_mode_progress_text">Progress: %1$d / %2$d</string>
     <string name="kid_mode_session_finished">Great job! Session complete.</string>
+    <string name="kid_mode_exit_session">Exit Kid Mode</string>
+    <string name="parental_gate_title">Are you the parent?</string>
+    <string name="parental_gate_prompt">To exit, please solve: %1$d + %2$d = ?</string>
+    <string name="parental_gate_confirm">Exit Session</string>
+    <string name="parental_gate_incorrect">Incorrect answer. Please try again.</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

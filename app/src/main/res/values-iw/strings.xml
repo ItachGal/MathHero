@@ -72,6 +72,11 @@
     <string name="difficulty">רמת קושי</string>
     <string name="difficulty_selection_title">בחר/י את האתגר שלך</string>
     <string name="difficulty_selection_subtitle">בחר/י רמה כדי להתחיל. ניתן לשנות זאת מאוחר יותר בהגדרות.</string>
+    <string name="difficulty_novice_desc">חיבור מספרים עד 10.</string>
+    <string name="difficulty_apprentice_desc">חיבור וחיסור מספרים עד 20.</string>
+    <string name="difficulty_adept_desc">חיבור וחיסור מספרים עד 50.</string>
+    <string name="difficulty_expert_desc">חיבור חיסור וכפל מספרים עד 20.</string>
+
     <string name="difficulty_novice">טירון</string>
     <string name="difficulty_apprentice">שוליה</string>
     <string name="difficulty_adept">מומחה</string>
@@ -155,9 +160,9 @@
     <string name="recommendation_range_struggle_desc">אתם מצליחים בתרגילי %1$s עם מספרים עד %2$d, אך זה נהיה מאתגר יותר עם מספרים מעל %3$d. תרגול בטווח הגבוה יותר יבנה ביטחון!</string>
     <string name="recommendation_range_struggle_detail_title">שליטה במספרים גדולים</string>
     <string name="recommendation_detail_addition_large">כאשר מחברים מספרים גדולים כמו 126 + 95, אסטרטגיה מצוינת היא לפרק אותם לחלקים קלים יותר.\n\n1. ראשית, פרקו כל מספר למאות, עשרות ואחדות: 126 הופך ל-100 + 20 + 6, ו-95 הופך ל-90 + 5.\n\n2. לאחר מכן, חברו את החלקים הגדולים יחד: 100 + 90 + 20 = 210.\n\n3. אז, חברו את החלקים הקטנים: 6 + 5 = 11.\n\n4. לבסוף, שלבו את שתי התוצאות: 210 + 11 = 221.\n\nשיטה זו, הנקראת פירוק, הופכת בעיות גדולות להרבה יותר פשוטות לפתרון בראש!</string>
-    <string name="recommendation_detail_subtraction_large">לחיסור מספרים גדולים, כמו 142 - 87, נסו את שיטת "הספירה למעלה".\n\n1. התחילו מהמספר הקטן יותר, 87.\n\n2. כמה צריך להוסיף כדי להגיע למספר העגול הבא, 90? זה 3.\n\n3. כמה מ-90 ל-100? זה 10.\n\n4. כמה מ-100 ל-142? זה 42.\n\n5. עכשיו, חברו את הקפיצות: 3 + 10 + 42 = 55. אז, 142 - 87 = 55.</string>
+    <string name="recommendation_detail_subtraction_large">לחיסור מספרים גדולים, כמו 142 – 87, נסו את שיטת "הספירה למעלה".\n\n1. התחילו מהמספר הקטן יותר, 87.\n\n2. כמה צריך להוסיף כדי להגיע למספר העגול הבא, 90? זה 3.\n\n3. כמה מ–90 ל–100? זה 10.\n\n4. כמה מ–100 ל–142? זה 42.\n\n5. עכשיו, חברו את הקפיצות: 3 + 10 + 42 = 55. אז, 142 – 87 = 55.</string>
     <string name="recommendation_detail_multiplication_large">כפל מספרים גדולים יותר, כמו 15 * 8, ניתן לפשט על ידי פיצול.\n\n1. פרקו את המספר הגדול יותר לחלקים: 15 הופך ל-10 + 5.\n\n2. הכפילו כל חלק במספר השני: (10 * 8) ו-(5 * 8).\n\n3. פתרו כל בעיה קטנה יותר: 10 * 8 = 80, ו-5 * 8 = 40.\n\n4. חברו את התוצאות יחד: 80 + 40 = 120. זה הרבה יותר קל מאשר לנסות לפתור 15 * 8 בבת אחת!</string>
-    <string name="recommendation_detail_division_large">לחילוק, כמו 125 ÷ 5, חשבו על זה הפוך: "איזה מספר כפול 5 יביא אותי קרוב ל-125?"\n\n1. השתמשו בכפולות קלות שאתם מכירים. לדוגמה, אתם יודעים ש-10 * 5 = 50. זו התחלה טובה.\n\n2. אתם גם יודעים ש-20 * 5 = 100. אנחנו מתקרבים!\n\n3. כמה נשאר? 125 - 100 = 25.\n\n4. עכשיו, כמה חמישיות יש ב-25? זה 5! (מכיוון ש-5 * 5 = 25).\n\n5. חברו את הכפולות שלכם יחד: 20 + 5 = 25. אז, 125 ÷ 5 = 25.</string>
+    <string name="recommendation_detail_division_large">לחילוק, כמו 125 ÷ 5, חשבו על זה הפוך: "איזה מספר כפול 5 יביא אותי קרוב ל-125?"\n\n1. השתמשו בכפולות קלות שאתם מכירים. לדוגמה, אתם יודעים ש-10 * 5 = 50. זו התחלה טובה.\n\n2. אתם גם יודעים ש-20 * 5 = 100. אנחנו מתקרבים!\n\n3. כמה נשאר? 125 – 100 = 25.\n\n4. עכשיו, כמה חמישיות יש ב-25? זה 5! (מכיוון ש–5 * 5 = 25).\n\n5. חברו את הכפולות שלכם יחד: 20 + 5 = 25. אז, 125 ÷ 5 = 25.</string>
 
     <!-- Kid Mode -->
     <string name="kid_mode_title">מצב ילדים (PRO)</string>
@@ -165,12 +170,14 @@
     <string name="kid_mode_target_title">הגדירו מטרה (תשובות נכונות)</string>
     <string name="kid_mode_start_session">התחל סבב</string>
     <string name="kid_mode_exit_instructions">כדי לצאת באופן ידני, השתמשו במחווה הרגילה לביטול נעילת מסך (בדרך כלל החלקה מתחתית המסך למעלה והחזקה) והזינו את קוד הגישה של המכשיר.</string>
-    <string name="kid_mode_pinning_disabled_title">נעילת מסך כבויה</string>
-    <string name="kid_mode_pinning_disabled_desc">כדי להשתמש במצב ילדים, יש להפעיל תחילה "נעילת מסך" בהגדרות האבטחה של המכשיר. זה מאפשר ל"גיבור חשבון" להישאר בחזית.</string>
     <string name="kid_mode_error_selection">אנא בחרו מטרה ורמת קושי.</string>
     <string name="kid_mode_progress_text">התקדמות: %1$d / %2$d</string>
     <string name="kid_mode_session_finished">כל הכבוד! הסבב הושלם.</string>
-
+    <string name="kid_mode_exit_session">יציאה ממצב ילדים</string>
+    <string name="parental_gate_title">האם את/ה ההורה?</string>
+    <string name="parental_gate_prompt">כדי לצאת, אנא פתרו: %1$d + %2$d = ?</string>
+    <string name="parental_gate_confirm">יציאה מהסבב</string>
+    <string name="parental_gate_incorrect">תשובה שגויה. אנא נסו שוב.</string>
     <string-array name="addition_explanations">
         <item>כדי לחבר %1$d ו-%2$d, אפשר לחשוב שיש לך %1$d פריטים ואתה מקבל עוד %2$d. לספור את כולם יחד נותן לך %3$d!</item>
         <item>דמיין/י שיש לך %1$d קוביות. אם תוסיף/י עוד %2$d קוביות, יהיו לך בסך הכל %3$d קוביות. כל הכבוד!</item>
