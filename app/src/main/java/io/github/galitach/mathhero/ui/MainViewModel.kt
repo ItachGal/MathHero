@@ -9,6 +9,7 @@ import io.github.galitach.mathhero.R
 import io.github.galitach.mathhero.billing.BillingManager
 import io.github.galitach.mathhero.data.DifficultyLevel
 import io.github.galitach.mathhero.data.DifficultySettings
+import io.github.galitach.mathhero.data.HeroType
 import io.github.galitach.mathhero.data.MathProblem
 import io.github.galitach.mathhero.data.MathProblemRepository
 import io.github.galitach.mathhero.data.ProblemResult
@@ -58,6 +59,7 @@ data class UiState(
     val streakCount: Int = 0,
     val highestStreakCount: Int = 0,
     val currentRank: Rank? = null,
+    val heroType: HeroType = HeroType.A,
     val needsDifficultySelection: Boolean = false,
     val difficultyDescription: String? = null,
     val playSoundEvent: SoundEvent? = null,
@@ -100,7 +102,11 @@ class MainViewModel(
     init {
 
         val needsSelection = !SharedPreferencesManager.isDifficultySet()
-        _uiState.update { it.copy(needsDifficultySelection = needsSelection) }
+        val heroType = SharedPreferencesManager.getHeroType()
+        _uiState.update { it.copy(
+            needsDifficultySelection = needsSelection,
+            heroType = heroType
+        )}
 
         observeBillingChanges()
 
@@ -176,6 +182,7 @@ class MainViewModel(
 
         val highestStreak = SharedPreferencesManager.getHighestStreakCount()
         val difficultySettings = SharedPreferencesManager.getDifficultySettings()
+        val heroType = SharedPreferencesManager.getHeroType()
 
         _uiState.update {
             it.copy(
@@ -188,7 +195,8 @@ class MainViewModel(
                 streakCount = SharedPreferencesManager.getStreakCount(),
                 highestStreakCount = highestStreak,
                 currentRank = Rank.getRankForStreak(highestStreak),
-                difficultyDescription = generateDifficultyDescription(difficultySettings)
+                difficultyDescription = generateDifficultyDescription(difficultySettings),
+                heroType = heroType
             )
         }
     }
@@ -443,6 +451,11 @@ class MainViewModel(
 
     fun onRecommendationDismissed(id: String) {
         SharedPreferencesManager.dismissRecommendation(id)
+    }
+
+    fun onHeroTypeChanged(type: HeroType) {
+        SharedPreferencesManager.setHeroType(type)
+        _uiState.update { it.copy(heroType = type) }
     }
 
     // --- KID MODE ---

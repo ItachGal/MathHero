@@ -6,12 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.data.HeroType
 import io.github.galitach.mathhero.data.Rank
 import io.github.galitach.mathhero.databinding.ItemRankBinding
 
 class RankAdapter(
     private val ranks: List<Rank>,
-    private val highestStreak: Int
+    private val highestStreak: Int,
+    private val heroType: HeroType
 ) : RecyclerView.Adapter<RankAdapter.RankViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RankViewHolder {
@@ -24,7 +26,7 @@ class RankAdapter(
     }
 
     override fun onBindViewHolder(holder: RankViewHolder, position: Int) {
-        holder.bind(ranks[position], highestStreak)
+        holder.bind(ranks[position], highestStreak, heroType)
     }
 
     override fun getItemCount(): Int = ranks.size
@@ -32,11 +34,11 @@ class RankAdapter(
     class RankViewHolder(private val binding: ItemRankBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(rank: Rank, highestStreak: Int) {
+        fun bind(rank: Rank, highestStreak: Int, heroType: HeroType) {
             val isUnlocked = highestStreak >= rank.requiredStreak
             val context = binding.root.context
 
-            binding.rankImage.setImageResource(rank.imageRes)
+            binding.rankImage.setImageResource(rank.getImageForType(heroType))
             binding.rankName.text = if (isUnlocked) {
                 context.getString(rank.nameRes)
             } else {

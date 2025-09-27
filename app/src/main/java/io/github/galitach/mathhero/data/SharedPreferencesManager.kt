@@ -20,6 +20,7 @@ object SharedPreferencesManager {
     private const val KEY_PROGRESS_DATA_MIGRATED = "progress_data_migrated"
     private const val KEY_DISMISSED_RECOMMENDATIONS = "dismissed_recommendations"
     private const val KEY_SUGGEST_DIFFICULTY_ENABLED = "suggest_difficulty_enabled"
+    private const val KEY_HERO_TYPE = "hero_type"
     private const val MAX_ARCHIVE_SIZE = 7
 
     // Legacy key, for migration only
@@ -209,6 +210,19 @@ object SharedPreferencesManager {
 
     fun setSuggestDifficultyEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_SUGGEST_DIFFICULTY_ENABLED, enabled) }
+    }
+
+    fun getHeroType(): HeroType {
+        val typeName = prefs.getString(KEY_HERO_TYPE, HeroType.A.name) ?: HeroType.A.name
+        return try {
+            HeroType.valueOf(typeName)
+        } catch (e: IllegalArgumentException) {
+            HeroType.A
+        }
+    }
+
+    fun setHeroType(type: HeroType) {
+        prefs.edit { putString(KEY_HERO_TYPE, type.name) }
     }
 
     // --- MIGRATION LOGIC ---

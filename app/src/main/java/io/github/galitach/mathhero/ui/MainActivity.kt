@@ -282,7 +282,8 @@ class MainActivity : AppCompatActivity(), KidModeSummaryDialogFragment.OnKidMode
         binding.heroCard.setOnClickListener { view ->
             if (viewModel.uiState.value.isKidModeActive) return@setOnClickListener
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            val dialog = RanksDialogFragment.newInstance(viewModel.uiState.value.highestStreakCount)
+            val state = viewModel.uiState.value
+            val dialog = RanksDialogFragment.newInstance(state.highestStreakCount, state.heroType)
             dialog.show(supportFragmentManager, RanksDialogFragment.TAG)
         }
 
@@ -407,9 +408,9 @@ class MainActivity : AppCompatActivity(), KidModeSummaryDialogFragment.OnKidMode
     }
 
     private fun updateGamificationUI(state: UiState) {
-        state.currentRank?.let {
-            binding.heroImage.setImageResource(it.imageRes)
-            binding.rankNameText.setText(it.nameRes)
+        state.currentRank?.let { rank ->
+            binding.heroImage.setImageResource(rank.getImageForType(state.heroType))
+            binding.rankNameText.setText(rank.nameRes)
         }
         state.difficultyDescription?.let {
             binding.difficultyText.text = it

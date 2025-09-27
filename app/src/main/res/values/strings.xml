@@ -195,6 +195,9 @@
     <string name="done">Done</string>
     <string name="kid_mode_summary_oops">Oops!</string>
     <string name="kid_mode_summary_no_results">No problems were completed in this session.</string>
+    <string name="setting_hero_appearance">Hero Appearance</string>
+    <string name="setting_hero_type_a">Type A</string>
+    <string name="setting_hero_type_b">Type B</string>
 
     <string-array name="addition_explanations">
         <item>To add %1$d and %2$d, you can think of having %1$d items and getting %2$d more. Counting them all together gives you %3$d!</item>

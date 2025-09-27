@@ -58,6 +58,45 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/setting_hero_appearance"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/hero_type_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/hero_type_a"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_hero_type_a" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/hero_type_b"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_hero_type_b" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp" />
+
     <LinearLayout
         android:id="@+id/pro_user_group"
         android:layout_width="match_parent"

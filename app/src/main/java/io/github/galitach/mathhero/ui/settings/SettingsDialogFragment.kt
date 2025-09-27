@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import io.github.galitach.mathhero.R
+import io.github.galitach.mathhero.data.HeroType
 import io.github.galitach.mathhero.data.SharedPreferencesManager
 import io.github.galitach.mathhero.databinding.DialogSettingsBinding
 import io.github.galitach.mathhero.notifications.NotificationScheduler
@@ -81,6 +82,23 @@ class SettingsDialogFragment : DialogFragment() {
         binding.suggestDifficultySwitch.isChecked = SharedPreferencesManager.isSuggestDifficultyEnabled()
         binding.suggestDifficultySwitch.setOnCheckedChangeListener { _, isChecked ->
             SharedPreferencesManager.setSuggestDifficultyEnabled(isChecked)
+        }
+
+        // Hero Type
+        val currentType = SharedPreferencesManager.getHeroType()
+        if (currentType == HeroType.A) {
+            binding.heroTypeGroup.check(R.id.hero_type_a)
+        } else {
+            binding.heroTypeGroup.check(R.id.hero_type_b)
+        }
+
+        binding.heroTypeGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                val newType = if (checkedIds[0] == R.id.hero_type_a) HeroType.A else HeroType.B
+                if (newType != SharedPreferencesManager.getHeroType()) {
+                    viewModel.onHeroTypeChanged(newType)
+                }
+            }
         }
 
         // Upgrade Button
